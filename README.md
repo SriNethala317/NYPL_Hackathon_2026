@@ -28,7 +28,7 @@ If the QR code shows `127.0.0.1`, your phone cannot reach it — use `npm start 
 |---|---|
 | `npm start` | Expo dev server |
 | `npm run ios` / `android` / `web` | Open a platform directly |
-| `npm test` | Jest — 126 tests |
+| `npm test` | Jest — 170 tests |
 | `npm run lint` | ESLint via `expo lint` |
 | `npx tsc --noEmit` | Typecheck (strict) |
 | `npx expo export --platform web` | Static-renders every route; a render crash fails the build |
@@ -65,10 +65,10 @@ accuracy is **measured, not assumed**:
 
 | Variant | Field accuracy |
 |---|---|
-| clean | 92% |
-| skew | 91% |
-| lowlight | 91% |
-| glare | 73% |
+| clean | 100% |
+| skew | 100% |
+| lowlight | 100% |
+| glare | 82% |
 | **blur** | **36%** |
 
 Run it: `npx jest ocr-accuracy`. The corpus (`docs/ocr-corpus/`, built by
@@ -82,6 +82,20 @@ forced through user confirmation.
 
 The corpus includes a document containing *"IGNORE ALL PREVIOUS INSTRUCTIONS"*. A test asserts the
 real value survives — document text is data, never instructions.
+
+## Keeping benefits, not just getting them
+
+Most people who lose food or health coverage lose it at **renewal**, not at application — a
+recertification packet lost in the mail, or a portal that fails mid-upload. The app already holds
+the documents and knows which programmes you are on, so it warns before the deadline and says
+whether your documents are still usable.
+
+Cadences come from the City's own wording (`derive-criteria.mjs` finds them in 3 of 97 programmes,
+including SNAP). Programmes that state no cadence get no reminder — a made-up deadline is worse
+than none, because people act on it.
+
+Renewals appear from **two months out**, because that is roughly when agencies post the packet.
+Surfacing them only in the final month would reproduce the failure the feature exists to prevent.
 
 ## Privacy
 
@@ -132,7 +146,8 @@ src/
 
 **Works:** all 97 programmes browsable and 46 screened against real criteria · document upload
 with classification, extraction and reconciliation · conflict handling when two documents disagree
-· the full apply → review → submit flow · EN/ES · device lock · privacy screen.
+· renewal reminders quoting the agency's own deadline · the full apply → review → submit flow ·
+EN/ES · device lock · privacy screen.
 
 **Mocked:** `store.upload()` still returns fixture values rather than calling the extraction
 chain — the chain itself is real and tested, but is not wired to the camera yet. There is no

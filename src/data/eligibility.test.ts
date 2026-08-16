@@ -185,3 +185,67 @@ describe('toVisualStatus', () => {
     expect(toVisualStatus('not_screened')).toBe('more');
   });
 });
+
+/**
+ * Regressions from the adversarial QA pass. Each of these was a real way to produce a
+ * confident, wrong answer for somebody applying for benefits.
+ */
+describe('hostile input', () => {
+  it('treats an unparseable household size as unknown, not as one person', () => {
+    // Number("abc") is NaN, which is not undefined, so it slipped past the "ask for household"
+    // branch and then became a household of 1 -- the strictest bracket in the table. A family
+    // was being told they do not qualify on the strength of a typo.
+    const result = evaluate(fairFares.id, {
+      age: 34,
+      nycResident: true,
+      householdSize: Number('abc'),
+      annualIncome: 60_000,
+      categoriesOnFile: ALL_PROOF,
+    });
+
+    expect(result.status).toBe('needs_more_information');
+    expect(result.missingFields).toContain('household');
+    expect(result.reasons).not.toContain('income-over-limit');
+  });
+
+  it('treats an unparseable income as unknown', () => {
+    const result = evaluate(fairFares.id, {
+      age: 34,
+      nycResident: true,
+      householdSize: 3,
+      annualIncome: Number('nonsense'),
+      categoriesOnFile: ALL_PROOF,
+    });
+    expect(result.missingFields).toContain('income');
+    expect(result.reasons).toEqual([]);
+  });
+
+  it('ignores a NaN age rather than comparing it to the bounds', () => {
+    const result = evaluate(fairFares.id, {
+      age: Number('x'),
+      nycResident: true,
+      householdSize: 3,
+      annualIncome: 27_720,
+      categoriesOnFile: ALL_PROOF,
+    });
+    expect(result.reasons).not.toContain('below-min-age');
+    expect(result.reasons).not.toContain('above-max-age');
+    expect(result.missingFields).toContain('dob');
+  });
+
+  it('rejects dates that do not exist instead of rolling them over', () => {
+    // JS Date never returns Invalid Date for these -- it silently reinterprets them, producing
+    // a plausible age from a date the person never had.
+    expect(ageFromDob('13/01/2000')).toBeUndefined();
+    expect(ageFromDob('01/32/2000')).toBeUndefined();
+    expect(ageFromDob('02/29/2001')).toBeUndefined();
+  });
+
+  it('still accepts a real leap day', () => {
+    expect(ageFromDob('02/29/2000')).toBeGreaterThan(20);
+  });
+
+  it('does not let an enormous income overflow to Infinity', () => {
+    expect(monthlyToAnnual(1e308)).toBeUndefined();
+  });
+});

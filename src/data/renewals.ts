@@ -77,8 +77,18 @@ export function renewalFor(
       dueOn = new Date(now.getFullYear() + 1, renewal.deadlineMonth - 1, renewal.deadlineDay);
     }
   } else {
-    dueOn = new Date(submittedOn);
-    dueOn.setMonth(dueOn.getMonth() + renewal.cadenceMonths);
+    /*
+     * Clamp the day rather than letting Date overflow it.
+     *
+     * `new Date(2024, 0, 31).setMonth(1)` is March 2nd, not the end of February — the month
+     * simply has no 31st, so the extra days spill forward. On a renewal that silently moves the
+     * deadline later and shortens the warning window.
+     */
+    const targetMonth = submittedOn.getMonth() + renewal.cadenceMonths;
+    const year = submittedOn.getFullYear() + Math.floor(targetMonth / 12);
+    const month = ((targetMonth % 12) + 12) % 12;
+    const lastDayOfMonth = new Date(year, month + 1, 0).getDate();
+    dueOn = new Date(year, month, Math.min(submittedOn.getDate(), lastDayOfMonth));
   }
 
   const daysUntil = daysBetween(now, dueOn);

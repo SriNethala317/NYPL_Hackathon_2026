@@ -56,19 +56,29 @@ function distance(a: string, b: string): number {
  * type, so labels are matched within an edit distance proportional to their length rather than
  * exactly.
  */
-function labelScore(line: string, candidates: string[]): number {
+function labelScore(line: string, candidates: string[]): { score: number; specificity: number } {
   const seen = letters(line);
-  if (!seen) return Infinity;
+  if (!seen) return { score: Infinity, specificity: 0 };
 
-  let best = Infinity;
+  let best = { score: Infinity, specificity: 0 };
   for (const candidate of candidates) {
     const want = letters(candidate);
-    if (seen.includes(want)) return 0;
+    // `specificity` is how much of the label was actually matched. "EMPLOYER NAME" contains
+    // "NAME", so it matches the name group perfectly on a short candidate -- the longer match
+    // is what tells the two apart.
+    const exact = seen.includes(want) ? { score: 0, specificity: want.length } : null;
+    if (exact && (exact.score < best.score || exact.specificity > best.specificity)) {
+      best = exact;
+      continue;
+    }
+
     // Compare only the leading span: labels are often prefixed with a box number.
     const window = seen.slice(0, Math.max(want.length + 3, 6));
     const tolerance = Math.max(1, Math.floor(want.length * 0.25));
     const d = distance(window, want);
-    if (d <= tolerance) best = Math.min(best, d);
+    if (d <= tolerance && (d < best.score || (d === best.score && want.length > best.specificity))) {
+      best = { score: d, specificity: want.length };
+    }
   }
   return best;
 }
@@ -79,19 +89,34 @@ function labelScore(line: string, candidates: string[]): number {
  * Resolved by best score across *all* groups rather than first-match-wins, because "EMPLOYEE" and
  * "EMPLOYER" differ by one character and a tolerant matcher will happily accept either for the
  * other. Asking which is closest gets it right; asking "is this close enough" does not.
+ *
+ * Memoized per extraction. Every field makes its own pass over the lines, so without a cache the
+ * same edit-distance work is repeated once per field — measured at roughly 1ms per line, which is
+ * the difference between a snappy extraction and a visibly frozen one.
  */
-function bestLabelGroup(line: string): keyof typeof LABELS | null {
+function bestLabelGroup(line: string, cache: Map<string, keyof typeof LABELS | null>): keyof typeof LABELS | null {
+  const cached = cache.get(line);
+  if (cached !== undefined) return cached;
+
   let winner: keyof typeof LABELS | null = null;
-  let bestScore = Infinity;
+  let best = { score: Infinity, specificity: 0 };
 
   for (const key of Object.keys(LABELS) as (keyof typeof LABELS)[]) {
-    const score = labelScore(line, LABELS[key]);
-    if (score < bestScore) {
-      bestScore = score;
+    const candidate = labelScore(line, LABELS[key]);
+    // Closest first; on a tie, the group that matched more of the label wins. Without the
+    // tie-break, "EMPLOYER NAME" resolves to the name group because it contains "NAME".
+    const better =
+      candidate.score < best.score ||
+      (candidate.score === best.score && candidate.specificity > best.specificity);
+    if (better) {
+      best = candidate;
       winner = key;
     }
   }
-  return bestScore === Infinity ? null : winner;
+
+  const result = best.score === Infinity ? null : winner;
+  cache.set(line, result);
+  return result;
 }
 
 /**
@@ -103,19 +128,20 @@ function bestLabelGroup(line: string): keyof typeof LABELS | null {
 function valueForLabel(
   lines: string[],
   group: keyof typeof LABELS,
+  cache: Map<string, keyof typeof LABELS | null>,
 ): { value: string; confidence: number } | null {
   for (let i = 0; i < lines.length; i++) {
-    if (bestLabelGroup(lines[i]) !== group) continue;
+    if (bestLabelGroup(lines[i], cache) !== group) continue;
 
     const sameLine = lines[i].split(/:\s*/).slice(1).join(': ').trim();
-    if (sameLine && bestLabelGroup(sameLine) !== group) {
+    if (sameLine && bestLabelGroup(sameLine, cache) !== group) {
       return { value: sameLine, confidence: 0.9 };
     }
 
     // Skip blank lines the OCR inserted between a label and its value.
     for (let j = i + 1; j < Math.min(i + 3, lines.length); j++) {
       const next = lines[j];
-      if (next && bestLabelGroup(next) !== group) return { value: next, confidence: 0.8 };
+      if (next && bestLabelGroup(next, cache) !== group) return { value: next, confidence: 0.8 };
     }
   }
   return null;
@@ -148,12 +174,27 @@ function firstDate(text: string): { value: string; confidence: number } | null {
 
 export function normalizeMoney(value: string): string {
   const digits = value.replace(/[^0-9.]/g, '');
+  // Text with no digits at all must not become "0.00". On an income field a confident zero reads
+  // as "no income", which can wrongly qualify someone -- returning the raw value keeps the
+  // failure visible instead.
+  if (!/\d/.test(digits)) return value;
   const n = Number(digits);
   return Number.isFinite(n) ? n.toFixed(2) : value;
 }
 
 export function normalizeName(value: string): string {
-  return value.replace(/[^A-Za-z' -]/g, '').replace(/\s+/g, ' ').trim().toUpperCase();
+  /*
+   * Unicode letters, not just A-Z.
+   *
+   * Stripping to ASCII turns "José García-Piñedo" into "JOS GARCA-PIEDO" and puts a mangled
+   * legal name on a government form. For a New York benefits application that is not a cosmetic
+   * defect -- an identity mismatch is grounds for rejection.
+   */
+  return value
+    .replace(/[^\p{L}\p{M}' -]/gu, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toUpperCase();
 }
 
 /**
@@ -177,8 +218,18 @@ const LABELS = {
  * Scoped by document type on purpose: a lease has no employer and a passport has no income, so
  * asking for them invites a false positive from some unrelated number on the page.
  */
+/**
+ * A ceiling on how much OCR output is worth reading.
+ *
+ * Real documents are tens of lines. A garbled scan can produce thousands, and at roughly a
+ * millisecond of edit-distance work per line that becomes seconds of frozen UI. Labels and their
+ * values sit near the top of a form, so truncating loses almost nothing and bounds the worst case.
+ */
+const MAX_LINES = 300;
+
 export function extractFields(text: string, type: DocumentTypeId): ExtractedField[] {
-  const lines = text.split('\n').map(normalizeLine).filter(Boolean);
+  const lines = text.split('\n').map(normalizeLine).filter(Boolean).slice(0, MAX_LINES);
+  const labelCache = new Map<string, keyof typeof LABELS | null>();
   const fields: ExtractedField[] = [];
   const push = (key: string, hit: { value: string; confidence: number } | null) => {
     if (hit && hit.value) fields.push({ key, value: hit.value, confidence: hit.confidence });
@@ -186,13 +237,15 @@ export function extractFields(text: string, type: DocumentTypeId): ExtractedFiel
 
   const declared = new Set<string>(documentType(type).yields);
 
-  if (declared.has('fullName')) push('fullName', valueForLabel(lines, 'name'));
-  if (declared.has('dob')) push('dob', valueForLabel(lines, 'dob') ?? firstDate(text));
-  if (declared.has('address')) push('address', valueForLabel(lines, 'address'));
+  if (declared.has('fullName')) push('fullName', valueForLabel(lines, 'name', labelCache));
+  if (declared.has('dob')) push('dob', valueForLabel(lines, 'dob', labelCache) ?? firstDate(text));
+  if (declared.has('address')) push('address', valueForLabel(lines, 'address', labelCache));
 
   if (declared.has('income')) {
     const hit =
-      valueForLabel(lines, 'grossPay') ?? valueForLabel(lines, 'wages') ?? firstAmount(text);
+      valueForLabel(lines, 'grossPay', labelCache) ??
+      valueForLabel(lines, 'wages', labelCache) ??
+      firstAmount(text);
     if (hit) {
       const amount = amountWithin(hit.value);
       if (amount) push('income', { value: amount, confidence: hit.confidence });
@@ -204,7 +257,7 @@ export function extractFields(text: string, type: DocumentTypeId): ExtractedFiel
     // A pay stub rarely labels the employer -- it is the letterhead. Falling back to the first
     // line is what a person does when reading one, and it is right far more often than not.
     const employer =
-      valueForLabel(lines, 'employer') ??
+      valueForLabel(lines, 'employer', labelCache) ??
       (type === 'pay_stub' && lines[0] ? { value: lines[0], confidence: 0.5 } : null);
     if (employer) {
       fields.push({ key: 'employer', value: employer.value, confidence: employer.confidence });

@@ -139,3 +139,17 @@ describe('bySoonest', () => {
     expect([far, near].sort(bySoonest)[0]).toBe(near);
   });
 });
+
+describe('month-end arithmetic', () => {
+  it('does not spill past the end of a short month', () => {
+    // new Date(2024, 0, 31).setMonth(+1) is March 2nd, because February has no 31st. On a
+    // renewal that silently moves the deadline later and shortens the warning window.
+    const jan31 = new Date(2024, 0, 31);
+    const window = renewalFor(rolling.id, jan31, new Date(2024, 0, 31));
+
+    expect(window).not.toBeNull();
+    // Twelve months on from Jan 31 is Jan 31, and must stay there.
+    expect(window!.dueOn.getMonth()).toBe(0);
+    expect(window!.dueOn.getDate()).toBe(31);
+  });
+});

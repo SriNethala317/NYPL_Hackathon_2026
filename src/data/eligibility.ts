@@ -70,7 +70,33 @@ export function formatUsd(amount: number): string {
 /** The form asks for monthly income because applicants think in months; criteria are annual. */
 export function monthlyToAnnual(monthly: string | number): number | undefined {
   const n = typeof monthly === 'number' ? monthly : Number(String(monthly).replace(/[^0-9.]/g, ''));
-  return Number.isFinite(n) && n > 0 ? Math.round(n * 12) : undefined;
+  if (!Number.isFinite(n) || n <= 0) return undefined;
+  const annual = n * 12;
+  // Guard the multiplication too: a huge input overflows to Infinity, which compares as
+  // over every limit and would look like a real determination rather than bad input.
+  return Number.isFinite(annual) ? Math.round(annual) : undefined;
+}
+
+/**
+ * A count that is either a usable positive integer or nothing.
+ *
+ * `Number("abc")` is `NaN`, which is not `undefined` — so a garbled household field slips past
+ * an `=== undefined` check and then `Math.trunc(NaN) || 1` quietly becomes a household of one.
+ * That screens a family against the strictest bracket in the table and tells them they do not
+ * qualify. Unusable input has to become "unknown", not "one".
+ */
+export function toCount(value: string | number | undefined): number | undefined {
+  if (value === undefined) return undefined;
+  const n = typeof value === 'number' ? value : Number(String(value).trim());
+  if (!Number.isFinite(n) || n < 1) return undefined;
+  return Math.trunc(n);
+}
+
+/** A money amount that is either usable or nothing. Same reasoning as `toCount`. */
+export function toAmount(value: string | number | undefined): number | undefined {
+  if (value === undefined) return undefined;
+  const n = typeof value === 'number' ? value : Number(String(value).replace(/[^0-9.]/g, ''));
+  return Number.isFinite(n) && n > 0 ? n : undefined;
 }
 
 /** Years between a MM/DD/YYYY date of birth and today. */
@@ -81,6 +107,21 @@ export function ageFromDob(dob: string | undefined): number | undefined {
   const [, month, day, year] = parts;
   const birth = new Date(Number(year), Number(month) - 1, Number(day));
   if (Number.isNaN(birth.getTime())) return undefined;
+
+  /*
+   * Reject dates that do not exist, rather than letting Date roll them over.
+   *
+   * `new Date(2000, 12, 1)` is January 2001 and `new Date(2001, 1, 29)` is March 1st — never
+   * `Invalid Date`. So "13/01/2000" and an impossible leap day both yield a plausible, silently
+   * wrong age that then drives age eligibility. Checking the round-trip is the only way to tell.
+   */
+  if (
+    birth.getFullYear() !== Number(year) ||
+    birth.getMonth() !== Number(month) - 1 ||
+    birth.getDate() !== Number(day)
+  ) {
+    return undefined;
+  }
 
   const now = new Date();
   let age = now.getFullYear() - birth.getFullYear();
@@ -118,6 +159,12 @@ export function evaluate(programId: string, input: EligibilityInput): Eligibilit
   const reasonDetails: EligibilityResult['reasonDetails'] = [];
   const missingFields: string[] = [];
 
+  // Normalized here rather than trusting the caller: NaN slipping through reads as a real value
+  // everywhere downstream, and the failure is silent.
+  const householdSize = toCount(input.householdSize);
+  const annualIncome = toAmount(input.annualIncome);
+  const age = Number.isFinite(input.age as number) ? input.age : undefined;
+
   const missingCategories = (criteria.requiredCategories ?? []).filter(
     (category) => !input.categoriesOnFile.includes(category),
   );
@@ -128,10 +175,10 @@ export function evaluate(programId: string, input: EligibilityInput): Eligibilit
   }
 
   if (criteria.minAge !== undefined || criteria.maxAge !== undefined) {
-    if (input.age === undefined) missingFields.push('dob');
-    else if (criteria.minAge !== undefined && input.age < criteria.minAge) {
+    if (age === undefined) missingFields.push('dob');
+    else if (criteria.minAge !== undefined && age < criteria.minAge) {
       reasonDetails.push({ code: 'below-min-age', sourceText: sources.age, limit: criteria.minAge });
-    } else if (criteria.maxAge !== undefined && input.age > criteria.maxAge) {
+    } else if (criteria.maxAge !== undefined && age > criteria.maxAge) {
       reasonDetails.push({ code: 'above-max-age', sourceText: sources.age, limit: criteria.maxAge });
     }
   }
@@ -141,12 +188,12 @@ export function evaluate(programId: string, input: EligibilityInput): Eligibilit
 
   if (hasIncomeRule) {
     // Judging income against the wrong household size is worse than not judging it at all.
-    if (input.annualIncome === undefined) missingFields.push('income');
-    else if (input.householdSize === undefined && criteria.annualIncomeByHouseholdSize) {
+    if (annualIncome === undefined) missingFields.push('income');
+    else if (householdSize === undefined && criteria.annualIncomeByHouseholdSize) {
       missingFields.push('household');
     } else {
-      const limit = incomeLimitFor(criteria, input.householdSize ?? 1);
-      if (limit !== undefined && input.annualIncome > limit) {
+      const limit = incomeLimitFor(criteria, householdSize ?? 1);
+      if (limit !== undefined && annualIncome > limit) {
         reasonDetails.push({ code: 'income-over-limit', sourceText: sources.income, limit });
       }
     }
