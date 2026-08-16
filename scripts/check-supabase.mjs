@@ -124,7 +124,7 @@ if (leak.status === 200) {
 } else if (leak.status === 404) {
   // Already reported by step 2.
 } else {
-  fail(`profile_fields returned ${leak.status}`);
+  fail(`field_candidates returned ${leak.status}`);
 }
 
 console.log(
