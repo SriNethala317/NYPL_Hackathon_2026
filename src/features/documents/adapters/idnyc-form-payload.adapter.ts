@@ -1,6 +1,12 @@
 import type { FormFieldValue, FormFillPayload } from '../../../../backend/src/features/form-payload';
 
 import type { FillIdNycFormOptions } from '../fill-idnyc-form';
+import {
+  assertValidIdNycSupplementalInput,
+  checkIdNycFormCompletion,
+  type FormQuestion,
+  type IdNycSupplementalInput,
+} from '../idnyc-form-requirements';
 import type { Profile } from '../profile';
 
 const REQUIRED_IDNYC_FIELDS = [
@@ -21,6 +27,15 @@ export class IdNycFormPayloadError extends Error {
   }
 }
 
+export class IdNycFormInputIncompleteError extends IdNycFormPayloadError {
+  readonly code = 'FORM_INPUT_INCOMPLETE';
+
+  constructor(readonly questions: FormQuestion[]) {
+    super(`IDNYC form input is incomplete: ${questions.map((question) => question.key).join(', ')}.`);
+    this.name = 'IdNycFormInputIncompleteError';
+  }
+}
+
 /**
  * Converts the approved IDNYC semantic payload into the PDF automation input.
  * Eligibility, missing-field collection, and user confirmation remain backend
@@ -28,6 +43,7 @@ export class IdNycFormPayloadError extends Error {
  */
 export function toIdNycAutomationInput(
   payload: FormFillPayload,
+  supplementalInput: IdNycSupplementalInput = {},
 ): { profile: Profile; options: FillIdNycFormOptions } {
   if (payload.programId !== 'idnyc') {
     throw new IdNycFormPayloadError('IDNYC automation requires an idnyc form payload.');
@@ -42,25 +58,40 @@ export function toIdNycAutomationInput(
     throw new IdNycFormPayloadError('IDNYC automation cannot use a payload with missing fields.');
   }
 
+  assertValidIdNycSupplementalInput(supplementalInput);
+  const completion = checkIdNycFormCompletion(payload, supplementalInput);
+  if (!completion.complete) {
+    throw new IdNycFormInputIncompleteError(completion.requiredQuestions);
+  }
+
   const fields = Object.fromEntries(
     REQUIRED_IDNYC_FIELDS.map((fieldName) => [fieldName, requireConfirmedText(payload.fields[fieldName], fieldName)]),
   ) as Record<(typeof REQUIRED_IDNYC_FIELDS)[number], string>;
 
   return {
     profile: {
-      name: { first: fields.first_name, last: fields.last_name },
+      name: { first: fields.first_name, middle: supplementalInput.middleName, last: fields.last_name },
       dateOfBirth: fields.date_of_birth,
       address: {
         street: fields.street_address,
+        unit: supplementalInput.apartmentUnit,
         city: fields.city,
         zip: fields.zip_code,
+        borough: supplementalInput.borough,
       },
+      eyeColor: supplementalInput.eyeColor,
+      heightInches: supplementalInput.heightFeet! * 12 + supplementalInput.heightInches!,
+      gender: supplementalInput.gender,
       email: fields.email,
       phone: fields.phone,
+      languagePreference: supplementalInput.languagePreference,
+      isVeteran: supplementalInput.veteranDesignation,
+      organDonorOptIn: supplementalInput.organDonor,
+      emergencyContact: supplementalInput.emergencyContact?.name && supplementalInput.emergencyContact.phone
+        ? { name: supplementalInput.emergencyContact.name, phone: supplementalInput.emergencyContact.phone }
+        : undefined,
     },
-    // Leave application type unspecified so the existing filler applies its
-    // documented "new" default rather than the adapter inventing a value.
-    options: {},
+    options: { applicationType: supplementalInput.applicationType },
   };
 }
 

@@ -11,6 +11,7 @@
     "test:http": "tsx tests/integration/http-api.scenario.ts",
     "test:idnyc:integration": "tsx ../tests/integration/idnyc-form-fill.integration.ts",
     "test:idnyc:mock": "tsx ../tests/integration/idnyc-form-fill.integration.ts",
+    "test:idnyc:complete": "tsx ../tests/integration/idnyc-form-fill.integration.ts",
     "dev": "tsx watch src/server.ts",
     "start": "tsx src/server.ts"
   },
