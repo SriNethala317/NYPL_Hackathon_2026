@@ -19,12 +19,33 @@ export const formTemplates: readonly FormTemplate[] = [
     programId: 'P005en',
     formName: 'DRIE Initial Application',
     url: 'https://www.nyc.gov/assets/rentfreeze/downloads/pdf/drie/drie-application.pdf',
-    submission: {
-      kind: 'online-portal',
-      url: 'https://www.nyc.gov/site/rentfreeze/index.page',
-      instructions:
-        'Print and sign the completed form, then submit it through the NYC Rent Freeze portal or mail it to the Department of Finance.',
-    },
+    requiresSignature: true,
+    /*
+     * Every value below is read off the form's own "HOW TO APPLY" block, not from a web search or
+     * from memory. An earlier draft of this file carried a plausible-looking Manhattan address for
+     * the Department of Finance; the form actually directs applications to a PO box in New Jersey.
+     * Nobody would have caught that by reading the code, and the failure mode is somebody's rent
+     * exemption sitting in a mailroom that has never heard of them.
+     *
+     * Rule for every template added here: if the form does not print it, we do not claim it.
+     *
+     * Online leads because the agency itself says "We encourage you to apply online" — their
+     * routing preference, not ours to override.
+     */
+    channels: [
+      {
+        kind: 'online-portal',
+        url: 'https://www.nyc.gov/nyctap',
+        instructions:
+          'Apply online at nyc.gov/nyctap — the Department of Finance recommends this route.',
+      },
+      {
+        kind: 'mail',
+        address: 'NYC Department of Finance, Rent Freeze Program, PO Box 3179, Union, NJ 07083',
+        instructions:
+          'Print the form, sign it, and post it. You do not need an online account or an email address.',
+      },
+    ],
     fields: [
       { pdfField: 'name', source: { from: 'profile', key: 'fullName' } },
       { pdfField: 'DOB', source: { from: 'profile', key: 'dob' }, format: 'mmddyyyy' },

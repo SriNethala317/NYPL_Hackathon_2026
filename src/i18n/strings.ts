@@ -183,6 +183,15 @@ const en = {
       'Read it before you sign. You are certifying it is true, so check every box we filled.',
     noSubmitApi:
       'We cannot submit for you \u2014 the City has no way for apps to file on your behalf, and we will not ask for your portal password.',
+    /** Every route an agency accepts. Paper is listed as an equal, not a consolation. */
+    channelNames: {
+      'online-portal': 'Apply online',
+      mail: 'Send it by post',
+      fax: 'Send it by fax',
+      'in-person': 'Hand it in',
+      email: 'Send it by email',
+      cbo: 'Get help from an organisation near you',
+    },
   },
 
   renewal: {
@@ -468,6 +477,14 @@ const es: Strings = {
       'L\u00e9alo antes de firmar. Usted certifica que es verdadero, as\u00ed que revise cada casilla.',
     noSubmitApi:
       'No podemos enviarlo por usted \u2014 la Ciudad no permite que las aplicaciones presenten en su nombre, y no le pediremos su contrase\u00f1a del portal.',
+    channelNames: {
+      'online-portal': 'Solicite en l\u00ednea',
+      mail: 'Env\u00edelo por correo postal',
+      fax: 'Env\u00edelo por fax',
+      'in-person': 'Entr\u00e9guelo en persona',
+      email: 'Env\u00edelo por correo electr\u00f3nico',
+      cbo: 'Reciba ayuda de una organizaci\u00f3n cercana',
+    },
   },
 
   renewal: {

@@ -124,8 +124,38 @@ describe('the template registry', () => {
 
   it('tells the applicant where the finished form goes', () => {
     for (const template of formTemplates) {
-      expect(template.submission.instructions.length).toBeGreaterThan(20);
+      expect(template.channels.length).toBeGreaterThan(0);
+      for (const channel of template.channels) {
+        expect(channel.instructions.length).toBeGreaterThan(20);
+      }
       expect(template.url).toMatch(/^https:\/\//);
+    }
+  });
+
+  /*
+   * A mailing address invented from memory looks exactly like one read off the form, and the
+   * failure lands on the applicant rather than on us — their application sits in a mailroom that
+   * has never heard of them, and they find out weeks later, if at all.
+   *
+   * An earlier draft of the DRIE template carried a plausible Manhattan address for the
+   * Department of Finance. The form directs applications to a PO box in New Jersey.
+   */
+  it('sends post only to an address printed on the form itself', () => {
+    const drieMail = drie.channels.find((channel) => channel.kind === 'mail');
+    expect(drieMail).toBeDefined();
+    expect(drieMail?.kind === 'mail' && drieMail.address).toBe(
+      'NYC Department of Finance, Rent Freeze Program, PO Box 3179, Union, NJ 07083',
+    );
+  });
+
+  it('offers a route that needs no online account', () => {
+    // The whole point of keeping paper as a first-class channel: someone with no email address
+    // and no portal login can still finish.
+    for (const template of formTemplates) {
+      const offline = template.channels.filter((channel) =>
+        ['mail', 'fax', 'in-person'].includes(channel.kind),
+      );
+      expect(offline.length).toBeGreaterThan(0);
     }
   });
 

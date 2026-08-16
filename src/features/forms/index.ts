@@ -7,10 +7,12 @@ export {
   type DeliverOutcome,
 } from './deliver-form';
 export { formTemplates, hasTemplate, templateFor } from './templates';
+export { primaryChannel } from './types';
 export type {
   FieldMapping,
   FieldSource,
   FilledField,
   FillResult,
   FormTemplate,
+  SubmissionChannel,
 } from './types';

@@ -10,6 +10,7 @@ import {
   fillForm,
   templateFor,
   type FillResult,
+  type SubmissionChannel,
 } from '@/features/forms';
 import { fill, useStrings } from '@/i18n/use-strings';
 import { useAppStore } from '@/state/app-store';
@@ -20,6 +21,28 @@ type Stage =
   | { step: 'filling' }
   | { step: 'ready'; result: FillResult }
   | { step: 'unavailable'; reason: string };
+
+/**
+ * The address, fax number or link a channel needs, if it carries one.
+ *
+ * Rendered `selectable` by the caller so somebody can copy a PO box straight onto an envelope —
+ * a small thing that decides whether the paper route is actually usable on a phone.
+ */
+function channelDetail(channel: SubmissionChannel): string | undefined {
+  switch (channel.kind) {
+    case 'mail':
+      return channel.address;
+    case 'fax':
+      return channel.fax;
+    case 'email':
+      return channel.email;
+    case 'online-portal':
+    case 'cbo':
+      return channel.url;
+    case 'in-person':
+      return channel.findUrl;
+  }
+}
 
 /**
  * Turning the applicant's profile into the actual government PDF.
@@ -40,6 +63,12 @@ export default function FormScreen() {
   const program = programById(id);
   const template = templateFor(id);
   const [stage, setStage] = useState<Stage>({ step: 'fetching' });
+
+  // The first channel that is actually openable, so the button never appears for a form whose
+  // only routes are a PO box and a fax machine.
+  const portalUrl = template?.channels.find(
+    (channel) => channel.kind === 'online-portal' || channel.kind === 'cbo',
+  )?.url;
 
   useEffect(() => {
     if (!template) return;
@@ -110,11 +139,11 @@ export default function FormScreen() {
               label={strings.form2.download}
               onPress={() => deliverForm(template, stage.result, values.fullName)}
             />
-            {template.submission.url ? (
+            {portalUrl ? (
               <Button
                 label={strings.form2.openPortal}
                 variant="secondary"
-                onPress={() => Linking.openURL(template.submission.url as string)}
+                onPress={() => Linking.openURL(portalUrl)}
               />
             ) : null}
           </>
@@ -193,10 +222,26 @@ export default function FormScreen() {
           )}
 
           <SectionLabel label={strings.form2.whereToSend} />
+          {/*
+            Every accepted route, not just the portal. Several NYC programmes take a printed form
+            by post or fax with no online account at all — for someone who has never had an email
+            address, or who cannot get back into one they made years ago, that is the difference
+            between applying and not.
+          */}
+          {template.channels.map((channel, index) => (
+            <Card key={`${channel.kind}-${index}`} style={styles.card}>
+              <Text variant="bodySm">{strings.form2.channelNames[channel.kind]}</Text>
+              <Text variant="bodySm" color="muted">
+                {channel.instructions}
+              </Text>
+              {channelDetail(channel) ? (
+                <Text variant="bodySm" color="muted" selectable>
+                  {channelDetail(channel)}
+                </Text>
+              ) : null}
+            </Card>
+          ))}
           <Card style={styles.card}>
-            <Text variant="bodySm" color="muted">
-              {template.submission.instructions}
-            </Text>
             <Text variant="caption" color="disabled">
               {strings.form2.noSubmitApi}
             </Text>

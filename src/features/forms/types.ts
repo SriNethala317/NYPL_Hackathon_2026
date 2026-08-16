@@ -34,25 +34,62 @@ export type FieldMapping = {
   format?: 'mmddyyyy' | 'digits';
 };
 
+/**
+ * One way a completed form can actually reach the agency.
+ *
+ * Modelled as a list rather than a single value because the real programmes accept several, and
+ * which one is *best* depends on the applicant, not on us. Research into the City's own published
+ * instructions found SNAP and HEAP both take a printed application by mail or fax with no online
+ * account at all — and Emergency HEAP has no online option whatsoever, so for that programme paper
+ * is the primary channel rather than the fallback.
+ *
+ * That matters for who this app is for. Requiring a portal login excludes people without an email
+ * address, without a smartphone they control, or who have been locked out of an account they made
+ * years ago — which is a good part of the population most in need of the benefit.
+ */
+export type SubmissionChannel =
+  /** The agency's own web portal. The applicant signs in themselves; we never touch credentials. */
+  | { kind: 'online-portal'; url: string; instructions: string }
+  /** Post it. Slowest, but needs no account and no internet. */
+  | { kind: 'mail'; address: string; instructions: string }
+  /** Fax, still the fastest no-account route for several NYC programmes. */
+  | { kind: 'fax'; fax: string; instructions: string }
+  /** Hand it in. `findUrl` points at the office locator. */
+  | { kind: 'in-person'; findUrl?: string; instructions: string }
+  | { kind: 'email'; email: string; instructions: string }
+  /**
+   * A community organisation files it with the applicant.
+   *
+   * Not automation — a caseworker sitting with them. For anyone unsure about immigration
+   * consequences this is the right answer and the app should say so rather than compete with it.
+   */
+  | { kind: 'cbo'; url: string; instructions: string };
+
 export type FormTemplate = {
   /** Catalogue programme id this form belongs to. */
   programId: string;
   /** Human name of the form itself, e.g. "DRIE Initial Application". */
   formName: string;
+  /** The agency's own designation, e.g. "LDSS-4826". Empty when the form carries no number. */
+  formNumber?: string;
   /** Where the blank PDF lives. Verified at fetch time — these links rot. */
   url: string;
-  /** Where the completed form goes. */
-  submission: {
-    kind: 'online-portal' | 'mail' | 'in-person' | 'email';
-    /** The portal or instructions page. */
-    url?: string;
-    address?: string;
-    email?: string;
-    /** What the applicant actually has to do, in plain language. */
-    instructions: string;
-  };
+  /**
+   * Every accepted route, best-first.
+   *
+   * "Best" means most likely to succeed for someone with no account and no printer — not most
+   * convenient for us to implement.
+   */
+  channels: SubmissionChannel[];
+  /** True when the form must be signed by hand before it is valid. */
+  requiresSignature?: boolean;
   fields: FieldMapping[];
 };
+
+/** The route to lead with. */
+export function primaryChannel(template: FormTemplate): SubmissionChannel | undefined {
+  return template.channels[0];
+}
 
 /** One field's outcome, so the UI can show what was filled and what was left. */
 export type FilledField = {
