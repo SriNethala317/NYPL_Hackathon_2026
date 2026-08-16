@@ -11,6 +11,13 @@ import { documentType, type DocumentTypeId } from '@/data/document-types';
 import { profileFields, type ProfileFieldKey } from '@/data/profile-fields';
 import { reconcile, unresolved, type FieldCandidate, type ResolvedField } from '@/data/reconcile';
 import { extractionFor, sampleApplication, sampleUploads } from '@/data/sample-profile';
+import {
+  captureDocument,
+  chooseDocument,
+  looksReadable,
+  readDocument,
+  type PickedDocument,
+} from '@/features/extraction';
 import type { Language } from '@/i18n/strings';
 import { motion, type DocumentCategory } from '@/theme';
 
@@ -251,8 +258,18 @@ type Store = State & {
   toggleLanguage: () => void;
   openSheet: () => void;
   closeSheet: () => void;
-  /** Runs the whole upload → classify → extract pipeline for one file. */
-  upload: (options?: { as?: DocumentTypeId; simulate?: 'unknown' | 'failure' }) => void;
+  /**
+   * The real thing: pick a document, read it, reconcile what it yields.
+   *
+   * `source` decides camera or library. `simulate` drives the demo buttons, which fabricate a
+   * document without touching the camera — kept because they are the only way to show the
+   * failure paths on demand.
+   */
+  upload: (options?: {
+    source?: 'camera' | 'library';
+    as?: DocumentTypeId;
+    simulate?: 'sample' | 'unknown' | 'failure';
+  }) => void;
   setDocumentType: (id: string, docType: DocumentTypeId) => void;
   removeDocument: (id: string) => void;
   setValue: (key: ProfileFieldKey, value: string) => void;
@@ -330,37 +347,74 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
       counter.current += 1;
       const id = `doc-${counter.current}`;
       const at = counter.current;
-      dispatch({ type: 'uploadStarted', id, at });
 
-      // Stands in for the Edge Function round-trip. Real latency is seconds, and every one of
-      // these branches happens in practice.
-      after(motion.scanDuration / 2, () => {
-        if (options.simulate === 'failure') {
-          dispatch({ type: 'failed', id, reason: 'unreadable' });
-          dispatch({ type: 'closeSheet' });
-          return;
-        }
-        const docType = options.simulate === 'unknown' ? 'unknown' : (options.as ?? 'passport');
-        dispatch({
-          type: 'classified',
-          id,
-          docType,
-          confidence: docType === 'unknown' ? 0.3 : 0.96,
-        });
-        if (docType === 'unknown') {
-          dispatch({ type: 'closeSheet' });
-          return;
-        }
+      // The demo paths, kept so the failure states can be shown without a camera.
+      if (options.simulate) {
+        dispatch({ type: 'uploadStarted', id, at });
         after(motion.scanDuration / 2, () => {
+          if (options.simulate === 'failure') {
+            dispatch({ type: 'failed', id, reason: 'unreadable' });
+            dispatch({ type: 'closeSheet' });
+            return;
+          }
+          const docType = options.simulate === 'unknown' ? 'unknown' : (options.as ?? 'passport');
           dispatch({
-            type: 'read',
+            type: 'classified',
             id,
-            readOn: today(),
-            candidates: extractionFor(docType, id, at),
+            docType,
+            confidence: docType === 'unknown' ? 0.3 : 0.96,
           });
-          dispatch({ type: 'closeSheet' });
+          if (docType === 'unknown') {
+            dispatch({ type: 'closeSheet' });
+            return;
+          }
+          after(motion.scanDuration / 2, () => {
+            dispatch({ type: 'read', id, readOn: today(), candidates: extractionFor(docType, id, at) });
+            dispatch({ type: 'closeSheet' });
+          });
         });
-      });
+        return;
+      }
+
+      void (async () => {
+        const picked =
+          options.source === 'camera' ? await captureDocument() : await chooseDocument();
+
+        // Cancelling is not a failure and must not leave a dead row in the list.
+        if (!picked.ok) {
+          if (picked.reason !== 'cancelled') {
+            dispatch({ type: 'uploadStarted', id, at });
+            dispatch({ type: 'failed', id, reason: 'unreadable' });
+          }
+          return;
+        }
+
+        dispatch({ type: 'uploadStarted', id, at });
+
+        const readable = looksReadable(picked.document as PickedDocument);
+        if (!readable.ok) {
+          dispatch({ type: 'failed', id, reason: 'unreadable' });
+          return;
+        }
+
+        const outcome = await readDocument(picked.document, { documentId: id, readAt: at, as: options.as });
+
+        if (!outcome.ok) {
+          // "We could not tell what this is" is a different state from "we could not read it":
+          // one the user can resolve by naming the document, the other they cannot.
+          if (outcome.reason === 'no-type') {
+            dispatch({ type: 'classified', id, docType: 'unknown', confidence: 0.3 });
+          } else {
+            dispatch({ type: 'failed', id, reason: 'unreadable' });
+          }
+          dispatch({ type: 'closeSheet' });
+          return;
+        }
+
+        dispatch({ type: 'classified', id, docType: outcome.documentType, confidence: outcome.confidence });
+        dispatch({ type: 'read', id, readOn: today(), candidates: outcome.candidates });
+        dispatch({ type: 'closeSheet' });
+      })();
     },
 
     setDocumentType: (id, docType) => {

@@ -236,3 +236,6 @@ docs/ocr-corpus/
 
 # Tesseract language model, downloaded on first OCR run.
 eng.traineddata
+
+# Local secrets.
+.env

@@ -16,6 +16,7 @@ import {
   UploadOptionCard,
 } from '@/components';
 import { documentType, selectableDocumentTypes } from '@/data/document-types';
+import { canExtract } from '@/features/extraction';
 import { fieldDef } from '@/data/profile-fields';
 import { fill, useLanguageSwitchLabel, useStrings } from '@/i18n/use-strings';
 import { useAppStore, type UploadedDocument } from '@/state/app-store';
@@ -212,14 +213,14 @@ function UploadSheet() {
               iconColor={colors.navy}
               title={strings.upload.scan}
               description={strings.upload.scanBody}
-              onPress={() => store.upload()}
+              onPress={() => store.upload({ source: 'camera' })}
             />
             <UploadOptionCard
               icon="document"
               iconColor={colors.cyan}
               title={strings.upload.choose}
               description={strings.upload.chooseBody}
-              onPress={() => store.upload({ as: 'w2' })}
+              onPress={() => store.upload({ source: 'library' })}
             />
           </View>
 
@@ -227,12 +228,23 @@ function UploadSheet() {
             Demo affordances for the two failure paths the design never drew. Real uploads reach
             these on their own; these buttons just make them reachable in a demo.
           */}
+          {/*
+            Says plainly when automatic reading is unavailable, rather than letting someone
+            photograph their passport and wonder why nothing came back. tesseract.js cannot run
+            in Expo Go -- see src/features/extraction/ocr-provider.ts.
+          */}
+          {!canExtract() && (
+            <Text variant="caption" color="amberText">
+              {strings.upload.manualOnly}
+            </Text>
+          )}
+
           <View style={styles.options}>
             <Button
-              label={strings.upload.demoUnknown}
+              label={strings.upload.demoSample}
               variant="tertiary"
               size="md"
-              onPress={() => store.upload({ simulate: 'unknown' })}
+              onPress={() => store.upload({ simulate: 'sample' })}
             />
             <Button
               label={strings.upload.demoFailure}

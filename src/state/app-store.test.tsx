@@ -9,12 +9,17 @@ function wrapper({ children }: { children: ReactNode }) {
 
 const setup = () => renderHook(() => useAppStore(), { wrapper });
 
-/** Runs an upload all the way through classify → extract. */
+/**
+ * Runs an upload all the way through classify → extract, on the simulated path deliberately.
+ *
+ * An upload without `simulate` now opens the real camera or photo library, which a unit test
+ * neither can nor should do — that separation is the point of the flag.
+ */
 async function uploadAndSettle(
   result: { current: ReturnType<typeof useAppStore> },
   options?: Parameters<ReturnType<typeof useAppStore>['upload']>[0],
 ) {
-  act(() => result.current.upload(options));
+  act(() => result.current.upload({ simulate: 'sample', ...options }));
   act(() => jest.runAllTimers());
   await waitFor(() => expect(result.current.documents.length).toBeGreaterThan(0));
 }
@@ -52,7 +57,7 @@ describe('the upload pipeline', () => {
   it('passes through upload and read before the document is usable', async () => {
     const { result } = setup();
 
-    act(() => result.current.upload({ as: 'passport' }));
+    act(() => result.current.upload({ simulate: 'sample', as: 'passport' }));
     // The intermediate states are the point: this round-trip is slow and can fail.
     expect(result.current.documents[0].status).toBe('uploading');
 
@@ -86,7 +91,7 @@ describe('the upload pipeline', () => {
   it('reports categories of proof, not individual files', async () => {
     const { result } = setup();
     await uploadAndSettle(result, { as: 'passport' });
-    act(() => result.current.upload({ as: 'w2' }));
+    act(() => result.current.upload({ simulate: 'sample', as: 'w2' }));
     act(() => jest.runAllTimers());
 
     // A W-2, a pay stub or a tax return all satisfy "income".

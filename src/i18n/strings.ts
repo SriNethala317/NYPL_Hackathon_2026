@@ -240,7 +240,9 @@ const en = {
     failedTitle: 'We could not read that',
     failedBody: 'The photo may be blurry or cropped. Try again with the whole page in frame.',
     tryAgain: 'Try again',
-    demoUnknown: 'Demo: unrecognised',
+    manualOnly:
+      'This build cannot read documents automatically. Add the document, then type the details in yourself \u2014 or open the app in a browser.',
+    demoSample: 'Demo: sample document',
     demoFailure: 'Demo: failed read',
   },
 
@@ -522,7 +524,9 @@ const es: Strings = {
     failedTitle: 'No pudimos leer eso',
     failedBody: 'La foto puede estar borrosa o cortada. Intente de nuevo con la página completa.',
     tryAgain: 'Intentar de nuevo',
-    demoUnknown: 'Demo: no reconocido',
+    manualOnly:
+      'Esta versi\u00f3n no puede leer documentos autom\u00e1ticamente. Agregue el documento y escriba los datos usted mismo, o abra la aplicaci\u00f3n en un navegador.',
+    demoSample: 'Demo: documento de ejemplo',
     demoFailure: 'Demo: lectura fallida',
   },
 
