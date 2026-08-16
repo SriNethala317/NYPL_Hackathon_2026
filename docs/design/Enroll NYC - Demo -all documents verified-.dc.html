@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet" />
+<style>
+  body { margin: 0; background: #E9EAEE; font-family: -apple-system, "SF Pro Text", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  a { color: #1B2E7F; text-decoration: none; }
+  a:hover { color: #16256a; }
+  @keyframes scanSweep { 0% { transform: translateY(-100%); } 100% { transform: translateY(700%); } }
+  @keyframes spinPulse { 0%,100% { opacity: 0.35; } 50% { opacity: 1; } }
+  @keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes pushIn { from { transform: translateX(24px); opacity: 0.4; } to { transform: translateX(0); opacity: 1; } }
+  input, button, select { font-family: inherit; }
+</style>
+</helmet>
+<div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 40px 0;">
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" width="{{ 402 }}" height="{{ 874 }}" hint-size="402px,874px">
+
+<div style="height: 100%; position: relative; overflow: hidden; background: #F4F5F7; color: #0D0D0D;">
+
+  <!-- ══ SPLASH ══ -->
+  <sc-if value="{{ locked }}" hint-placeholder-val="{{ true }}">
+    <div onClick="{{ unlock }}" style="position: absolute; inset: 0; z-index: 8; background: #1B2E7F; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; padding: 0 36px; animation: fadeIn 0.4s ease-out;">
+      <div style="display: flex; align-items: center; gap: 20px;">
+        <div style="display: flex; font-family: 'Archivo Black', 'Helvetica Neue', Helvetica, sans-serif; font-size: 76px; font-weight: 400; letter-spacing: -3.5px; line-height: 0.9;">
+          <span style="color: #FFFFFF;">N</span>
+          <span style="color: #1E9BE0;">Y</span>
+          <span style="color: #00A550;">C</span>
+        </div>
+        <div style="width: 1px; align-self: stretch; background: rgba(255,255,255,0.32);"></div>
+        <div style="display: flex; flex-direction: column; gap: 4px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;">
+          <div style="font-size: 24px; font-weight: 700; line-height: 26px; letter-spacing: -0.4px; color: #FFFFFF;">Enroll</div>
+          <div style="font-size: 13px; font-weight: 400; line-height: 16px; color: rgba(255,255,255,0.7);">Human Resources<br />Administration</div>
+        </div>
+      </div>
+      <div style="position: absolute; bottom: 54px; left: 0; right: 0; display: flex; justify-content: center;">
+        <div style="display: flex; align-items: center; gap: 8px; padding: 7px 14px; border-radius: 999px; background: rgba(255,255,255,0.12);">
+          <div style="width: 8px; height: 8px; border-radius: 999px; background: #00A550;"></div>
+          <span style="font-size: 12px; font-weight: 600; letter-spacing: 0.3px; color: rgba(255,255,255,0.9);">OFFICIAL CITY OF NEW YORK APP</span>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ══ TAB CHROME ══ -->
+  <div style="height: 100%; display: flex; flex-direction: column;">
+
+    <!-- header -->
+    <div style="padding: 60px 20px 12px; background: #FFFFFF; border-bottom: 1px solid #D6D8DE; flex-shrink: 0;">
+      <div style="display: flex; align-items: center; justify-content: space-between;">
+        <div style="display: flex; align-items: center; gap: 9px;">
+          <div style="display: flex; font-family: 'Archivo Black', 'Helvetica Neue', Helvetica, sans-serif; font-size: 25px; font-weight: 400; letter-spacing: -1.2px; line-height: 0.9;">
+            <span style="color: #1B2E7F;">N</span>
+            <span style="color: #1E9BE0;">Y</span>
+            <span style="color: #00A550;">C</span>
+          </div>
+          <div style="width: 1px; height: 22px; background: #D6D8DE;"></div>
+          <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 15px; font-weight: 700; letter-spacing: -0.2px; line-height: 18px; color: #0D0D0D;">Enroll</div>
+        </div>
+        <div onClick="{{ toggleLang }}" style="display: flex; align-items: center; gap: 6px; height: 34px; padding: 0 12px; border-radius: 999px; background: #F4F5F7; border: 1px solid #D6D8DE; cursor: pointer;">
+          <div style="width: 14px; height: 14px; border-radius: 999px; border: 1.5px solid #1B2E7F;"></div>
+          <span style="font-size: 13px; font-weight: 700; color: #1B2E7F;">{{ langLabel }}</span>
+        </div>
+      </div>
+      <div style="margin-top: 14px; font-size: 28px; font-weight: 700; letter-spacing: -0.6px;">{{ t.tabTitle }}</div>
+    </div>
+
+    <!-- scroll region -->
+    <div style="flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 104px;">
+
+      <!-- ── HOME ── -->
+      <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+        <div style="padding: 18px 20px 40px; display: flex; flex-direction: column; gap: 14px;">
+          <sc-if value="{{ noApplications }}" hint-placeholder-val="{{ true }}">
+            <div style="background: #FFFFFF; border: 1px solid #D6D8DE; border-radius: 18px; padding: 26px 22px; display: flex; flex-direction: column; gap: 10px;">
+              <div style="width: 44px; height: 44px; border-radius: 12px; background: #F4F5F7; display: flex; align-items: center; justify-content: center;">
+                <div style="width: 18px; height: 22px; border-radius: 3px; border: 2px solid #1B2E7F;"></div>
+              </div>
+              <div style="font-size: 19px; font-weight: 700; letter-spacing: -0.3px;">{{ t.emptyHomeTitle }}</div>
+              <div style="font-size: 15px; line-height: 21px; color: #5A5F6B; text-wrap: pretty;">{{ t.emptyHomeBody }}</div>
+              <div onClick="{{ goProfile }}" style="margin-top: 8px; height: 48px; border-radius: 14px; background: #1B2E7F; color: #FFFFFF; font-size: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center; cursor: pointer;">{{ t.addDocs }}</div>
+            </div>
+            <div style="display: flex; gap: 12px; padding: 4px 2px;">
+              <div style="width: 18px; height: 20px; position: relative; flex-shrink: 0; margin-top: 1px;">
+              <div style="position: absolute; left: 4px; top: 0; width: 10px; height: 9px; border: 2px solid #00A550; border-bottom: none; box-sizing: border-box; border-radius: 5px 5px 0 0;"></div>
+              <div style="position: absolute; left: 0; bottom: 0; width: 18px; height: 13px; border-radius: 4px; background: #00A550;"></div>
+            </div>
+              <div style="font-size: 13px; line-height: 19px; color: #5A5F6B;">{{ t.privacyNote }}</div>
+            </div>
+          </sc-if>
+
+          <sc-for list="{{ applications }}" as="app" hint-placeholder-count="0">
+            <div style="background: #FFFFFF; border: 1px solid #D6D8DE; border-radius: 18px; padding: 18px; display: flex; flex-direction: column; gap: 14px;">
+              <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;">
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                  <div style="font-size: 17px; font-weight: 700; letter-spacing: -0.2px;">{{ app.name }}</div>
+                  <div style="font-size: 13px; color: #5A5F6B; font-variant-numeric: tabular-nums;">{{ app.ref }} · {{ app.date }}</div>
+                </div>
+                <div style="padding: 5px 10px; border-radius: 8px; background: #E8F4FB; font-size: 12px; font-weight: 700; color: #1B2E7F; white-space: nowrap;">{{ app.stageLabel }}</div>
+              </div>
+              <div style="display: flex; align-items: center;">
+                <sc-for list="{{ app.stages }}" as="st" hint-placeholder-count="3">
+                  <div style="flex: 1; display: flex; flex-direction: column; gap: 7px; align-items: flex-start;">
+                    <div style="display: flex; align-items: center; width: 100%;">
+                      <div style="width: 14px; height: 14px; border-radius: 999px; flex-shrink: 0; background: {{ st.dot }};"></div>
+                      <div style="flex: 1; height: 2px; background: {{ st.bar }};"></div>
+                    </div>
+                    <div style="font-size: 11px; font-weight: 600; color: {{ st.text }};">{{ st.label }}</div>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="font-size: 13px; line-height: 19px; color: #5A5F6B; border-top: 1px solid #E9EAEE; padding-top: 12px;">{{ app.note }}</div>
+            </div>
+          </sc-for>
+
+          <sc-if value="{{ hasApplications }}" hint-placeholder-val="{{ false }}">
+            <div onClick="{{ goEnroll }}" style="height: 48px; border-radius: 14px; background: #FFFFFF; border: 1px solid #1B2E7F; color: #1B2E7F; font-size: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center; cursor: pointer;">{{ t.seeMore }}</div>
+          </sc-if>
+        </div>
+      </sc-if>
+
+      <!-- ── ENROLLMENT ── -->
+      <sc-if value="{{ isEnroll }}" hint-placeholder-val="{{ false }}">
+        <div style="padding: 18px 20px 40px; display: flex; flex-direction: column; gap: 22px;">
+          <sc-if value="{{ noDocs }}" hint-placeholder-val="{{ true }}">
+            <div style="background: #FFFFFF; border: 1px solid #D6D8DE; border-radius: 18px; padding: 26px 22px; display: flex; flex-direction: column; gap: 10px;">
+              <div style="font-size: 19px; font-weight: 700; letter-spacing: -0.3px;">{{ t.emptyEnrollTitle }}</div>
+              <div style="font-size: 15px; line-height: 21px; color: #5A5F6B; text-wrap: pretty;">{{ t.emptyEnrollBody }}</div>
+              <div onClick="{{ goProfile }}" style="margin-top: 8px; height: 48px; border-radius: 14px; background: #1B2E7F; color: #FFFFFF; font-size: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center; cursor: pointer;">{{ t.addDocs }}</div>
+              <div onClick="{{ loadSample }}" style="height: 48px; border-radius: 14px; background: #FFFFFF; border: 1px solid #1B2E7F; color: #1B2E7F; font-size: 15px; font-weight: 600; display: flex; align-items: center; justify-content: center; cursor: pointer;">{{ t.demoCta }}</div>
+            </div>
+          </sc-if>
+
+          <sc-for list="{{ groups }}" as="g" hint-placeholder-count="0">
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <div style="width: 10px; height: 10px; border-radius: 999px; background: {{ g.color }};"></div>
+                <div style="font-size: 13px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; color: #5A5F6B;">{{ g.label }}</div>
+              </div>
+              <sc-for list="{{ g.items }}" as="p" hint-placeholder-count="2">
+                <div onClick="{{ p.open }}" style="background: #FFFFFF; border: 1px solid #D6D8DE; border-left: 4px solid {{ p.color }}; border-radius: 16px; padding: 16px 16px 16px 15px; display: flex; flex-direction: column; gap: 8px; cursor: pointer;">
+                  <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+                    <div style="font-size: 17px; font-weight: 700; letter-spacing: -0.2px;">{{ p.name }}</div>
+                    <div style="font-size: 22px; color: #D6D8DE; line-height: 1;">›</div>
+                  </div>
+                  <div style="font-size: 14px; line-height: 20px; color: #5A5F6B; text-wrap: pretty;">{{ p.blurb }}</div>
+                  <div style="font-size: 13px; font-weight: 600; color: {{ p.metaColor }};">{{ p.meta }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+
+      <!-- ── PROFILE ── -->
+      <sc-if value="{{ isProfile }}" hint-placeholder-val="{{ false }}">
+        <div style="padding: 18px 20px 40px; display: flex; flex-direction: column; gap: 20px;">
+          <div style="background: #FFFFFF; border: 1px solid #D6D8DE; border-radius: 18px; padding: 18px; display: flex; align-items: center; gap: 14px;">
+            <div style="width: 52px; height: 52px; border-radius: 999px; background: #1B2E7F; color: #FFFFFF; font-size: 19px; font-weight: 700; display: flex; align-items: center; justify-content: center;">MR</div>
+            <div style="flex: 1; display: flex; flex-direction: column; gap: 3px;">
+              <div style="font-size: 17px; font-weight: 700;">Maria Reyes</div>
+              <div style="font-size: 14px; color: #5A5F6B;">{{ docsSummary }}</div>
+            </div>
+            <div onClick="{{ toggleSample }}" style="min-height: 44px; display: flex; align-items: center; padding: 0 4px; font-size: 13px; font-weight: 600; color: #1B2E7F; cursor: pointer; text-align: right;">{{ sampleToggleLabel }}</div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <div style="font-size: 13px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; color: #5A5F6B;">{{ t.yourDocs }}</div>
+            <sc-for list="{{ docList }}" as="d" hint-placeholder-count="5">
+              <div onClick="{{ d.open }}" style="background: #FFFFFF; border: 1px solid #D6D8DE; border-radius: 16px; padding: 14px; display: flex; align-items: center; gap: 14px; cursor: pointer; min-height: 44px;">
+                <div style="width: 54px; height: 40px; border-radius: 8px; flex-shrink: 0; overflow: hidden; border: 1px solid #D6D8DE; background: {{ d.thumbBg }};"></div>
+                <div style="flex: 1; display: flex; flex-direction: column; gap: 3px;">
+                  <div style="font-size: 16px; font-weight: 600; letter-spacing: -0.2px;">{{ d.label }}</div>
+                  <div style="font-size: 13px; color: {{ d.subColor }}; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;">{{ d.sub }}</div>
+                </div>
+                <div style="padding: 5px 10px; border-radius: 8px; background: {{ d.badgeBg }}; color: {{ d.badgeColor }}; font-size: 12px; font-weight: 700; white-space: nowrap;">{{ d.badge }}</div>
+              </div>
+            </sc-for>
+          </div>
+
+          <div onClick="{{ openSheet }}" style="height: 52px; border-radius: 16px; background: #1B2E7F; color: #FFFFFF; font-size: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;">
+            <span style="font-size: 20px; line-height: 1;">+</span>
+            <span>{{ t.addDocument }}</span>
+          </div>
+
+          <div style="display: flex; gap: 12px; padding: 0 2px;">
+            <div style="width: 18px; height: 20px; position: relative; flex-shrink: 0; margin-top: 1px;">
+              <div style="position: absolute; left: 4px; top: 0; width: 10px; height: 9px; border: 2px solid #00A550; border-bottom: none; box-sizing: border-box; border-radius: 5px 5px 0 0;"></div>
+              <div style="position: absolute; left: 0; bottom: 0; width: 18px; height: 13px; border-radius: 4px; background: #00A550;"></div>
+            </div>
+            <div style="font-size: 13px; line-height: 19px; color: #5A5F6B;">{{ t.privacyNote }}</div>
+          </div>
+        </div>
+      </sc-if>
+    </div>
+
+    <!-- tab bar — liquid glass -->
+    <div style="position: absolute; left: 16px; right: 16px; bottom: 26px; height: 70px; border-radius: 999px; z-index: 2; box-shadow: 0 2px 10px rgba(13,13,13,0.10), 0 12px 30px rgba(13,13,13,0.12);">
+      <div style="position: absolute; inset: 0; border-radius: 999px; overflow: hidden; backdrop-filter: blur(22px) saturate(180%); -webkit-backdrop-filter: blur(22px) saturate(180%); background: rgba(255,255,255,0.62);"></div>
+      <div style="position: absolute; inset: 0; border-radius: 999px; border: 0.5px solid rgba(255,255,255,0.7); box-shadow: inset 1.5px 1.5px 1px rgba(255,255,255,0.85), inset -1px -1px 1px rgba(255,255,255,0.5), inset 0 0 0 0.5px rgba(13,13,13,0.06); pointer-events: none;"></div>
+      <div style="position: relative; height: 100%; display: flex; align-items: center; padding: 6px; gap: 4px;">
+        <sc-for list="{{ tabs }}" as="tb" hint-placeholder-count="3">
+          <div onClick="{{ tb.go }}" style="flex: 1; height: 58px; border-radius: 999px; background: {{ tb.pillBg }}; box-shadow: {{ tb.pillShadow }}; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; cursor: pointer; transition: background 0.2s ease;">
+            <div style="width: 24px; height: 22px; position: relative;">
+              <sc-if value="{{ tb.isHome }}" hint-placeholder-val="{{ true }}">
+                <div style="position: absolute; left: 3px; top: 8px; width: 18px; height: 13px; border: 2px solid {{ tb.color }}; border-top: none; box-sizing: border-box; border-radius: 0 0 3px 3px;"></div>
+                <div style="position: absolute; left: 5px; top: 3px; width: 14px; height: 14px; border-top: 2px solid {{ tb.color }}; border-right: 2px solid {{ tb.color }}; box-sizing: border-box; border-radius: 3px; transform: rotate(-45deg);"></div>
+              </sc-if>
+              <sc-if value="{{ tb.isEnroll }}" hint-placeholder-val="{{ false }}">
+                <div style="position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; gap: 4px; padding-left: 2px;">
+                  <div style="height: 2.5px; width: 20px; border-radius: 999px; background: {{ tb.color }};"></div>
+                  <div style="height: 2.5px; width: 20px; border-radius: 999px; background: {{ tb.color }};"></div>
+                  <div style="height: 2.5px; width: 12px; border-radius: 999px; background: {{ tb.color }};"></div>
+                </div>
+              </sc-if>
+              <sc-if value="{{ tb.isProfile }}" hint-placeholder-val="{{ false }}">
+                <div style="position: absolute; left: 7px; top: 2px; width: 10px; height: 10px; border-radius: 999px; border: 2px solid {{ tb.color }}; box-sizing: border-box;"></div>
+                <div style="position: absolute; left: 2px; bottom: 1px; width: 20px; height: 11px; border: 2px solid {{ tb.color }}; border-bottom: none; box-sizing: border-box; border-radius: 10px 10px 0 0;"></div>
+              </sc-if>
+            </div>
+            <div style="font-size: 11px; font-weight: 600; color: {{ tb.color }};">{{ tb.label }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PROGRAM DETAIL ══ -->
+  <sc-if value="{{ isDetail }}" hint-placeholder-val="{{ false }}">
+    <div style="position: absolute; inset: 0; z-index: 3; background: #F4F5F7; display: flex; flex-direction: column; animation: pushIn 0.24s ease-out;">
+      <div style="padding: 58px 20px 14px; background: #FFFFFF; border-bottom: 1px solid #D6D8DE; display: flex; align-items: center; gap: 10px;">
+        <div onClick="{{ back }}" style="min-width: 44px; min-height: 44px; display: flex; align-items: center; cursor: pointer; font-size: 16px; font-weight: 600; color: #1B2E7F;">‹ {{ t.back }}</div>
+      </div>
+      <div style="flex: 1; overflow-y: auto; padding: 22px 20px 40px; display: flex; flex-direction: column; gap: 20px;">
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <div style="align-self: flex-start; padding: 5px 10px; border-radius: 8px; background: {{ current.badgeBg }}; color: {{ current.badgeColor }}; font-size: 12px; font-weight: 700;">{{ current.status }}</div>
+          <div style="font-size: 28px; font-weight: 700; letter-spacing: -0.7px; line-height: 33px;">{{ current.name }}</div>
+          <div style="font-size: 16px; line-height: 23px; color: #5A5F6B; text-wrap: pretty;">{{ current.detail }}</div>
+        </div>
+
+        <div style="background: #FFFFFF; border: 1px solid #D6D8DE; border-radius: 16px; overflow: hidden;">
+          <sc-for list="{{ current.facts }}" as="f" hint-placeholder-count="3">
+            <div style="padding: 14px 16px; border-bottom: 1px solid #E9EAEE; display: flex; justify-content: space-between; gap: 16px;">
+              <div style="font-size: 14px; color: #5A5F6B;">{{ f.k }}</div>
+              <div style="font-size: 14px; font-weight: 600; text-align: right;">{{ f.v }}</div>
+            </div>
+          </sc-for>
+        </div>
+
+        <sc-if value="{{ current.blocked }}" hint-placeholder-val="{{ false }}">
+          <div style="background: #FFFFFF; border: 1px solid #D6D8DE; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 8px;">
+            <div style="font-size: 15px; font-weight: 700;">{{ current.blockTitle }}</div>
+            <div style="font-size: 14px; line-height: 20px; color: #5A5F6B;">{{ current.blockBody }}</div>
+          </div>
+        </sc-if>
+      </div>
+      <div style="padding: 14px 20px 30px; background: #FFFFFF; border-top: 1px solid #D6D8DE;">
+        <div onClick="{{ current.action }}" style="height: 52px; border-radius: 16px; background: {{ current.actionBg }}; color: {{ current.actionColor }}; font-size: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center; cursor: {{ current.actionCursor }};">{{ current.actionLabel }}</div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ══ APPLICATION FORM ══ -->
+  <sc-if value="{{ isForm }}" hint-placeholder-val="{{ false }}">
+    <div style="position: absolute; inset: 0; z-index: 4; background: #F4F5F7; display: flex; flex-direction: column; animation: pushIn 0.24s ease-out;">
+      <div style="padding: 58px 20px 14px; background: #FFFFFF; border-bottom: 1px solid #D6D8DE; display: flex; align-items: center; justify-content: space-between;">
+        <div onClick="{{ back }}" style="min-width: 44px; min-height: 44px; display: flex; align-items: center; cursor: pointer; font-size: 16px; font-weight: 600; color: #1B2E7F;">‹ {{ t.back }}</div>
+        <div style="font-size: 15px; font-weight: 600;">{{ current.name }}</div>
+      </div>
+      <div style="flex: 1; overflow-y: auto; padding: 20px 20px 40px; display: flex; flex-direction: column; gap: 18px;">
+        <div style="background: #E8F4FB; border-radius: 14px; padding: 14px 16px; font-size: 14px; line-height: 20px; color: #1B2E7F;">{{ t.prefillNote }}</div>
+
+        <sc-for list="{{ fields }}" as="f" hint-placeholder-count="5">
+          <div style="display: flex; flex-direction: column; gap: 7px;">
+            <label style="font-size: 14px; font-weight: 600; color: #0D0D0D;">{{ f.label }}</label>
+            <input value="{{ f.value }}" onChange="{{ f.onChange }}" placeholder="{{ f.placeholder }}" style="height: 50px; border-radius: 14px; border: 1px solid {{ f.border }}; background: #FFFFFF; padding: 0 14px; font-size: 16px; color: #0D0D0D; outline: none;">
+            <div style="font-size: 12px; color: {{ f.hintColor }};">{{ f.hint }}</div>
+          </div>
+        </sc-for>
+
+        <div onClick="{{ toggleConsent }}" style="display: flex; gap: 12px; background: #FFFFFF; border: 1px solid #D6D8DE; border-radius: 16px; padding: 16px; cursor: pointer; align-items: flex-start;">
+          <div style="width: 24px; height: 24px; border-radius: 7px; flex-shrink: 0; border: 2px solid {{ consentBorder }}; background: {{ consentBg }}; display: flex; align-items: center; justify-content: center; color: #FFFFFF; font-size: 14px; font-weight: 700;">{{ consentMark }}</div>
+          <div style="font-size: 14px; line-height: 20px; color: #5A5F6B;">{{ t.consent }}</div>
+        </div>
+      </div>
+      <div style="padding: 14px 20px 30px; background: #FFFFFF; border-top: 1px solid #D6D8DE; display: flex; flex-direction: column; gap: 8px;">
+        <div onClick="{{ goReview }}" style="height: 52px; border-radius: 16px; background: {{ reviewBg }}; color: #FFFFFF; font-size: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center; cursor: pointer;">{{ t.reviewCta }}</div>
+        <div style="font-size: 12px; text-align: center; color: {{ formHintColor }};">{{ formHint }}</div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ══ REVIEW ══ -->
+  <sc-if value="{{ isReview }}" hint-placeholder-val="{{ false }}">
+    <div style="position: absolute; inset: 0; z-index: 5; background: #F4F5F7; display: flex; flex-direction: column; animation: pushIn 0.24s ease-out;">
+      <div style="padding: 58px 20px 14px; background: #FFFFFF; border-bottom: 1px solid #D6D8DE; display: flex; align-items: center; justify-content: space-between;">
+        <div onClick="{{ backToForm }}" style="min-width: 44px; min-height: 44px; display: flex; align-items: center; cursor: pointer; font-size: 16px; font-weight: 600; color: #1B2E7F;">‹ {{ t.edit }}</div>
+        <div style="font-size: 15px; font-weight: 600;">{{ t.reviewTitle }}</div>
+      </div>
+      <div style="flex: 1; overflow-y: auto; padding: 22px 20px 40px; display: flex; flex-direction: column; gap: 18px;">
+        <div style="font-size: 22px; font-weight: 700; letter-spacing: -0.5px; line-height: 28px;">{{ t.reviewHead }}</div>
+        <div style="background: #FFFFFF; border: 1px solid #D6D8DE; border-radius: 16px; overflow: hidden;">
+          <sc-for list="{{ reviewRows }}" as="r" hint-placeholder-count="5">
+            <div style="padding: 14px 16px; border-bottom: 1px solid #E9EAEE; display: flex; justify-content: space-between; gap: 16px;">
+              <div style="font-size: 14px; color: #5A5F6B;">{{ r.k }}</div>
+              <div style="font-size: 14px; font-weight: 600; text-align: right;">{{ r.v }}</div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="background: #FFFFFF; border: 1px solid #D6D8DE; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 10px;">
+          <div style="font-size: 14px; font-weight: 700;">{{ t.attached }}</div>
+          <sc-for list="{{ attachedDocs }}" as="a" hint-placeholder-count="3">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <div style="width: 34px; height: 26px; border-radius: 5px; border: 1px solid #D6D8DE; background: {{ a.thumbBg }}; flex-shrink: 0;"></div>
+              <div style="font-size: 14px; color: #0D0D0D;">{{ a.label }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      <div style="padding: 14px 20px 30px; background: #FFFFFF; border-top: 1px solid #D6D8DE;">
+        <div onClick="{{ submit }}" style="height: 52px; border-radius: 16px; background: #1B2E7F; color: #FFFFFF; font-size: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center; cursor: pointer;">{{ t.submitCta }}</div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ══ CONFIRMATION ══ -->
+  <sc-if value="{{ isConfirm }}" hint-placeholder-val="{{ false }}">
+    <div style="position: absolute; inset: 0; z-index: 6; background: #FFFFFF; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0 32px; gap: 0; animation: fadeIn 0.3s ease-out;">
+      <div style="width: 72px; height: 72px; border-radius: 999px; background: #00A550; display: flex; align-items: center; justify-content: center; color: #FFFFFF; font-size: 34px; font-weight: 700;">✓</div>
+      <div style="margin-top: 22px; font-size: 26px; font-weight: 700; letter-spacing: -0.6px; text-align: center;">{{ t.confirmTitle }}</div>
+      <div style="margin-top: 10px; font-size: 16px; line-height: 23px; color: #5A5F6B; text-align: center; text-wrap: pretty;">{{ confirmBody }}</div>
+      <div style="margin-top: 20px; padding: 12px 18px; border-radius: 12px; background: #F4F5F7; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 15px; color: #1B2E7F;">{{ lastRef }}</div>
+      <div onClick="{{ goHome }}" style="margin-top: 34px; align-self: stretch; height: 52px; border-radius: 16px; background: #1B2E7F; color: #FFFFFF; font-size: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center; cursor: pointer;">{{ t.viewStatus }}</div>
+    </div>
+  </sc-if>
+
+  <!-- ══ UPLOAD SHEET ══ -->
+  <sc-if value="{{ sheetOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position: absolute; inset: 0; z-index: 7;">
+      <div onClick="{{ closeSheet }}" style="position: absolute; inset: 0; background: rgba(13,13,13,0.45); animation: fadeIn 0.2s ease-out;"></div>
+      <div style="position: absolute; left: 0; right: 0; bottom: 0; background: #FFFFFF; border-radius: 24px 24px 0 0; padding: 12px 20px 34px; display: flex; flex-direction: column; gap: 16px; animation: sheetUp 0.28s cubic-bezier(0.2,0.9,0.3,1);">
+        <div style="width: 40px; height: 5px; border-radius: 999px; background: #D6D8DE; align-self: center;"></div>
+
+        <sc-if value="{{ scanning }}" hint-placeholder-val="{{ false }}">
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 18px 0 8px;">
+            <div style="width: 92px; height: 68px; border-radius: 10px; border: 1px solid #D6D8DE; background: repeating-linear-gradient(90deg, #F4F5F7 0 6px, #E9EAEE 6px 12px); position: relative; overflow: hidden;">
+              <div style="position: absolute; left: 0; right: 0; top: 0; height: 10px; background: linear-gradient(180deg, rgba(30,155,224,0.55), rgba(30,155,224,0)); animation: scanSweep 1s linear infinite;"></div>
+            </div>
+            <div style="font-size: 17px; font-weight: 700;">{{ t.scanning }}</div>
+            <div style="font-size: 14px; color: #5A5F6B; text-align: center;">{{ scanTarget }}</div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ sheetChoosing }}" hint-placeholder-val="{{ true }}">
+          <div style="display: flex; flex-direction: column; gap: 14px;">
+            <div style="font-size: 20px; font-weight: 700; letter-spacing: -0.4px;">{{ sheetTitle }}</div>
+            <div style="display: flex; gap: 12px;">
+              <div onClick="{{ pickCamera }}" style="flex: 1; border: 1px solid #D6D8DE; border-radius: 16px; padding: 18px 14px; display: flex; flex-direction: column; gap: 10px; cursor: pointer; min-height: 44px;">
+                <div style="width: 34px; height: 26px; border-radius: 6px; border: 2px solid #1B2E7F; position: relative;">
+                  <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 11px; height: 11px; border-radius: 999px; border: 2px solid #1B2E7F;"></div>
+                </div>
+                <div style="font-size: 15px; font-weight: 700;">{{ t.scanCta }}</div>
+                <div style="font-size: 13px; line-height: 18px; color: #5A5F6B;">{{ t.scanSub }}</div>
+              </div>
+              <div onClick="{{ pickFile }}" style="flex: 1; border: 1px solid #D6D8DE; border-radius: 16px; padding: 18px 14px; display: flex; flex-direction: column; gap: 10px; cursor: pointer; min-height: 44px;">
+                <div style="width: 26px; height: 30px; border-radius: 4px; border: 2px solid #1E9BE0;"></div>
+                <div style="font-size: 15px; font-weight: 700;">{{ t.fileCta }}</div>
+                <div style="font-size: 13px; line-height: 18px; color: #5A5F6B;">{{ t.fileSub }}</div>
+              </div>
+            </div>
+            <div style="display: flex; gap: 12px; padding-top: 4px;">
+              <div style="width: 18px; height: 20px; position: relative; flex-shrink: 0; margin-top: 1px;">
+              <div style="position: absolute; left: 4px; top: 0; width: 10px; height: 9px; border: 2px solid #00A550; border-bottom: none; box-sizing: border-box; border-radius: 5px 5px 0 0;"></div>
+              <div style="position: absolute; left: 0; bottom: 0; width: 18px; height: 13px; border-radius: 4px; background: #00A550;"></div>
+            </div>
+              <div style="font-size: 13px; line-height: 19px; color: #5A5F6B;">{{ t.privacyNote }}</div>
+            </div>
+            <div onClick="{{ closeSheet }}" style="height: 48px; border-radius: 14px; background: #F4F5F7; color: #1B2E7F; font-size: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center; cursor: pointer;">{{ t.cancel }}</div>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+
+</div>
+</x-import>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;: {&quot;width&quot;: 460, &quot;height&quot;: 960}}">
+class Component extends DCLogic {
+  state = {
+    locked: true, tab: 'enroll', lang: 'en', route: 'tabs', programId: null,
+    sheetOpen: false, sheetFor: null, scanning: false,
+    docs: { id: true, address: true, income: true, lease: true, utility: true },
+    form: { name: '', dob: '', address: '', household: '', income: '' },
+    consent: false, lastRef: null, touched: false,
+    applications: [{ programId: 'snap', ref: 'NYC-2026-4180', date: 'Aug 11, 2026', stage: 1 }],
+  };
+
+  DOCS = [
+    { key: 'id', label: 'Photo ID / IDNYC', file: 'idnyc_front.jpg', extract: 'Name, DOB verified' },
+    { key: 'address', label: 'Proof of address', file: 'address_letter.pdf', extract: 'Address verified' },
+    { key: 'income', label: 'Pay stubs', file: 'paystub_july.pdf', extract: 'Income verified' },
+    { key: 'lease', label: 'Lease', file: 'lease_2026.pdf', extract: 'Rent, household verified' },
+    { key: 'utility', label: 'Utility bill', file: 'coned_aug.pdf', extract: 'Address verified' },
+  ];
+
+  PROGRAMS = [
+    { id: 'fairfares', name: 'Fair Fares NYC', nameEs: 'Fair Fares NYC',
+      blurb: 'Half-price MetroCard and OMNY fares for eligible New Yorkers.',
+      blurbEs: 'Tarifas de metro y autobús a mitad de precio.',
+      detail: 'Fair Fares NYC cuts subway and bus fares in half for residents whose household income is at or below the program limit. Discounts apply automatically at the turnstile once your card is active.',
+      req: ['id', 'income'], limit: 2650,
+      facts: [['Benefit', '50% off subway & bus'], ['Processing time', '2–3 weeks'], ['Renewal', 'Every 12 months']] },
+    { id: 'snap', name: 'SNAP food benefits', nameEs: 'Beneficios SNAP',
+      blurb: 'Monthly funds on an EBT card for groceries and produce markets.',
+      blurbEs: 'Fondos mensuales en una tarjeta EBT para comestibles.',
+      detail: 'SNAP puts monthly benefits on an EBT card you can use at grocery stores, bodegas and greenmarkets across the five boroughs. Amounts are based on household size and income.',
+      req: ['id', 'income', 'address'], limit: 3200,
+      facts: [['Estimated benefit', '$291 / month'], ['Processing time', '30 days'], ['Interview', 'Phone, scheduled after filing']] },
+    { id: 'medicaid', name: 'Medicaid', nameEs: 'Medicaid',
+      blurb: 'No-cost or low-cost health coverage through NY State of Health.',
+      blurbEs: 'Cobertura de salud gratuita o de bajo costo.',
+      detail: 'Medicaid covers doctor visits, prescriptions, hospital care and more at little or no cost. Eligibility is based on household income and size.',
+      req: ['id', 'income'], limit: 1800,
+      facts: [['Coverage', 'Doctor, hospital, Rx'], ['Processing time', '15–45 days'], ['Income limit', '$1,800 / month (1 person)']] },
+  ];
+
+  T = {
+    en: { home: 'Home', enroll: 'Enrollment', profile: 'Profile',
+      titleHome: 'Your applications', titleEnroll: 'Programs for you', titleProfile: 'Profile',
+      emptyHomeTitle: 'No applications yet', emptyHomeBody: 'Add your documents and we will show every City program you can apply to, with your information already filled in.',
+      emptyEnrollTitle: 'Nothing to show yet', emptyEnrollBody: 'Once your ID and income documents are on file, eligible programs appear here automatically.',
+      addDocs: 'Add documents', addDocument: 'Add a document', yourDocs: 'Your documents',
+      privacyNote: 'Documents stay encrypted on your device and are shared only with the agency you apply to.',
+      back: 'Back', edit: 'Edit', apply: 'Start application', seeMore: 'See other programs',
+      prefillNote: 'Prefilled from your uploaded documents. Check each field before you continue.',
+      consent: 'I certify the information above is true and authorize the City to verify it with the documents on file.',
+      reviewCta: 'Review application', reviewTitle: 'Review', reviewHead: 'Check your answers before submitting',
+      attached: 'Documents attached', submitCta: 'Submit application',
+      confirmTitle: 'Application submitted', viewStatus: 'View status',
+      scanning: 'Reading your document', scanCta: 'Scan with camera', scanSub: 'Photograph the document',
+      fileCta: 'Choose a file', fileSub: 'PDF or image from Files', cancel: 'Cancel',
+      stages: ['Submitted', 'In review', 'Decision'],
+      needMore: 'Needs more info', eligible: 'You may qualify', notEligible: 'Not eligible',
+      demoCta: 'Preview with sample documents' },
+    es: { home: 'Inicio', enroll: 'Inscripción', profile: 'Perfil',
+      titleHome: 'Sus solicitudes', titleEnroll: 'Programas para usted', titleProfile: 'Perfil',
+      emptyHomeTitle: 'Aún no hay solicitudes', emptyHomeBody: 'Agregue sus documentos y le mostraremos cada programa de la Ciudad al que puede aplicar, con su información ya completada.',
+      emptyEnrollTitle: 'Nada que mostrar aún', emptyEnrollBody: 'Cuando su identificación y comprobante de ingresos estén archivados, los programas aparecerán aquí.',
+      addDocs: 'Agregar documentos', addDocument: 'Agregar un documento', yourDocs: 'Sus documentos',
+      privacyNote: 'Los documentos se guardan encriptados en su teléfono y solo se comparten con la agencia correspondiente.',
+      back: 'Atrás', edit: 'Editar', apply: 'Comenzar solicitud', seeMore: 'Ver otros programas',
+      prefillNote: 'Completado con sus documentos. Revise cada campo antes de continuar.',
+      consent: 'Certifico que la información es verdadera y autorizo a la Ciudad a verificarla con los documentos archivados.',
+      reviewCta: 'Revisar solicitud', reviewTitle: 'Revisar', reviewHead: 'Revise sus respuestas antes de enviar',
+      attached: 'Documentos adjuntos', submitCta: 'Enviar solicitud',
+      confirmTitle: 'Solicitud enviada', viewStatus: 'Ver estado',
+      scanning: 'Leyendo su documento', scanCta: 'Escanear con la cámara', scanSub: 'Fotografíe el documento',
+      fileCta: 'Elegir un archivo', fileSub: 'PDF o imagen en Archivos', cancel: 'Cancelar',
+      stages: ['Enviada', 'En revisión', 'Decisión'],
+      needMore: 'Falta información', eligible: 'Puede calificar', notEligible: 'No elegible',
+      demoCta: 'Ver con documentos de ejemplo' },
+  };
+
+  FIELDS = [
+    { key: 'name', label: 'Full name', labelEs: 'Nombre completo', hint: 'From Photo ID', src: 'id', ph: 'Enter your name' },
+    { key: 'dob', label: 'Date of birth', labelEs: 'Fecha de nacimiento', hint: 'From Photo ID', src: 'id', ph: 'MM/DD/YYYY' },
+    { key: 'address', label: 'Home address', labelEs: 'Dirección', hint: 'From proof of address', src: 'address', ph: 'Street, borough, ZIP' },
+    { key: 'household', label: 'People in household', labelEs: 'Personas en el hogar', hint: 'From lease', src: 'lease', ph: 'e.g. 3' },
+    { key: 'income', label: 'Monthly income', labelEs: 'Ingreso mensual', hint: 'From pay stubs', src: 'income', ph: 'e.g. $2,310' },
+  ];
+
+  EXTRACTED = { name: 'Maria Reyes', dob: '04/18/1991', address: '1240 Grand Concourse, Bronx, NY 10456', household: '3', income: '$2,310' };
+
+  thumb(key) {
+    const tints = { id: '#1B2E7F', address: '#1E9BE0', income: '#00A550', lease: '#5A5F6B', utility: '#F2B21B' };
+    const c = tints[key] || '#5A5F6B';
+    return 'repeating-linear-gradient(135deg, ' + c + '22 0 5px, ' + c + '11 5px 10px)';
+  }
+
+  monthlyIncome() {
+    const n = parseInt(String(this.state.form.income || this.EXTRACTED.income).replace(/[^0-9]/g, ''), 10);
+    return isNaN(n) ? 2310 : n;
+  }
+
+  classify(p) {
+    const d = this.state.docs;
+    const missing = p.req.filter(k => !d[k]);
+    if (missing.length) return { group: 'more', missing };
+    if (this.monthlyIncome() > p.limit) return { group: 'no' };
+    return { group: 'yes' };
+  }
+
+  docLabel(k) { const f = this.DOCS.find(x => x.key === k); return f ? f.label : k; }
+
+  setTab = (tab) => this.setState({ tab, route: 'tabs' });
+
+  openSheetFor = (key) => this.setState({ sheetOpen: true, sheetFor: key, scanning: false });
+
+  runScan = () => {
+    this.setState({ scanning: true });
+    const key = this.state.sheetFor;
+    clearTimeout(this._scanT);
+    this._scanT = setTimeout(() => {
+      this.setState(s => {
+        const docs = Object.assign({}, s.docs);
+        if (key) docs[key] = true;
+        else { const next = this.DOCS.find(x => !s.docs[x.key]); if (next) docs[next.key] = true; }
+        return { docs, scanning: false, sheetOpen: false, sheetFor: null };
+      });
+    }, 1700);
+  };
+
+  componentDidMount() { this._splashT = setTimeout(() => this.setState({ locked: false }), 2000); }
+
+  componentWillUnmount() { clearTimeout(this._scanT); clearTimeout(this._splashT); }
+
+  renderVals() {
+    const s = this.state;
+    const t0 = this.T[s.lang];
+    const prog = this.PROGRAMS.find(p => p.id === s.programId) || null;
+    const anyDocs = Object.values(s.docs).some(Boolean);
+
+    const t = Object.assign({}, t0, {
+      tabTitle: s.tab === 'home' ? t0.titleHome : s.tab === 'enroll' ? t0.titleEnroll : t0.titleProfile,
+    });
+
+    const groupDefs = [
+      { id: 'yes', label: t0.eligible, color: '#00A550' },
+      { id: 'more', label: t0.needMore, color: '#F2B21B' },
+      { id: 'no', label: t0.notEligible, color: '#5A5F6B' },
+    ];
+    const groups = anyDocs ? groupDefs.map(g => ({
+      label: g.label, color: g.color,
+      items: this.PROGRAMS.filter(p => this.classify(p).group === g.id).map(p => {
+        const c = this.classify(p);
+        return {
+          name: s.lang === 'es' ? p.nameEs : p.name,
+          blurb: s.lang === 'es' ? p.blurbEs : p.blurb,
+          color: g.color,
+          metaColor: g.id === 'yes' ? '#00A550' : g.id === 'more' ? '#8a6410' : '#5A5F6B',
+          meta: g.id === 'yes' ? (p.facts[0][0] + ': ' + p.facts[0][1])
+            : g.id === 'more' ? ('Add: ' + c.missing.map(k => this.docLabel(k)).join(', '))
+            : ('Income above the ' + p.name + ' limit ($' + p.limit.toLocaleString() + '/mo)'),
+          open: () => this.setState({ route: 'detail', programId: p.id }),
+        };
+      }),
+    })).filter(g => g.items.length) : [];
+
+    const docList = this.DOCS.map(d => {
+      const on = s.docs[d.key];
+      return {
+        label: d.label, thumbBg: on ? this.thumb(d.key) : '#F4F5F7',
+        sub: on ? d.file : 'Not added', subColor: on ? '#5A5F6B' : '#9AA0AC',
+        badge: on ? 'Verified' : 'Add', badgeBg: on ? '#E4F6EC' : '#F4F5F7',
+        badgeColor: on ? '#00733A' : '#1B2E7F',
+        open: () => on ? null : this.openSheetFor(d.key),
+      };
+    });
+
+    const cls = prog ? this.classify(prog) : null;
+    const current = prog ? {
+      name: s.lang === 'es' ? prog.nameEs : prog.name,
+      detail: prog.detail,
+      status: cls.group === 'yes' ? t0.eligible : cls.group === 'more' ? t0.needMore : t0.notEligible,
+      badgeBg: cls.group === 'yes' ? '#E4F6EC' : cls.group === 'more' ? '#FDF3DC' : '#F4F5F7',
+      badgeColor: cls.group === 'yes' ? '#00733A' : cls.group === 'more' ? '#8a6410' : '#5A5F6B',
+      facts: prog.facts.map(f => ({ k: f[0], v: f[1] })),
+      blocked: cls.group !== 'yes',
+      blockTitle: cls.group === 'more' ? 'Before you can apply' : 'Why you are not eligible',
+      blockBody: cls.group === 'more'
+        ? 'Add ' + cls.missing.map(k => this.docLabel(k)).join(' and ') + ' in Profile. We will re-check eligibility right away.'
+        : 'Your household income of $' + this.monthlyIncome().toLocaleString() + ' per month is above the $' + prog.limit.toLocaleString() + ' limit for this program. If your income changes, upload a new pay stub and we will re-check.',
+      actionLabel: cls.group === 'yes' ? t0.apply : cls.group === 'more' ? t0.addDocs : t0.seeMore,
+      actionBg: cls.group === 'yes' ? '#1B2E7F' : cls.group === 'more' ? '#1E9BE0' : '#F4F5F7',
+      actionColor: cls.group === 'yes' || cls.group === 'more' ? '#FFFFFF' : '#1B2E7F',
+      actionCursor: 'pointer',
+      action: () => {
+        if (cls.group === 'yes') {
+          const form = Object.assign({}, s.form);
+          this.FIELDS.forEach(f => { if (!form[f.key] && s.docs[f.src]) form[f.key] = this.EXTRACTED[f.key]; });
+          this.setState({ route: 'form', form });
+        } else if (cls.group === 'more') this.setState({ route: 'tabs', tab: 'profile' });
+        else this.setState({ route: 'tabs', tab: 'enroll' });
+      },
+    } : { facts: [], name: '' };
+
+    const fields = this.FIELDS.map(f => {
+      const val = s.form[f.key];
+      const empty = !val;
+      return {
+        label: s.lang === 'es' ? f.labelEs : f.label,
+        value: val, placeholder: f.ph,
+        border: empty && s.touched ? '#C0392B' : '#D6D8DE',
+        hint: empty ? (s.touched ? 'Required' : 'Not on file — enter manually') : f.hint,
+        hintColor: empty && s.touched ? '#C0392B' : '#5A5F6B',
+        onChange: (e) => { const v = e.target.value; this.setState(st => ({ form: Object.assign({}, st.form, { [f.key]: v }) })); },
+      };
+    });
+
+    const complete = this.FIELDS.every(f => s.form[f.key]) && s.consent;
+
+    const applications = s.applications.map(a => {
+      const p = this.PROGRAMS.find(x => x.id === a.programId);
+      return {
+        name: s.lang === 'es' ? p.nameEs : p.name, ref: a.ref, date: a.date,
+        stageLabel: t0.stages[a.stage],
+        note: a.stage === 0 ? 'Filed with the Human Resources Administration. Watch for a phone interview request.' : 'Under review.',
+        stages: t0.stages.map((label, i) => ({
+          label, dot: i <= a.stage ? '#1B2E7F' : '#D6D8DE',
+          bar: i < a.stage ? '#1B2E7F' : '#D6D8DE',
+          text: i <= a.stage ? '#1B2E7F' : '#9AA0AC',
+        })),
+      };
+    });
+
+    return {
+      t, locked: s.locked, langLabel: s.lang === 'en' ? 'EN' : 'ES',
+      unlock: () => this.setState({ locked: false }),
+      toggleLang: () => this.setState({ lang: s.lang === 'en' ? 'es' : 'en' }),
+      isHome: s.tab === 'home', isEnroll: s.tab === 'enroll', isProfile: s.tab === 'profile',
+      isDetail: s.route === 'detail', isForm: s.route === 'form', isReview: s.route === 'review', isConfirm: s.route === 'confirm',
+      tabs: [
+        { id: 'home', label: t0.home }, { id: 'enroll', label: t0.enroll }, { id: 'profile', label: t0.profile },
+      ].map(tb => ({
+        label: tb.label, go: () => this.setTab(tb.id),
+        isHome: tb.id === 'home', isEnroll: tb.id === 'enroll', isProfile: tb.id === 'profile',
+        color: s.tab === tb.id ? '#1B2E7F' : '#5A5F6B',
+        fill: s.tab === tb.id ? '#1B2E7F' : 'transparent',
+        pillBg: s.tab === tb.id ? 'rgba(255,255,255,0.78)' : 'transparent',
+        pillShadow: s.tab === tb.id ? '0 1px 3px rgba(13,13,13,0.10), inset 0 0 0 0.5px rgba(255,255,255,0.9)' : 'none',
+      })),
+      noApplications: s.applications.length === 0, hasApplications: s.applications.length > 0,
+      applications, noDocs: !anyDocs, groups, docList,
+      docsSummary: anyDocs
+        ? Object.values(s.docs).filter(Boolean).length + ' of 5 documents verified'
+        : 'No documents on file yet',
+      loadSample: () => this.setState({ docs: { id: true, address: true, income: true, lease: true, utility: false } }),
+      toggleSample: () => this.setState(st => (anyDocs
+        ? { docs: { id: false, address: false, income: false, lease: false, utility: false }, applications: [], form: { name: '', dob: '', address: '', household: '', income: '' } }
+        : { docs: { id: true, address: true, income: true, lease: true, utility: false } })),
+      sampleToggleLabel: anyDocs ? 'Reset demo' : 'Load sample',
+      openSheet: () => this.openSheetFor(null),
+      closeSheet: () => this.setState({ sheetOpen: false, sheetFor: null, scanning: false }),
+      sheetOpen: s.sheetOpen, scanning: s.scanning, sheetChoosing: s.sheetOpen && !s.scanning,
+      sheetTitle: s.sheetFor ? 'Add ' + this.docLabel(s.sheetFor) : t0.addDocument,
+      scanTarget: s.sheetFor ? this.docLabel(s.sheetFor) : 'Detecting document type',
+      pickCamera: this.runScan, pickFile: this.runScan,
+      current, fields, reviewBg: complete ? '#1B2E7F' : '#8F97C4',
+      formHint: complete ? 'All required fields complete' : 'Complete every field and certify to continue',
+      formHintColor: complete ? '#00733A' : '#5A5F6B',
+      consentMark: s.consent ? '✓' : '',
+      consentBg: s.consent ? '#1B2E7F' : '#FFFFFF',
+      consentBorder: s.consent ? '#1B2E7F' : '#D6D8DE',
+      toggleConsent: () => this.setState({ consent: !s.consent }),
+      goReview: () => complete ? this.setState({ route: 'review', touched: false }) : this.setState({ touched: true }),
+      backToForm: () => this.setState({ route: 'form' }),
+      back: () => this.setState({ route: s.route === 'form' ? 'detail' : 'tabs' }),
+      goProfile: () => this.setTab('profile'), goEnroll: () => this.setTab('enroll'),
+      goHome: () => this.setState({ route: 'tabs', tab: 'home' }),
+      reviewRows: this.FIELDS.map(f => ({ k: s.lang === 'es' ? f.labelEs : f.label, v: s.form[f.key] }))
+        .concat([{ k: 'Program', v: prog ? prog.name : '' }]),
+      attachedDocs: this.DOCS.filter(d => s.docs[d.key]).map(d => ({ label: d.label + ' · ' + d.file, thumbBg: this.thumb(d.key) })),
+      submit: () => {
+        const n = s.applications.length + 1;
+        const ref = 'NYC-2026-' + String(4180 + n);
+        this.setState({
+          route: 'confirm', lastRef: ref, consent: false,
+          applications: [{ programId: s.programId, ref, date: 'Aug 15, 2026', stage: 0 }].concat(s.applications),
+        });
+      },
+      lastRef: s.lastRef,
+      confirmBody: prog
+        ? 'Your ' + prog.name + ' application is filed. You can track it under Your applications.'
+        : 'Your application is filed.',
+    };
+  }
+}
+
+</script>
+</body>
+</html>
