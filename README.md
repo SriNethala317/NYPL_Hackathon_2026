@@ -28,7 +28,7 @@ If the QR code shows `127.0.0.1`, your phone cannot reach it — use `npm start 
 |---|---|
 | `npm start` | Expo dev server |
 | `npm run ios` / `android` / `web` | Open a platform directly |
-| `npm test` | Jest — 170 tests |
+| `npm test` | Jest — 184 tests |
 | `npm run lint` | ESLint via `expo lint` |
 | `npx tsc --noEmit` | Typecheck (strict) |
 | `npx expo export --platform web` | Static-renders every route; a render crash fails the build |
@@ -83,6 +83,36 @@ forced through user confirmation.
 The corpus includes a document containing *"IGNORE ALL PREVIOUS INSTRUCTIONS"*. A test asserts the
 real value survives — document text is data, never instructions.
 
+## Filling the actual form
+
+The point of everything upstream. `src/features/forms/` fetches the agency's own PDF, fills it
+from the profile, and hands it over through the system share sheet.
+
+```bash
+node scripts/inspect-form.mjs <pdf-url>   # dump a form's real field names
+```
+
+Mappings in `templates.ts` are written against those names, never guessed — a wrong field name
+produces a PDF that looks filled and silently is not. A test asserts every mapped field still
+exists on the real PDF, so an agency reissuing a form fails the build instead of quietly
+submitting half-empty applications.
+
+**What it will not do is submit for you.** There is no public API for filing a NYC benefits
+application; ACCESS HRA is client-facing only. The only way to automate it would be to hold
+someone's government portal password, which this app will not ask for. So it produces the
+completed form and links to the exact submission destination.
+
+Reality of the source data: of 97 programmes, **10 publish a PDF link**, several of those links
+are already dead, and some serve flat scans with no form fields. `fetchTemplate` treats link rot
+as an expected outcome and falls back to the programme's apply page.
+
+Fields we refuse to hold — an SSN box is still an SSN — are deliberately left blank with an
+on-screen explanation, so the applicant completes them before signing.
+
+*Web caveat:* browsers block the cross-origin PDF fetch (CORS), so the form screen shows its
+fallback on web. Native has no such restriction; the fetch-and-fill chain is verified end-to-end
+against the live nyc.gov URL in tests.
+
 ## Keeping benefits, not just getting them
 
 Most people who lose food or health coverage lose it at **renewal**, not at application — a
@@ -132,11 +162,11 @@ Put them in `.env` — never in a commit, never pasted into a chat.
 src/
   app/            expo-router routes. NOTE: any file here becomes a route — tests must not live here
     (tabs)/       Home, Enrollment, Profile
-    program/[id]  apply/[id]  review  confirmation  privacy
+    program/[id]  apply/[id]  review  confirmation  privacy  form/[id]
   components/ui/      primitives (Text, Button, Card, Sheet, Icon, …)
   components/enroll/  domain components (ProgramRow, StageTracker, TabScreen, DetailScreen, …)
   data/           catalogue, eligibility, document registry, reconciliation, privacy facts
-  features/       extraction (OCR + field matchers)
+  features/       extraction (OCR + field matchers), forms (PDF fill + delivery)
   state/          one reducer, all app state
   i18n/           en/es dictionaries; every user-visible string lives here
   theme/          design tokens — one fixed light palette, no dark mode
@@ -144,7 +174,8 @@ src/
 
 ## What works, and what does not
 
-**Works:** all 97 programmes browsable and 46 screened against real criteria · document upload
+**Works:** filling the real DRIE government PDF from your profile and sharing it · all 97
+programmes browsable and 46 screened against real criteria · document upload
 with classification, extraction and reconciliation · conflict handling when two documents disagree
 · renewal reminders quoting the agency's own deadline · the full apply → review → submit flow ·
 EN/ES · device lock · privacy screen.

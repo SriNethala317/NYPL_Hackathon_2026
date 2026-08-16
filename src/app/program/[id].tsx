@@ -19,6 +19,7 @@ import {
   monthlyToAnnual,
   toVisualStatus,
 } from '@/data/eligibility';
+import { hasTemplate } from '@/features/forms';
 import { fill, useStrings } from '@/i18n/use-strings';
 import { useAppStore } from '@/state/app-store';
 import { colors, layout } from '@/theme';
@@ -154,7 +155,19 @@ export default function ProgramDetailScreen() {
       </ScrollView>
 
       <StickyFooter>
-        {screened && status === 'yes' && (
+        {/*
+          The point of the whole pipeline: hand over the agency's own PDF with the applicant's
+          details already in it. Offered ahead of "start application", because filling the real
+          form is the thing that actually saves them an afternoon.
+        */}
+        {hasTemplate(id) && (
+          <Button
+            label={strings.form2.fillAction}
+            onPress={() => router.push(`/form/${encodeURIComponent(id)}`)}
+          />
+        )}
+
+        {screened && status === 'yes' && !hasTemplate(id) && (
           <Button
             label={strings.detail.startApplication}
             onPress={() => router.push(`/apply/${encodeURIComponent(id)}`)}

@@ -153,6 +153,31 @@ const en = {
    * Keeping benefits, not just getting them. People lose food and health coverage far more often
    * at recertification than at application.
    */
+  /** The point of the app: the actual government form, filled in. */
+  form2: {
+    title: 'Your application form',
+    fillAction: 'Fill this form for me',
+    preparing: 'Getting the official form',
+    filling: 'Filling it in with your details',
+    readyTitle: '{filled} boxes filled in for you',
+    readyBody: 'This is the real {formName} from the agency, with your information already in it.',
+    youMustAdd: 'You still need to add',
+    weCouldNotFill: 'We could not fill these',
+    download: 'Save or share the form',
+    whereToSend: 'Where to send it',
+    openPortal: 'Open the submission site',
+    unavailableTitle: 'We could not get the form',
+    unavailableBody:
+      'The agency\u2019s link is not working right now. You can still apply on their site.',
+    noFormTitle: 'No fillable form for this programme',
+    noFormBody:
+      'This programme does not publish a form we can fill in. Apply on the agency site instead.',
+    signWarning:
+      'Read it before you sign. You are certifying it is true, so check every box we filled.',
+    noSubmitApi:
+      'We cannot submit for you \u2014 the City has no way for apps to file on your behalf, and we will not ask for your portal password.',
+  },
+
   renewal: {
     heading: 'Renewals',
     overdue: 'Renewal was due {date}',
@@ -404,6 +429,30 @@ const es: Strings = {
       'Quite cualquier documento y todo lo le\u00eddo de \u00e9l se va con \u00e9l. Reinicie la aplicaci\u00f3n y no queda nada.',
     deleteEverything: 'Eliminar todo',
   },
+  form2: {
+    title: 'Su formulario de solicitud',
+    fillAction: 'Complete este formulario por m\u00ed',
+    preparing: 'Obteniendo el formulario oficial',
+    filling: 'Complet\u00e1ndolo con sus datos',
+    readyTitle: '{filled} casillas completadas por usted',
+    readyBody: 'Este es el {formName} real de la agencia, ya con su informaci\u00f3n.',
+    youMustAdd: 'Usted a\u00fan debe agregar',
+    weCouldNotFill: 'No pudimos completar esto',
+    download: 'Guardar o compartir el formulario',
+    whereToSend: 'D\u00f3nde enviarlo',
+    openPortal: 'Abrir el sitio de env\u00edo',
+    unavailableTitle: 'No pudimos obtener el formulario',
+    unavailableBody:
+      'El enlace de la agencia no funciona ahora. A\u00fan puede solicitar en su sitio.',
+    noFormTitle: 'No hay formulario para completar',
+    noFormBody:
+      'Este programa no publica un formulario que podamos completar. Solicite en el sitio de la agencia.',
+    signWarning:
+      'L\u00e9alo antes de firmar. Usted certifica que es verdadero, as\u00ed que revise cada casilla.',
+    noSubmitApi:
+      'No podemos enviarlo por usted \u2014 la Ciudad no permite que las aplicaciones presenten en su nombre, y no le pediremos su contrase\u00f1a del portal.',
+  },
+
   renewal: {
     heading: 'Renovaciones',
     overdue: 'La renovaci\u00f3n venci\u00f3 el {date}',
