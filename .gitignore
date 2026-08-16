@@ -81,6 +81,7 @@ package-lock.json
 
 # Test generated files
 *.js.meta
+test-output/
 
 /coverage
 /third-party
