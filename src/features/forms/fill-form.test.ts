@@ -159,14 +159,43 @@ describe('the template registry', () => {
     }
   });
 
-  it('maps only field names that exist on the real PDF', async () => {
-    // The check that catches an agency reissuing a form with renamed fields. Without it, a
-    // mapping silently stops matching and the applicant submits a half-empty form.
-    const doc = await PDFDocument.load(BLANK, { ignoreEncryption: true, throwOnInvalidObject: false });
+  /*
+   * The check that catches an agency reissuing a form with renamed fields. Without it, a mapping
+   * silently stops matching and the applicant submits a half-empty form.
+   *
+   * Every template must appear here. SCRIE and DRIE are the same Department of Finance form
+   * family with nearly identical field names — `email` versus `email_address`, `phone1.1` versus
+   * `phone_3digits` — which is exactly the situation where a mapping copied across from its
+   * sibling looks right and writes nothing.
+   */
+  it.each([
+    ['DRIE', 'P005en', 'drie-application.pdf'],
+    ['SCRIE', 'P015en', 'scrie-application.pdf'],
+  ])('maps only field names that exist on the real %s PDF', async (_name, programId, fixture) => {
+    const template = formTemplates.find((t) => t.programId === programId);
+    expect(template).toBeDefined();
+
+    const bytes = readFileSync(join(__dirname, '__fixtures__', fixture));
+    const doc = await PDFDocument.load(bytes, {
+      ignoreEncryption: true,
+      throwOnInvalidObject: false,
+    });
     const actual = new Set(doc.getForm().getFields().map((f) => f.getName()));
 
-    for (const mapping of drie.fields) {
+    for (const mapping of template!.fields) {
       expect(actual.has(mapping.pdfField)).toBe(true);
+    }
+  });
+
+  it('never maps a profile value into a field we refuse to hold', () => {
+    // A form asking for an SSN is not a reason to start storing one. Every such box must be
+    // `manual`, on every template, so the applicant writes it in themselves.
+    for (const template of formTemplates) {
+      for (const mapping of template.fields) {
+        if (/ssn|social.?security/i.test(mapping.pdfField)) {
+          expect(mapping.source.from).toBe('manual');
+        }
+      }
     }
   });
 });

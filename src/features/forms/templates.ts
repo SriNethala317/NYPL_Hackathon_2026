@@ -110,6 +110,93 @@ export const formTemplates: readonly FormTemplate[] = [
       },
     ],
   },
+
+  {
+    /*
+     * Senior Citizen Rent Increase Exemption — 94 fillable fields, verified by downloading the
+     * live PDF and running it through pdf-lib.
+     *
+     * SCRIE and DRIE are the same Department of Finance form family, so the identity field names
+     * are nearly identical. That similarity is a trap as much as a shortcut: `phone1.1` on DRIE is
+     * `phone_3digits` here, and `email` is `email_address`. Every name below was read off this
+     * PDF, not copied across from the template above.
+     */
+    programId: 'P015en',
+    formName: 'SCRIE Initial Application',
+    url: 'https://www.nyc.gov/assets/rentfreeze/downloads/pdf/scrie/scrie-initial-application-only.pdf',
+    requiresSignature: true,
+    /*
+     * Post only. Unlike DRIE, this form's "HOW TO APPLY" block offers no online route at all — it
+     * gives one PO box and nothing else. Inventing a portal link here to make the screen look
+     * richer would be inventing a channel the agency does not operate.
+     */
+    channels: [
+      {
+        kind: 'mail',
+        address: 'New York City Department of Finance, Rent Freeze Program - SCRIE, P.O. Box 3179, Union, NJ 07083',
+        instructions:
+          'Post the signed application together with the supporting documents listed in section 6 of the form.',
+      },
+    ],
+    fields: [
+      { pdfField: 'name', source: { from: 'profile', key: 'fullName' } },
+      { pdfField: 'DOB', source: { from: 'profile', key: 'dob' }, format: 'mmddyyyy' },
+      { pdfField: 'street_address', source: { from: 'address', part: 'street' } },
+      { pdfField: 'Apt', source: { from: 'address', part: 'apt' } },
+      { pdfField: 'city', source: { from: 'address', part: 'city' } },
+      { pdfField: 'state', source: { from: 'address', part: 'state' } },
+      { pdfField: 'ZIP', source: { from: 'address', part: 'zip' } },
+      {
+        pdfField: 'SSN',
+        source: {
+          from: 'manual',
+          reason: 'We never store Social Security numbers. Write yours in before you sign.',
+        },
+      },
+      {
+        pdfField: 'email_address',
+        source: { from: 'manual', reason: 'Add an email address you check.' },
+      },
+      { pdfField: 'area_code', source: { from: 'manual', reason: 'Add your phone area code.' } },
+      {
+        pdfField: 'phone_3digits',
+        source: { from: 'manual', reason: 'Add the first three digits of your phone number.' },
+      },
+      {
+        pdfField: 'phone_4digits',
+        source: { from: 'manual', reason: 'Add the last four digits of your phone number.' },
+      },
+      /*
+       * Income is deliberately left entirely to the applicant, even though a figure is on file.
+       *
+       * This form does not want one number. It wants last year's income broken out by source —
+       * wages, pension, Social Security, IRA, interest, business income, workers' compensation,
+       * capital gains, public assistance — for every member of the household, and then a total.
+       * Our single reconciled `income` value cannot be decomposed into those boxes, and writing it
+       * into `total_income` would produce a figure the applicant then certifies as true under
+       * penalty of law without ever having checked it.
+       *
+       * Eligibility turns on that number: SCRIE requires combined household income under $50,000.
+       * A wrong total is not a cosmetic defect — it is either a denial or a false certification.
+       */
+      {
+        pdfField: 'total_income',
+        source: {
+          from: 'manual',
+          reason:
+            'Add last year’s income for everyone in your home, broken down by source in section 3. We cannot work this out for you.',
+        },
+      },
+      {
+        pdfField: 'income_rent_amt',
+        source: { from: 'manual', reason: 'Add your current monthly rent.' },
+      },
+      {
+        pdfField: 'apartment_type',
+        source: { from: 'manual', reason: 'Tick what kind of apartment you live in.' },
+      },
+    ],
+  },
 ];
 
 export function templateFor(programId: string): FormTemplate | undefined {
