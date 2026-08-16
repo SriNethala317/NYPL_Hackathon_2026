@@ -368,3 +368,52 @@ describe('IDNYC, from a licence and nothing else', () => {
     expect(idnyc.channels.some((c) => c.kind === 'mail')).toBe(false);
   });
 });
+
+/**
+ * The borough box, from an address as documents actually print it.
+ *
+ * Manhattan is the trap: a licence, a utility bill and an envelope all say "NEW YORK, NY", almost
+ * never "Manhattan, NY". Matching the city against the checkbox label directly meant a real
+ * Manhattan resident had no borough ticked and no indication why.
+ */
+describe('working out the borough', () => {
+  const IDNYC = readFileSync(join(__dirname, '__fixtures__', 'idnyc-application.pdf'));
+  const idnyc = formTemplates.find((t) => t.programId === 'P032en')!;
+
+  async function ticked(address: string): Promise<string[]> {
+    const result = await fillForm(idnyc, IDNYC, { fullName: 'Ana Ruiz', address });
+    const doc = await PDFDocument.load(result.bytes, {
+      ignoreEncryption: true,
+      throwOnInvalidObject: false,
+    });
+    const form = doc.getForm();
+    return ['Bronx', 'Brooklyn', 'Manhattan', 'Queens', 'Staten Island'].filter((b) =>
+      form.getCheckBox(b).isChecked(),
+    );
+  }
+
+  it.each([
+    ['99 Fictional Avenue, New York, NY 10001', 'Manhattan'],
+    ['99 Fictional Avenue, Manhattan, NY 10001', 'Manhattan'],
+    ['1240 Grand Concourse, Bronx, NY 10456', 'Bronx'],
+    ['200 Example Street, Brooklyn, NY 11201', 'Brooklyn'],
+    ['5 Sample Road, Queens, NY 11101', 'Queens'],
+    ['7 Test Lane, Staten Island, NY 10301', 'Staten Island'],
+  ])('ticks %s as %s', async (address, borough) => {
+    expect(await ticked(address)).toEqual([borough]);
+  });
+
+  it('ticks nothing for an address outside the five boroughs', async () => {
+    // Somebody can move to the city and still be holding out-of-state ID, so this is a real
+    // answer rather than an error — and a wrongly ticked borough is a false statement they sign.
+    expect(await ticked('1511 Foxboro Ct, Bentonville, AR 72712')).toEqual([]);
+  });
+
+  it('tells the applicant to tick it themselves when it cannot be worked out', async () => {
+    const result = await fillForm(idnyc, IDNYC, { fullName: 'Ana Ruiz', address: '' });
+    const bronx = result.fields.find((f) => f.pdfField === 'Bronx');
+
+    expect(bronx?.status).toBe('manual');
+    expect(bronx?.note).toMatch(/tick the borough/i);
+  });
+});

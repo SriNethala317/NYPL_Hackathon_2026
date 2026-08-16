@@ -77,6 +77,37 @@ function applyFormat(value: string, format: FieldMapping['format']): string | nu
   return value;
 }
 
+/**
+ * Which borough an address is in, as IDNYC names them.
+ *
+ * The city line is not the borough. Manhattan addresses are printed "NEW YORK, NY" on a licence,
+ * a utility bill and an envelope — almost never "Manhattan, NY" — so comparing the city against
+ * the checkbox label directly meant a real Manhattan resident got no borough ticked at all.
+ *
+ * The other four are usually printed by name, but Brooklyn and Queens addresses are sometimes
+ * written with their old postal names, so those are recognised too. Anything unrecognised returns
+ * undefined and the applicant ticks the box themselves — an address outside the five boroughs is a
+ * legitimate answer here, since somebody can move to the city and still be holding out-of-state ID.
+ */
+const BOROUGH_BY_CITY: Record<string, 'Bronx' | 'Brooklyn' | 'Manhattan' | 'Queens' | 'Staten Island'> = {
+  manhattan: 'Manhattan',
+  'new york': 'Manhattan',
+  'new york city': 'Manhattan',
+  nyc: 'Manhattan',
+  bronx: 'Bronx',
+  'the bronx': 'Bronx',
+  brooklyn: 'Brooklyn',
+  kings: 'Brooklyn',
+  queens: 'Queens',
+  'staten island': 'Staten Island',
+  richmond: 'Staten Island',
+};
+
+function boroughOf(address: string | undefined) {
+  const city = (parseAddress(address).city ?? '').trim().toLowerCase();
+  return city ? BOROUGH_BY_CITY[city] : undefined;
+}
+
 /** Resolves one mapping to a value, or explains why there isn't one. */
 function resolve(
   source: FieldSource,
@@ -111,16 +142,13 @@ function resolve(
       };
     }
     case 'borough': {
-      const parts = parseAddress(values.address);
-      const city = (parts.city ?? '').trim().toLowerCase();
+      const borough = boroughOf(values.address);
       // Only tick when the address genuinely names this borough. An unticked box is a question
       // the applicant can answer; a wrongly ticked one is a false statement they sign.
-      if (!city) {
+      if (!borough) {
         return { status: 'manual', note: 'Tick the borough you live in.' };
       }
-      return city === source.is.toLowerCase()
-        ? { value: 'Yes', status: 'filled' }
-        : { status: 'skip' };
+      return borough === source.is ? { value: 'Yes', status: 'filled' } : { status: 'skip' };
     }
     case 'today':
       return { value: formatDate(now), status: 'filled' };
