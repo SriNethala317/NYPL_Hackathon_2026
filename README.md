@@ -1,5 +1,13 @@
 # Welcome to your Expo app 👋
 
+## Repository layout
+
+- `src/` contains the Expo frontend.
+- `backend/` contains benefits discovery, deterministic eligibility validation,
+  form-payload handoff, provider configuration, and backend tests.
+
+Run backend checks with `cd backend && npm install && npm run typecheck`.
+
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
 ## Get started
