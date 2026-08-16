@@ -4,6 +4,7 @@ import {
   useEffect,
   useReducer,
   useRef,
+  useState,
   type ReactNode,
 } from 'react';
 
@@ -19,6 +20,7 @@ import {
   type PickedDocument,
 } from '@/features/extraction';
 import type { Language } from '@/i18n/strings';
+import { hydrate, persistDocument } from '@/state/persistence';
 import { motion, type DocumentCategory } from '@/theme';
 
 /**
@@ -103,6 +105,18 @@ type Action =
   | { type: 'setTouched'; value: boolean }
   | { type: 'submitted'; programId: string; reference: string; date: string }
   | { type: 'loadSample'; readOn: string; at: number; date: string }
+  /**
+   * Everything this user had on file, arriving from the server after sign-in.
+   *
+   * Merged rather than assigned: a slow network must never wipe out a document the user added
+   * while the request was in flight. Anything already in memory wins on id collision.
+   */
+  | {
+      type: 'hydrated';
+      documents: UploadedDocument[];
+      candidates: FieldCandidate[];
+      applications: Application[];
+    }
   | { type: 'reset' };
 
 const initialState: State = {
@@ -249,6 +263,32 @@ function reducer(state: State, action: Action): State {
       };
     }
 
+    case 'hydrated': {
+      /*
+       * Server rows fill gaps; they never overwrite. Someone who opens the app and immediately
+       * photographs a pay stub must not watch it vanish when a slow sign-in finally returns.
+       */
+      const haveDocument = new Set(state.documents.map((d) => d.id));
+      const haveCandidate = new Set(state.candidates.map((c) => `${c.documentId}:${c.field}`));
+      const haveApplication = new Set(state.applications.map((a) => a.reference));
+
+      return {
+        ...state,
+        documents: [
+          ...state.documents,
+          ...action.documents.filter((d) => !haveDocument.has(d.id)),
+        ],
+        candidates: [
+          ...state.candidates,
+          ...action.candidates.filter((c) => !haveCandidate.has(`${c.documentId}:${c.field}`)),
+        ],
+        applications: [
+          ...state.applications,
+          ...action.applications.filter((a) => !haveApplication.has(a.reference)),
+        ],
+      };
+    }
+
     case 'reset':
       return { ...initialState, language: state.language };
   }
@@ -290,6 +330,14 @@ type Store = State & {
   hasIdentityDocument: boolean;
   /** Mandatory fields still unanswered, for the "still needed" list. */
   missingFields: ProfileFieldKey[];
+  /**
+   * Why the last save failed, when one did.
+   *
+   * Surfaced rather than swallowed. A document read on screen but never stored is a state the app
+   * must be able to admit to — silently losing somebody's income document between sessions and
+   * showing no reason is worse than the failure itself.
+   */
+  syncError: string | null;
 };
 
 const AppStoreContext = createContext<Store | null>(null);
@@ -298,10 +346,42 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(reducer, initialState);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
   const counter = useRef(0);
+  /** Last thing that failed to save. Surfaced rather than swallowed — see persistence.ts. */
+  const [syncError, setSyncError] = useState<string | null>(null);
 
   useEffect(() => {
     const pending = timers.current;
     return () => pending.forEach(clearTimeout);
+  }, []);
+
+  /*
+   * Pull anything already on the server, once.
+   *
+   * Deliberately not awaited anywhere in render: the app is fully usable before this resolves, and
+   * on a bad connection it may never resolve at all. Documents added in the meantime survive —
+   * `hydrated` merges rather than assigns.
+   */
+  useEffect(() => {
+    void hydrate({
+      onHydrate: (data) =>
+        dispatch({
+          type: 'hydrated',
+          documents: data.documents.map((d) => ({
+            id: d.id,
+            type: d.kind,
+            status: d.status as DocumentStatus,
+            // `readAt` orders reconciliation tie-breaks, so a restored document must carry the
+            // time it was originally read — not now, which would make every old document look
+            // like the newest one and quietly invert the precedence rules.
+            readAt: d.readAt ? Date.parse(d.readAt) || 0 : 0,
+            readOn: d.readAt?.slice(0, 10),
+            confidence: d.confidence ?? 0,
+          })),
+          candidates: data.candidates,
+          applications: data.applications,
+        }),
+      onError: (message) => setSyncError(message),
+    });
   }, []);
 
   const after = (ms: number, fn: () => void) => {
@@ -338,6 +418,7 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
     missingFields: profileFields
       .filter((f) => f.mandatory && !values[f.key]?.trim())
       .map((f) => f.key),
+    syncError,
 
     toggleLanguage: () => dispatch({ type: 'toggleLanguage' }),
     openSheet: () => dispatch({ type: 'openSheet' }),
@@ -414,6 +495,26 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
         dispatch({ type: 'classified', id, docType: outcome.documentType, confidence: outcome.confidence });
         dispatch({ type: 'read', id, readOn: today(), candidates: outcome.candidates });
         dispatch({ type: 'closeSheet' });
+
+        /*
+         * Saved only now, after a successful read, and never awaited.
+         *
+         * Storing earlier would leave a permanent "reading…" row for a document that turned out to
+         * be unreadable. Awaiting it would make the screen wait on the network to show a result it
+         * already has — the fields are on screen the moment they are extracted, whether or not the
+         * save lands.
+         */
+        void persistDocument(
+          {
+            id,
+            kind: outcome.documentType,
+            status: 'read',
+            confidence: outcome.confidence,
+            readAt: new Date(at).toISOString(),
+          },
+          outcome.candidates,
+          { onError: setSyncError },
+        );
       })();
     },
 

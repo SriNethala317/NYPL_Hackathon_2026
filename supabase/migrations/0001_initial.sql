@@ -144,18 +144,47 @@ create index field_candidates_user_field_idx on public.field_candidates (user_id
 create index field_candidates_document_idx   on public.field_candidates (document_id);
 
 /*
- * Deliberately absent: a `profile_fields` table holding the reconciled winner.
+ * The reconciled winner per field — a CACHE, and deliberately nothing more.
  *
- * Storing the resolved value would mean either trusting a client's claim about what the rules
- * produced, or reimplementing `resolveField`/`better`/`normalize` in plpgsql. The first is a hole
- * — a client could assert any value as already-reconciled. The second is worse in a different way:
- * two implementations of the most safety-critical logic in the app, in two languages, drifting
- * apart silently, with a wrong government form as the failure mode.
+ * `field_candidates` above is ground truth. This table is what reconciliation currently produces
+ * from it: the best name, the best address, and which document each came from. Keeping it makes
+ * the resolved profile readable in one query, by a server-side job or another client, without
+ * replaying the rules.
  *
- * Not storing it removes the choice. Candidates are facts, reconciliation is a pure function over
- * them, and there is exactly one implementation of it. Conflicts are likewise derived rather than
- * stored, so a resolved conflict cannot linger as a stale row.
+ * The danger in a table like this is that it becomes a second source of truth and then drifts —
+ * a stale winner outliving the candidates that justified it is exactly how somebody ends up with
+ * the wrong legal name on a signed government form. Two things prevent that, and both matter:
+ *
+ *   1. This table is never authoritative. The client recomputes from `field_candidates` on load
+ *      and prefers that result; a disagreement rewrites the cache rather than being believed.
+ *      See `loadProfile` in src/features/backend/profile-repository.ts.
+ *   2. `reconciled_from` records how many candidates produced this value. A cache built from
+ *      fewer candidates than currently exist is stale by construction and can be spotted without
+ *      re-running the rules.
+ *
+ * So the reconciliation logic still lives in exactly one place — `reconcile.ts`, which is tested.
+ * Nothing here reimplements it, and nothing here is trusted over it.
  */
+create table public.profile_fields (
+  user_id            uuid not null references auth.users(id) on delete cascade,
+  field_key          profile_field_key not null,
+  value              text not null,
+  confidence         real not null check (confidence between 0 and 1),
+  -- Which kind of document won, and which specific one. Both are needed to explain a value to the
+  -- applicant: "this came from your passport" is the difference between a form they trust and one
+  -- they have to check by hand.
+  document_type_id   document_type_id not null,
+  source_document_id uuid references public.documents(id) on delete set null,
+  -- True when equally authoritative documents disagreed and the user has not yet chosen.
+  has_conflict       boolean not null default false,
+  -- How many candidates this was reconciled from; see note 2 above.
+  reconciled_from    int not null default 1 check (reconciled_from >= 1),
+  reconciled_at      timestamptz not null default now(),
+  primary key (user_id, field_key)
+);
+
+comment on table public.profile_fields is
+  'Derived cache of the reconciled winner per field. Never authoritative: field_candidates is ground truth and the client prefers a fresh recomputation over anything stored here.';
 
 -- The user's own decisions: a value they typed, or which conflicting candidate they picked.
 -- Legitimately user-authored, so full owner CRUD is correct here.
@@ -213,6 +242,7 @@ alter table public.programs             enable row level security;
 alter table public.program_criteria     enable row level security;
 alter table public.documents            enable row level security;
 alter table public.field_candidates     enable row level security;
+alter table public.profile_fields       enable row level security;
 alter table public.profile_field_state  enable row level security;
 alter table public.applications         enable row level security;
 alter table public.generated_forms      enable row level security;
@@ -226,7 +256,8 @@ do $$
 declare t text;
 begin
   foreach t in array array[
-    'documents','field_candidates','profile_field_state','applications','generated_forms'
+    'documents','field_candidates','profile_fields','profile_field_state',
+    'applications','generated_forms'
   ]
   loop
     execute format('create policy "owner reads" on public.%I for select using (auth.uid() = user_id)', t);
@@ -251,6 +282,7 @@ end $$;
 create or replace function public.delete_my_data()
 returns void language sql security invoker as $$
   delete from public.profile_field_state where user_id = auth.uid();
+  delete from public.profile_fields      where user_id = auth.uid();
   delete from public.generated_forms     where user_id = auth.uid();
   delete from public.applications        where user_id = auth.uid();
   delete from public.field_candidates    where user_id = auth.uid();

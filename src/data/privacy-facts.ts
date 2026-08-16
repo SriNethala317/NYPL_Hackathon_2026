@@ -1,6 +1,8 @@
 import { documentTypes } from './document-types';
 import { profileFields } from './profile-fields';
 
+import { ocrProvider } from '@/features/extraction/ocr-provider';
+
 /**
  * What the app actually does with a person's data, derived from the code that does it.
  *
@@ -50,6 +52,19 @@ export function fieldsWeKeep() {
 export function neverStored(): string[] {
   const all = documentTypes.flatMap((type) => type.neverStore ?? []);
   return [...new Set(all)].sort();
+}
+
+/**
+ * Where a document image goes to be read on this platform, or `null` when it never leaves.
+ *
+ * Derived from the OCR provider that will actually run, not from a flag someone remembers to
+ * flip. On the web build tesseract reads the image inside the browser and this is `null`; on a
+ * phone with a Gemini key configured the photograph is sent to Google, and this returns the name
+ * of the service so the privacy screen can say so in as many words. Wiring a new remote reader in
+ * without updating the disclosure is not possible: the disclosure reads from the reader.
+ */
+export function documentDestination(): string | null {
+  return ocrProvider().sendsImagesTo;
 }
 
 /** Human-readable labels for the raw `neverStore` keys. */

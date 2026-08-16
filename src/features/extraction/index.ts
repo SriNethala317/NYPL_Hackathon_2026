@@ -9,4 +9,6 @@ export {
   type PickOutcome,
 } from './pick-document';
 export { canExtract, ocrProvider, type OcrOutcome, type OcrProvider } from './ocr-provider';
+export { createGeminiProvider, geminiVision, type GeminiOptions } from './gemini-vision';
+export { redact, containsSensitive, REDACTED } from './redact';
 export { readDocument, type ReadOutcome } from './read-document';

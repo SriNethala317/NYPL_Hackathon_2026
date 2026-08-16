@@ -1,6 +1,14 @@
 import { documentTypes } from './document-types';
-import { documentsWeRead, fieldsWeKeep, labelForNeverStored, neverStored } from './privacy-facts';
+import {
+  documentDestination,
+  documentsWeRead,
+  fieldsWeKeep,
+  labelForNeverStored,
+  neverStored,
+} from './privacy-facts';
 
+import { createGeminiProvider } from '@/features/extraction/gemini-vision';
+import { ocrProvider } from '@/features/extraction/ocr-provider';
 import { profileFields } from '@/data/profile-fields';
 
 /**
@@ -49,6 +57,30 @@ describe('what we disclose', () => {
   it('does not claim to read a document that yields nothing', () => {
     for (const doc of documentsWeRead()) {
       expect(doc.yields.length + doc.neverStore.length).toBeGreaterThan(0);
+    }
+  });
+});
+
+describe('where a document goes', () => {
+  it('is read off the provider that will actually run, not asserted by hand', () => {
+    // If these two ever disagree, the privacy screen is describing a reader that is not the one
+    // reading the document.
+    expect(documentDestination()).toBe(ocrProvider().sendsImagesTo);
+  });
+
+  it('is a destination, not a boolean, so the screen can name it', () => {
+    // A provider that sends images has to say where. "Somewhere" is not a disclosure.
+    const remote = createGeminiProvider({ apiKey: 'test-key' });
+    expect(remote.sendsImagesTo).toEqual(expect.stringMatching(/\S/));
+  });
+
+  it('is null for every reader that keeps the image on the device', () => {
+    // The local providers are the ones allowed to leave the "nowhere" copy standing.
+    const local = ocrProvider();
+    if (local.name === 'gemini') {
+      expect(local.sendsImagesTo).not.toBeNull();
+    } else {
+      expect(local.sendsImagesTo).toBeNull();
     }
   });
 });

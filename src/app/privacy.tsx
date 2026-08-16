@@ -2,9 +2,15 @@ import { router } from 'expo-router';
 import { Linking, ScrollView, StyleSheet, View } from 'react-native';
 
 import { BackHeader, Button, Card, Icon, SectionLabel, Text } from '@/components';
-import { documentsWeRead, fieldsWeKeep, labelForNeverStored, neverStored } from '@/data/privacy-facts';
+import {
+  documentDestination,
+  documentsWeRead,
+  fieldsWeKeep,
+  labelForNeverStored,
+  neverStored,
+} from '@/data/privacy-facts';
 import { purgeGeneratedForms } from '@/features/forms';
-import { useStrings } from '@/i18n/use-strings';
+import { fill, useStrings } from '@/i18n/use-strings';
 import { useAppStore } from '@/state/app-store';
 import { colors, layout, radius } from '@/theme';
 
@@ -25,6 +31,13 @@ export default function PrivacyScreen() {
   const documents = documentsWeRead();
   const fields = fieldsWeKeep();
   const never = neverStored();
+  /*
+   * Where a document image goes, read off the OCR provider that will actually run rather than
+   * asserted here. On the web build tesseract reads the image in the browser and this is null; on
+   * a phone with a Gemini key the photograph is sent to Google, and the "where it goes" card
+   * names it. The screen cannot go on saying "nowhere" once the code stops meaning it.
+   */
+  const destination = documentDestination();
 
   return (
     <View style={styles.root}>
@@ -88,18 +101,22 @@ export default function PrivacyScreen() {
             ))}
           </Card>
 
-          <SectionLabel label={strings.privacyScreen.whereTitle} />
-          <Card style={styles.card}>
+          <SectionLabel label={strings.privacyScreen.whereTitle} dotColor={destination ? colors.amber : undefined} />
+          <Card style={styles.card} accent={destination ? colors.amber : undefined}>
             <Text variant="bodySm" color="muted">
-              {strings.privacyScreen.whereBody}
+              {destination
+                ? fill(strings.privacyScreen.whereRemoteBody, { service: destination })
+                : strings.privacyScreen.whereBody}
             </Text>
             {/*
               Kept visibly separate from what is true today. Merging the two is how a plan turns
               into a promise, which is exactly what went wrong with the previous version of this
-              screen.
+              screen. When a document does leave, this line carries the caveat that goes with it —
+              free-tier images can be retained and reviewed, and somebody deciding whether to
+              photograph an I-20 needs that before they decide, not after.
             */}
             <Text variant="caption" color="disabled">
-              {strings.privacyScreen.whereNext}
+              {destination ? strings.privacyScreen.whereRemoteNext : strings.privacyScreen.whereNext}
             </Text>
           </Card>
 

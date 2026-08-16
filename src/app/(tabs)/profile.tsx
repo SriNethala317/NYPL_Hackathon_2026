@@ -16,6 +16,7 @@ import {
   UploadOptionCard,
 } from '@/components';
 import { documentType, selectableDocumentTypes } from '@/data/document-types';
+import { documentDestination } from '@/data/privacy-facts';
 import { canExtract } from '@/features/extraction';
 import { fieldDef } from '@/data/profile-fields';
 import { fill, useLanguageSwitchLabel, useStrings } from '@/i18n/use-strings';
@@ -191,6 +192,9 @@ function UploadSheet() {
     (d) => d.status === 'uploading' || d.status === 'reading',
   );
 
+  /** Non-null when reading a document means sending its image somewhere. */
+  const destination = documentDestination();
+
   return (
     <Sheet
       visible={store.sheet.open}
@@ -238,6 +242,17 @@ function UploadSheet() {
               {strings.upload.manualOnly}
             </Text>
           )}
+
+          {/*
+            And says plainly when reading the document means sending it somewhere. This belongs
+            next to the camera button rather than only on the privacy screen: the moment to tell
+            somebody their passport photo is about to leave the phone is before they take it.
+          */}
+          {destination ? (
+            <Text variant="caption" color="amberText">
+              {fill(strings.upload.sentToProvider, { service: destination })}
+            </Text>
+          ) : null}
 
           <View style={styles.options}>
             <Button

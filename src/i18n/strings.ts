@@ -140,9 +140,19 @@ const en = {
       'We do not read these at all. Where a form has a box for one, we leave it blank for you to fill in before you sign.',
     whereTitle: 'Where it goes',
     whereBody:
-      'Nowhere yet. Uploading is not connected in this version, so no document has left your phone. Your details are held only while the app is open and are gone when you close it.',
+      'Nowhere. On this platform your document is read here, so no image of it has left your phone. Your details are held only while the app is open and are gone when you close it.',
     whereNext:
-      'When uploading is switched on, documents will travel over an encrypted connection, be read, and then be deleted. We will say so here only once that is true.',
+      'If that ever changes — if a document has to be sent somewhere to be read — this screen will name where it goes before you upload anything.',
+    /*
+     * Shown instead of the two lines above when the reader that will actually run sends the
+     * image off the device. Which of the two you see is decided by `documentDestination()`, not
+     * by anyone remembering to edit this file, and `{service}` is filled from the provider, so
+     * this screen cannot name the wrong destination or keep denying there is one.
+     */
+    whereRemoteBody:
+      'To read your document, the photograph of it is sent to {service} over an encrypted connection, and nowhere else. Nothing else goes with it — not your name, not what you are applying for. This app keeps no copy of the image.',
+    whereRemoteNext:
+      'Google runs that service. On the free tier this app uses, an image sent there may be kept for a time and reviewed by a person — so if a document is one you would not show a stranger, add it and type those details in yourself. The text that comes back has Social Security, SEVIS, alien registration and account numbers removed on this phone before anything else sees them.',
     formTitle: 'Filled application forms',
     formBody:
       'When you save a filled form it is written to your phone so you can share it, then deleted as soon as you have. \u201cDelete everything\u201d removes any that are left.',
@@ -251,6 +261,13 @@ const en = {
     tryAgain: 'Try again',
     manualOnly:
       'This build cannot read documents automatically. Add the document, then type the details in yourself \u2014 or open the app in a browser.',
+    /*
+     * At the moment of the decision, not buried in a settings screen. Somebody about to
+     * photograph a passport is owed the fact that the photograph is going to be sent somewhere,
+     * while they can still choose not to.
+     */
+    sentToProvider:
+      'To read it, the photo of your document is sent to {service}. Nothing else about you is sent.',
     demoSample: 'Demo: sample document',
     demoFailure: 'Demo: failed read',
   },
@@ -440,9 +457,13 @@ const es: Strings = {
       'No leemos esto en absoluto. Cuando un formulario tiene una casilla para ello, la dejamos en blanco para que usted la complete antes de firmar.',
     whereTitle: 'A d\u00f3nde va',
     whereBody:
-      'A ninguna parte todav\u00eda. La carga no est\u00e1 conectada en esta versi\u00f3n, as\u00ed que ning\u00fan documento ha salido de su tel\u00e9fono. Sus datos se guardan solo mientras la aplicaci\u00f3n est\u00e1 abierta.',
+      'A ninguna parte. En esta plataforma su documento se lee aqu\u00ed mismo, as\u00ed que ninguna imagen de \u00e9l ha salido de su tel\u00e9fono. Sus datos se guardan solo mientras la aplicaci\u00f3n est\u00e1 abierta.',
     whereNext:
-      'Cuando se active la carga, los documentos viajar\u00e1n por una conexi\u00f3n cifrada, se leer\u00e1n y luego se eliminar\u00e1n. Lo diremos aqu\u00ed solo cuando sea cierto.',
+      'Si eso cambia alguna vez \u2014 si hay que enviar un documento a otro lugar para leerlo \u2014 esta pantalla dir\u00e1 a d\u00f3nde va antes de que usted suba nada.',
+    whereRemoteBody:
+      'Para leer su documento, la fotograf\u00eda se env\u00eda a {service} por una conexi\u00f3n cifrada, y a ning\u00fan otro lugar. Nada m\u00e1s la acompa\u00f1a: ni su nombre, ni a qu\u00e9 programa solicita. Esta aplicaci\u00f3n no guarda ninguna copia de la imagen.',
+    whereRemoteNext:
+      'Ese servicio lo opera Google. En el nivel gratuito que usa esta aplicaci\u00f3n, una imagen enviada all\u00ed puede conservarse un tiempo y ser revisada por una persona \u2014 as\u00ed que si un documento es de los que no le mostrar\u00eda a un desconocido, agr\u00e9guelo y escriba esos datos usted mismo. Al texto que regresa se le quitan en este tel\u00e9fono los n\u00fameros de Seguro Social, SEVIS, registro de extranjero y de cuenta antes de que nada m\u00e1s los vea.',
     formTitle: 'Formularios completados',
     formBody:
       'Cuando guarda un formulario completado, se escribe en su tel\u00e9fono para que pueda compartirlo y se elimina en cuanto lo hace. \u201cEliminar todo\u201d quita los que queden.',
@@ -543,6 +564,8 @@ const es: Strings = {
     tryAgain: 'Intentar de nuevo',
     manualOnly:
       'Esta versi\u00f3n no puede leer documentos autom\u00e1ticamente. Agregue el documento y escriba los datos usted mismo, o abra la aplicaci\u00f3n en un navegador.',
+    sentToProvider:
+      'Para leerla, la foto de su documento se env\u00eda a {service}. No se env\u00eda nada m\u00e1s sobre usted.',
     demoSample: 'Demo: documento de ejemplo',
     demoFailure: 'Demo: lectura fallida',
   },
