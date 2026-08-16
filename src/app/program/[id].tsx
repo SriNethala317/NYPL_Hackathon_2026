@@ -47,9 +47,29 @@ export default function ProgramDetailScreen() {
   });
 
   if (!program) {
+    /*
+     * A stale link or a programme the City has withdrawn. Rendering just the header left a blank
+     * screen with nothing to read and nothing to do -- the failure looked like a crash while
+     * reporting nothing.
+     */
     return (
       <View style={styles.root}>
         <BackHeader label={strings.detail.back} onPress={() => router.back()} />
+        <ScrollView contentContainerStyle={styles.content}>
+          <View style={styles.body}>
+            <Card style={styles.explain} accent={colors.amber}>
+              <Text variant="cardTitle">{strings.catalogue.notFoundTitle}</Text>
+              <Text variant="bodySm" color="muted">
+                {strings.catalogue.notFoundBody}
+              </Text>
+              <Button
+                label={strings.catalogue.browseAll}
+                size="md"
+                onPress={() => router.navigate('/enrollment')}
+              />
+            </Card>
+          </View>
+        </ScrollView>
       </View>
     );
   }

@@ -66,6 +66,14 @@ export type ProgramCriteriaRecord = {
    */
   scorable: boolean;
   method: 'heuristic' | 'llm' | 'unmatched';
+  /**
+   * Our reading of the rule is a fragment of the real test — the programme offers alternative
+   * routes to eligibility, or turns on something we never ask about. A fragment can support
+   * "you may qualify"; it can never support "you may not".
+   */
+  partial?: boolean;
+  /** Named conditions the engine cannot evaluate, e.g. disability or immigration status. */
+  unchecked?: string[];
   criteria: ProgramCriteria;
   renewal?: ProgramRenewal;
   /** The City's own sentence behind each criterion, quotable in the UI. */

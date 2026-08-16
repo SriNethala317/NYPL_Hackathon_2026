@@ -28,7 +28,7 @@ If the QR code shows `127.0.0.1`, your phone cannot reach it — use `npm start 
 |---|---|
 | `npm start` | Expo dev server |
 | `npm run ios` / `android` / `web` | Open a platform directly |
-| `npm test` | Jest — 184 tests |
+| `npm test` | Jest — 213 tests |
 | `npm run lint` | ESLint via `expo lint` |
 | `npx tsc --noEmit` | Typecheck (strict) |
 | `npx expo export --platform web` | Static-renders every route; a render crash fails the build |
@@ -51,9 +51,14 @@ trade is staleness — `fetchedAt` records when the copy was taken, and re-runni
 the only thing that changes it.
 
 `derive-criteria` turns the City's `plain_language_eligibility` prose into machine-checkable rules
-(age bounds, NYC residency, household-size income tables). **46 of 97 are scorable this way.** The
-other 51 are shown as browsable with their official text — never scored, because inventing a
-rejection out of a parser's limits is worse than admitting we do not know.
+(age bounds, NYC residency, household-size income tables). **49 of 97 are scorable this way.** The
+rest are shown as browsable with their official text — never scored, because inventing a rejection
+out of a parser's limits is worse than admitting we do not know.
+
+**40 are additionally marked `partial`**, meaning our reading is a fragment of the real rule — the
+programme offers alternative routes ("65 or older, *or* legally blind, *or* deaf"), or turns on
+something we never ask about. For those the engine will say "you may qualify" or "we need more
+information", but **never "you may not"**. A fragment cannot support a rejection.
 
 Every derived rule keeps the City's own sentence in `sources`, so when the app says someone may
 not qualify it can show the line that decided it.
@@ -137,9 +142,11 @@ audience the data story *is* the product.
   deleted. This follows IDNYC, which has held no underlying identity documents since 2016.
 - **Never stored at all**: SSN, SEVIS ID, visa status, alien number, bank account number —
   declared per document type in `src/data/document-types.ts`.
-- **The `/privacy` screen is generated from those registries**, so it cannot drift into being
-  untrue. `privacy-facts.test.ts` fails the build if a sensitive field is added without being
-  disclosed.
+- **The `/privacy` screen is generated from those registries**, so the lists cannot drift into
+  being untrue. `privacy-facts.test.ts` fails the build if a sensitive field is added without
+  being disclosed.
+- **The copy describes what the code does today, in the present tense.** There is no upload, no
+  storage and no encryption in this version, and the screen says so rather than promising them.
 
 Full reasoning and the NY-specific precedents: `docs/architecture-review.md`.
 Pipeline design: `docs/upload-pipeline.md`.

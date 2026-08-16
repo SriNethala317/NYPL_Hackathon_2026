@@ -37,11 +37,15 @@ export function fieldsWeKeep() {
 }
 
 /**
- * Identifiers that are read from a document but never persisted.
+ * Identifiers this app refuses to touch.
  *
  * SSN, SEVIS ID and visa status identify precisely the population NYC's Identifying Information
- * Law (Local Law 245 of 2017) is written to protect. They are used to complete a submission if a
- * program demands one, then dropped.
+ * Law (Local Law 245 of 2017) is written to protect.
+ *
+ * Note what this is and is not: extraction never attempts these fields at all — `field-matchers`
+ * has no label for any of them — so they are never captured, rather than captured and discarded.
+ * That is the stronger position, and the wording on the privacy screen says so. An earlier
+ * version described a "read it, use it, drop it" mechanism that does not exist in the code.
  */
 export function neverStored(): string[] {
   const all = documentTypes.flatMap((type) => type.neverStore ?? []);

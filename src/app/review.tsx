@@ -59,6 +59,9 @@ export default function ReviewScreen() {
             ))}
           </RowGroup>
 
+      {/* An empty card renders as a bare grey bar, which reads as a rendering bug. */}
+      {attached.length > 0 && (
+        <>
           <SectionLabel label={strings.review.attached} />
           <Card style={styles.attached}>
             {attached.map((doc) => (
@@ -72,6 +75,8 @@ export default function ReviewScreen() {
               />
             ))}
           </Card>
+        </>
+      )}
     </DetailScreen>
   );
 }

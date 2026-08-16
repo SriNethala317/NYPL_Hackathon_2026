@@ -52,9 +52,40 @@ export const formTemplates: readonly FormTemplate[] = [
         pdfField: 'email',
         source: { from: 'manual', reason: 'Add an email address you check.' },
       },
+      /*
+       * The phone number is three boxes on this form, not one. Listing only the first meant the
+       * applicant found the other two after opening the PDF, having been told the form was ready.
+       */
+      {
+        pdfField: 'area_code',
+        source: { from: 'manual', reason: 'Add your phone area code.' },
+      },
       {
         pdfField: 'phone1.1',
-        source: { from: 'manual', reason: 'Add a phone number the agency can reach you on.' },
+        source: { from: 'manual', reason: 'Add the first three digits of your phone number.' },
+      },
+      {
+        pdfField: 'phone1.2',
+        source: { from: 'manual', reason: 'Add the last four digits of your phone number.' },
+      },
+      /*
+       * Two required tick-boxes. They are radio groups rather than text fields, so nothing can be
+       * written into them here — but leaving them off the list entirely meant an applicant could
+       * submit the form with its first question unanswered and never be told.
+       */
+      {
+        pdfField: 'sect1_id',
+        source: {
+          from: 'manual',
+          reason: 'Tick whether this is a first application or a renewal.',
+        },
+      },
+      {
+        pdfField: 'living_solo',
+        source: {
+          from: 'manual',
+          reason: 'Tick whether you are the only person living in your apartment.',
+        },
       },
     ],
   },

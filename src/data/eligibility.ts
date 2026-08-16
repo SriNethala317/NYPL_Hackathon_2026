@@ -27,6 +27,10 @@ export type EligibilityResult = {
   programId: string;
   programName: string;
   status: EngineStatus;
+  /** True when our reading of the rule is only part of it. Drives the "we checked what we could" copy. */
+  partial?: boolean;
+  /** Conditions the rule depends on that we never ask about. */
+  unchecked?: string[];
   /** Machine-readable reason codes; `reasonDetails` carries the quotable text. */
   reasons: string[];
   reasonDetails: { code: string; sourceText?: string; limit?: number }[];
@@ -199,10 +203,20 @@ export function evaluate(programId: string, input: EligibilityInput): Eligibilit
     }
   }
 
+  /*
+   * A partial reading may never produce a negative.
+   *
+   * Half this catalogue offers alternative routes to eligibility — "65 or older, OR legally
+   * blind, OR deaf..." — or turns on something we never ask about. Applying the one branch we
+   * parsed as though it were the whole test told a forty-year-old blind rider they did not
+   * qualify for a reduced fare. Where the reading is a fragment, failing it means we need more
+   * information, not that the person is out.
+   */
+  const failed = reasonDetails.length > 0;
   const status: EngineStatus =
-    reasonDetails.length > 0
+    failed && !record.partial
       ? 'likely_not_eligible'
-      : missingFields.length > 0
+      : failed || missingFields.length > 0
         ? 'needs_more_information'
         : 'potentially_eligible';
 
@@ -210,6 +224,10 @@ export function evaluate(programId: string, input: EligibilityInput): Eligibilit
     programId,
     programName: source.name,
     status,
+    partial: record.partial,
+    unchecked: record.unchecked,
+    // Reasons still travel, so the screen can show what did not match without calling it a
+    // rejection. They are explanation, not verdict.
     reasons: reasonDetails.map((detail) => detail.code),
     reasonDetails,
     missingFields,

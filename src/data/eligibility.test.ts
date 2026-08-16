@@ -249,3 +249,81 @@ describe('hostile input', () => {
     expect(monthlyToAnnual(1e308)).toBeUndefined();
   });
 });
+
+/**
+ * Regressions from the independent eligibility audit. Each of these was the app confidently
+ * telling somebody they did not qualify for a benefit they were entitled to.
+ */
+describe('partial readings never produce a rejection', () => {
+  it('never says "likely not eligible" for a programme we only partly understand', () => {
+    // Half the catalogue offers alternative routes -- "65 or older, OR legally blind, OR deaf" --
+    // or turns on something we never ask about. Applying the one branch we parsed as if it were
+    // the whole test told a forty-year-old blind rider they did not qualify for a reduced fare.
+    const partial = programs.filter((p) => criteriaFor(p.id)?.partial);
+    expect(partial.length).toBeGreaterThan(0);
+
+    for (const program of partial) {
+      const result = evaluate(program.id, {
+        age: 40,
+        nycResident: true,
+        householdSize: 1,
+        annualIncome: 500_000,
+        categoriesOnFile: ALL_PROOF,
+      });
+      expect(result.status).not.toBe('likely_not_eligible');
+    }
+  });
+
+  it('still explains what did not match, without calling it a verdict', () => {
+    const mta = programs.find((p) => /reduced.fare/i.test(p.name));
+    if (!mta) return;
+
+    const result = evaluate(mta.id, {
+      age: 40,
+      nycResident: true,
+      categoriesOnFile: ALL_PROOF,
+    });
+    expect(result.status).toBe('needs_more_information');
+    expect(result.partial).toBe(true);
+  });
+});
+
+describe('criteria faithfully reflect the official text', () => {
+  it('reads monthly income tables as monthly', () => {
+    // HEAP publishes "Maximum Monthly Gross Income". Storing $3,322 in the annual field made the
+    // limit twelve times too strict -- someone on $1,800 a month was refused heating assistance.
+    const heap = programs.find((p) => /home energy assistance/i.test(p.name));
+    const table = criteriaFor(heap!.id)?.criteria.annualIncomeByHouseholdSize;
+
+    expect(table).toBeDefined();
+    // An annual figure for a single-person household cannot plausibly be four figures.
+    expect(table!['1']).toBeGreaterThan(20_000);
+  });
+
+  it('never applies a dependant’s age to the applicant', () => {
+    // FHEPS says "your family must have a child under 18". That became maxAge 17 on the adult
+    // filling in the form, so every real parent facing eviction was told they did not qualify.
+    const fheps = programs.find((p) => /family homelessness and eviction/i.test(p.name));
+    expect(criteriaFor(fheps!.id)?.criteria.maxAge).toBeUndefined();
+  });
+
+  it('does not mistake an investment-income sub-limit for the household limit', () => {
+    // EITC caps investment income at $11,950 while household limits run to $68,675.
+    const eitc = programs.find((p) => /earned income tax credit/i.test(p.name));
+    expect(criteriaFor(eitc!.id)?.criteria.annualIncomeCap).not.toBe(11_950);
+  });
+
+  it('reads an income cap phrased as "$X or less"', () => {
+    // DRIE says "$50,000 or less per year". The qualifier trails the figure, which the original
+    // pattern could not see, so the cap was silently absent.
+    const drie = programs.find((p) => /disability rent increase/i.test(p.name));
+    expect(criteriaFor(drie!.id)?.criteria.annualIncomeCap).toBe(50_000);
+  });
+
+  it('marks every programme whose rule depends on something we never ask', () => {
+    for (const program of programs) {
+      const record = criteriaFor(program.id);
+      if (record?.unchecked?.length) expect(record.partial).toBe(true);
+    }
+  });
+});

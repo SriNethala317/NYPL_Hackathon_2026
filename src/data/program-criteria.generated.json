@@ -1,8 +1,8 @@
 {
-  "derivedAt": "2026-08-16T12:03:04.940Z",
+  "derivedAt": "2026-08-16T13:10:06.434Z",
   "method": "heuristic",
   "count": 97,
-  "scorable": 46,
+  "scorable": 49,
   "programs": [
     {
       "programId": "P085en",
@@ -16,15 +16,23 @@
     {
       "programId": "P088en",
       "programName": "Accelerated Study in Associate Programs",
-      "scorable": false,
-      "method": "unmatched",
-      "criteria": {},
-      "sources": {},
+      "scorable": true,
+      "method": "heuristic",
+      "criteria": {
+        "nycResident": true
+      },
+      "sources": {
+        "nycResident": "· Be a New York City resident or eligible for in-state tuition"
+      },
       "sourceUrl": "http://www2.cuny.edu/admissions/"
     },
     {
       "programId": "P042en",
       "programName": "Access-A-Ride Paratransit Service",
+      "partial": true,
+      "unchecked": [
+        "disability"
+      ],
       "scorable": false,
       "method": "unmatched",
       "criteria": {},
@@ -34,6 +42,10 @@
     {
       "programId": "P041en",
       "programName": "Adult Protective Services",
+      "partial": true,
+      "unchecked": [
+        "disability"
+      ],
       "scorable": true,
       "method": "heuristic",
       "criteria": {
@@ -47,6 +59,12 @@
     {
       "programId": "P164",
       "programName": "Affordable Broadband Act",
+      "partial": true,
+      "unchecked": [
+        "disability",
+        "immigration",
+        "otherBenefits"
+      ],
       "scorable": false,
       "method": "unmatched",
       "criteria": {},
@@ -65,6 +83,7 @@
     {
       "programId": "P156en",
       "programName": "Big Apple Connect",
+      "partial": true,
       "scorable": false,
       "method": "unmatched",
       "criteria": {},
@@ -74,10 +93,14 @@
     {
       "programId": "P101en",
       "programName": "Career and Technical Education",
-      "scorable": false,
-      "method": "unmatched",
-      "criteria": {},
-      "sources": {},
+      "scorable": true,
+      "method": "heuristic",
+      "criteria": {
+        "nycResident": true
+      },
+      "sources": {
+        "nycResident": "· Are you a New York City resident?"
+      },
       "sourceUrl": "http://cte.nyc/web/"
     },
     {
@@ -107,14 +130,21 @@
     {
       "programId": "P001en",
       "programName": "Child and Dependent Care Tax Credit",
-      "scorable": false,
-      "method": "unmatched",
+      "partial": true,
+      "unchecked": [
+        "disability"
+      ],
+      "scorable": true,
+      "method": "heuristic",
       "criteria": {
+        "annualIncomeCap": 30000,
         "requiredCategories": [
           "income"
         ]
       },
-      "sources": {},
+      "sources": {
+        "income": "· Your federal adjusted gross income was $30,000 or less."
+      },
       "sourceUrl": "https://www.nyc.gov/site/dca/talk-money/file-your-taxes.page"
     },
     {
@@ -129,6 +159,11 @@
     {
       "programId": "P060en",
       "programName": "Child Health Plus",
+      "partial": true,
+      "unchecked": [
+        "immigration",
+        "otherBenefits"
+      ],
       "scorable": false,
       "method": "unmatched",
       "criteria": {},
@@ -138,26 +173,36 @@
     {
       "programId": "P004en",
       "programName": "Child Tax Credit",
-      "scorable": false,
-      "method": "unmatched",
+      "partial": true,
+      "scorable": true,
+      "method": "heuristic",
       "criteria": {
+        "annualIncomeCap": 75000,
         "requiredCategories": [
           "income"
         ]
       },
-      "sources": {},
+      "sources": {
+        "income": "· Your New York adjusted gross income is $75,000 or less (single/head of household), $110,000 or less (married filing jointly), or $55,000 or less (married filing separately)"
+      },
       "sourceUrl": "https://www.nyc.gov/site/dca/talk-money/file-your-taxes.page"
     },
     {
       "programId": "P054en",
       "programName": "Children and Youth with Special Health Care Needs",
+      "partial": true,
+      "unchecked": [
+        "disability"
+      ],
       "scorable": true,
       "method": "heuristic",
       "criteria": {
-        "nycResident": true
+        "nycResident": true,
+        "maxAge": 21
       },
       "sources": {
-        "nycResident": "· Live in New York City"
+        "nycResident": "· Live in New York City",
+        "age": "· Be age 21 or younger"
       },
       "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
     },
@@ -211,26 +256,31 @@
     {
       "programId": "P105en",
       "programName": "Cooling Assistance Benefit",
+      "partial": true,
+      "unchecked": [
+        "immigration",
+        "otherBenefits"
+      ],
       "scorable": true,
       "method": "heuristic",
       "criteria": {
         "minAge": 60,
         "annualIncomeByHouseholdSize": {
-          "1": 3473,
-          "2": 4542,
-          "3": 5611,
-          "4": 6680,
-          "5": 7749,
-          "6": 8818,
-          "7": 9018,
-          "8": 9218,
-          "9": 9419,
-          "10": 9619,
-          "11": 9820,
-          "12": 10020,
-          "13": 10221
+          "1": 41676,
+          "2": 54504,
+          "3": 67332,
+          "4": 80160,
+          "5": 92988,
+          "6": 105816,
+          "7": 108216,
+          "8": 110616,
+          "9": 113028,
+          "10": 115428,
+          "11": 117840,
+          "12": 120240,
+          "13": 122652
         },
-        "additionalPersonIncrement": 687,
+        "additionalPersonIncrement": 8244,
         "requiredCategories": [
           "identity",
           "residence",
@@ -239,7 +289,7 @@
       },
       "sources": {
         "age": "· Have a documented medical condition worsened by extreme heat, be age 60 or older, or be under age 6",
-        "income": "Household income table published by the agency."
+        "income": "Monthly household income table published by the agency, converted to a yearly figure."
       },
       "sourceUrl": "https://a069-access.nyc.gov/accesshra/"
     },
@@ -255,6 +305,10 @@
     {
       "programId": "P128en",
       "programName": "COVID-19 Funeral Assistance",
+      "partial": true,
+      "unchecked": [
+        "immigration"
+      ],
       "scorable": false,
       "method": "unmatched",
       "criteria": {},
@@ -286,10 +340,16 @@
     {
       "programId": "P005en",
       "programName": "Disability Rent Increase Exemption",
+      "partial": true,
+      "unchecked": [
+        "disability",
+        "otherBenefits"
+      ],
       "scorable": true,
       "method": "heuristic",
       "criteria": {
         "minAge": 18,
+        "annualIncomeCap": 50000,
         "requiredCategories": [
           "identity",
           "residence",
@@ -301,13 +361,18 @@
         "sourceText": "· Renew your DRIE enrollment each year to keep your rent frozen"
       },
       "sources": {
-        "age": "· You're 18 years old or older"
+        "age": "· You're 18 years old or older",
+        "income": "· Your household income is $50,000 or less per year"
       },
       "sourceUrl": "https://www.nyc.gov/assets/finance/jump/nyctap.html"
     },
     {
       "programId": "P017en",
       "programName": "Disabled Homeowners' Exemption",
+      "partial": true,
+      "unchecked": [
+        "disability"
+      ],
       "scorable": true,
       "method": "heuristic",
       "criteria": {
@@ -330,22 +395,24 @@
     {
       "programId": "P006en",
       "programName": "Earned Income Tax Credit",
-      "scorable": true,
-      "method": "heuristic",
+      "scorable": false,
+      "method": "unmatched",
       "criteria": {
-        "annualIncomeCap": 11950,
         "requiredCategories": [
           "income"
         ]
       },
-      "sources": {
-        "income": "· Your investment income in 2025 must have been less than $11,950"
-      },
+      "sources": {},
       "sourceUrl": "https://www.nyc.gov/site/dca/talk-money/file-your-taxes.page"
     },
     {
       "programId": "P143en",
       "programName": "Emergency Assistance / One Shot Deal",
+      "partial": true,
+      "unchecked": [
+        "disability",
+        "immigration"
+      ],
       "scorable": false,
       "method": "unmatched",
       "criteria": {
@@ -361,6 +428,11 @@
     {
       "programId": "P160en",
       "programName": "Essential Plan",
+      "partial": true,
+      "unchecked": [
+        "immigration",
+        "otherBenefits"
+      ],
       "scorable": true,
       "method": "heuristic",
       "criteria": {
@@ -387,13 +459,27 @@
     {
       "programId": "P003en",
       "programName": "Extended Day/Year Infant and Toddler Programs",
+      "partial": true,
+      "unchecked": [
+        "immigration"
+      ],
       "scorable": true,
       "method": "heuristic",
       "criteria": {
-        "nycResident": true
+        "nycResident": true,
+        "annualIncomeByHouseholdSize": {
+          "2": 6436,
+          "3": 7950,
+          "4": 9464,
+          "5": 10978,
+          "6": 12492,
+          "7": 12776,
+          "8": 13060
+        }
       },
       "sources": {
-        "nycResident": "· Your family must live in New York City"
+        "nycResident": "· Your family must live in New York City",
+        "income": "Household income table published by the agency."
       },
       "sourceUrl": "https://mycity.nyc.gov/s/childcarelanding?language=en_US&LanguageCode=en_US"
     },
@@ -442,33 +528,40 @@
     {
       "programId": "P138en",
       "programName": "Family Homelessness and Eviction Prevention Supplement",
-      "scorable": true,
-      "method": "heuristic",
-      "criteria": {
-        "maxAge": 17
-      },
-      "sources": {
-        "age": "· A child under 18 years of age"
-      },
+      "partial": true,
+      "unchecked": [
+        "pregnancy",
+        "otherBenefits",
+        "student"
+      ],
+      "scorable": false,
+      "method": "unmatched",
+      "criteria": {},
+      "sources": {},
       "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
     },
     {
       "programId": "P031en",
       "programName": "Family Planning Benefit Program",
+      "partial": true,
+      "unchecked": [
+        "immigration",
+        "otherBenefits"
+      ],
       "scorable": true,
       "method": "heuristic",
       "criteria": {
         "annualIncomeByHouseholdSize": {
-          "1": 2909,
-          "2": 3931,
-          "3": 4953,
-          "4": 5975,
-          "5": 6997,
-          "6": 8019,
-          "7": 9041,
-          "8": 10063
+          "1": 34908,
+          "2": 47172,
+          "3": 59436,
+          "4": 71700,
+          "5": 83964,
+          "6": 96228,
+          "7": 108492,
+          "8": 120756
         },
-        "additionalPersonIncrement": 1023,
+        "additionalPersonIncrement": 12276,
         "requiredCategories": [
           "identity",
           "residence",
@@ -477,27 +570,26 @@
         ]
       },
       "sources": {
-        "income": "Household income table published by the agency."
+        "income": "Monthly household income table published by the agency, converted to a yearly figure."
       },
       "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
     },
     {
       "programId": "P068en",
       "programName": "Family Resource Centers",
-      "scorable": true,
-      "method": "heuristic",
-      "criteria": {
-        "minAge": 0,
-        "maxAge": 24
-      },
-      "sources": {
-        "age": "Parents or caregivers of a child 0 to 24 years old who is at risk of or currently experiences emotional, behavioral or mental health challenges."
-      },
+      "scorable": false,
+      "method": "unmatched",
+      "criteria": {},
+      "sources": {},
       "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
     },
     {
       "programId": "P140en",
       "programName": "Family Type Homes for Adults",
+      "partial": true,
+      "unchecked": [
+        "disability"
+      ],
       "scorable": false,
       "method": "unmatched",
       "criteria": {},
@@ -507,10 +599,27 @@
     {
       "programId": "P008en",
       "programName": "Head Start / Early Head Start",
-      "scorable": false,
-      "method": "unmatched",
-      "criteria": {},
-      "sources": {},
+      "partial": true,
+      "unchecked": [
+        "otherBenefits"
+      ],
+      "scorable": true,
+      "method": "heuristic",
+      "criteria": {
+        "annualIncomeByHouseholdSize": {
+          "2": 21640,
+          "3": 27320,
+          "4": 33000,
+          "5": 38680,
+          "6": 44360,
+          "7": 50040,
+          "8": 55720
+        },
+        "additionalPersonIncrement": 5680
+      },
+      "sources": {
+        "income": "Household income table published by the agency."
+      },
       "sourceUrl": "https://headstart.gov/how-apply"
     },
     {
@@ -525,6 +634,10 @@
     {
       "programId": "P082en",
       "programName": "Home Care Services Program",
+      "partial": true,
+      "unchecked": [
+        "otherBenefits"
+      ],
       "scorable": false,
       "method": "unmatched",
       "criteria": {},
@@ -534,26 +647,32 @@
     {
       "programId": "P019en",
       "programName": "Home Energy Assistance Program",
+      "partial": true,
+      "unchecked": [
+        "disability",
+        "immigration",
+        "otherBenefits"
+      ],
       "scorable": true,
       "method": "heuristic",
       "criteria": {
         "minAge": 60,
         "annualIncomeByHouseholdSize": {
-          "1": 3322,
-          "2": 4345,
-          "3": 5367,
-          "4": 6390,
-          "5": 7412,
-          "6": 8434,
-          "7": 8626,
-          "8": 8818,
-          "9": 9010,
-          "10": 9201,
-          "11": 9393,
-          "12": 9585,
-          "13": 9952
+          "1": 39864,
+          "2": 52140,
+          "3": 64404,
+          "4": 76680,
+          "5": 88944,
+          "6": 101208,
+          "7": 103512,
+          "8": 105816,
+          "9": 108120,
+          "10": 110412,
+          "11": 112716,
+          "12": 115020,
+          "13": 119424
         },
-        "additionalPersonIncrement": 672,
+        "additionalPersonIncrement": 8064,
         "requiredCategories": [
           "identity",
           "residence",
@@ -562,7 +681,7 @@
       },
       "sources": {
         "age": "· the presence of a household member who is under age 6, age 60 or older or permanently disabled",
-        "income": "Household income table published by the agency."
+        "income": "Monthly household income table published by the agency, converted to a yearly figure."
       },
       "sourceUrl": "https://a069-access.nyc.gov/accesshra/"
     },
@@ -642,6 +761,12 @@
     {
       "programId": "P028en",
       "programName": "Learn & Earn",
+      "partial": true,
+      "unchecked": [
+        "disability",
+        "pregnancy",
+        "otherBenefits"
+      ],
       "scorable": true,
       "method": "heuristic",
       "criteria": {
@@ -673,6 +798,10 @@
     {
       "programId": "P131en",
       "programName": "Lifeline",
+      "partial": true,
+      "unchecked": [
+        "otherBenefits"
+      ],
       "scorable": true,
       "method": "heuristic",
       "criteria": {
@@ -708,6 +837,13 @@
     {
       "programId": "P155en",
       "programName": "Medicaid",
+      "partial": true,
+      "unchecked": [
+        "disability",
+        "immigration",
+        "pregnancy",
+        "otherBenefits"
+      ],
       "scorable": true,
       "method": "heuristic",
       "criteria": {
@@ -750,6 +886,11 @@
     {
       "programId": "P162en",
       "programName": "MTA Reduced-Fare Program",
+      "partial": true,
+      "unchecked": [
+        "disability",
+        "otherBenefits"
+      ],
       "scorable": true,
       "method": "heuristic",
       "criteria": {
@@ -775,6 +916,7 @@
     {
       "programId": "P053en",
       "programName": "Newborn Home Visiting Program",
+      "partial": true,
       "scorable": false,
       "method": "unmatched",
       "criteria": {},
@@ -784,6 +926,10 @@
     {
       "programId": "P035en",
       "programName": "NYC 988",
+      "partial": true,
+      "unchecked": [
+        "immigration"
+      ],
       "scorable": false,
       "method": "unmatched",
       "criteria": {},
@@ -820,6 +966,10 @@
     {
       "programId": "P034en",
       "programName": "NYC Family Justice Centers",
+      "partial": true,
+      "unchecked": [
+        "immigration"
+      ],
       "scorable": false,
       "method": "unmatched",
       "criteria": {},
@@ -829,6 +979,10 @@
     {
       "programId": "P161en",
       "programName": "NYC Ferry Discount Program",
+      "partial": true,
+      "unchecked": [
+        "disability"
+      ],
       "scorable": true,
       "method": "heuristic",
       "criteria": {
@@ -868,14 +1022,21 @@
     {
       "programId": "P147en",
       "programName": "NYC Housing Connect",
-      "scorable": false,
-      "method": "unmatched",
+      "partial": true,
+      "unchecked": [
+        "disability"
+      ],
+      "scorable": true,
+      "method": "heuristic",
       "criteria": {
+        "nycResident": true,
         "requiredCategories": [
           "income"
         ]
       },
-      "sources": {},
+      "sources": {
+        "nycResident": "offers free one-on-one financial counseling and help with applications. Some lotteries give priority to NYC residents who have a disability, are seniors, or live in the same neighborhood."
+      },
       "sourceUrl": "https://housingconnect.nyc.gov/PublicWeb/"
     },
     {
@@ -924,6 +1085,12 @@
     {
       "programId": "P029en",
       "programName": "NYC Nurse-Family Partnership",
+      "partial": true,
+      "unchecked": [
+        "immigration",
+        "pregnancy",
+        "otherBenefits"
+      ],
       "scorable": true,
       "method": "heuristic",
       "criteria": {
@@ -937,6 +1104,10 @@
     {
       "programId": "P145en",
       "programName": "NYC NY Connects",
+      "partial": true,
+      "unchecked": [
+        "disability"
+      ],
       "scorable": false,
       "method": "unmatched",
       "criteria": {},
@@ -946,10 +1117,13 @@
     {
       "programId": "P083en",
       "programName": "NYCHA Public Housing",
+      "partial": true,
+      "unchecked": [
+        "immigration"
+      ],
       "scorable": true,
       "method": "heuristic",
       "criteria": {
-        "minAge": 18,
         "annualIncomeByHouseholdSize": {
           "1": 95000,
           "2": 108600,
@@ -974,7 +1148,6 @@
         ]
       },
       "sources": {
-        "age": "· You're 18 or older, or you're an emancipated minor.",
         "income": "Household income table published by the agency."
       },
       "sourceUrl": "https://selfserve.nycha.info/nycha/app/eservice/enu?SWECmd=GotoView&SWEView=NYCHA+OUI+Notice+Instruction+View"
@@ -1032,14 +1205,10 @@
     {
       "programId": "P037en",
       "programName": "Office of Child Support Services",
-      "scorable": true,
-      "method": "heuristic",
-      "criteria": {
-        "maxAge": 20
-      },
-      "sources": {
-        "age": "· Are a parent or guardian of a child under 21, and"
-      },
+      "scorable": false,
+      "method": "unmatched",
+      "criteria": {},
+      "sources": {},
       "sourceUrl": "https://childsupport.ny.gov/enroll"
     },
     {
@@ -1070,14 +1239,10 @@
     {
       "programId": "P059en",
       "programName": "Outpatient Treatment Services",
-      "scorable": true,
-      "method": "heuristic",
-      "criteria": {
-        "maxAge": 4
-      },
-      "sources": {
-        "age": "· Children from birth to age 18 (not all clinics accept children under 5 years old)"
-      },
+      "scorable": false,
+      "method": "unmatched",
+      "criteria": {},
+      "sources": {},
       "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
     },
     {
@@ -1092,6 +1257,10 @@
     {
       "programId": "P062en",
       "programName": "Primary and Preventive Health Care",
+      "partial": true,
+      "unchecked": [
+        "immigration"
+      ],
       "scorable": false,
       "method": "unmatched",
       "criteria": {},
@@ -1101,6 +1270,11 @@
     {
       "programId": "P011en",
       "programName": "Qualified Health Plans",
+      "partial": true,
+      "unchecked": [
+        "immigration",
+        "otherBenefits"
+      ],
       "scorable": false,
       "method": "unmatched",
       "criteria": {},
@@ -1132,12 +1306,14 @@
       "method": "heuristic",
       "criteria": {
         "minAge": 65,
+        "annualIncomeCap": 500000,
         "requiredCategories": [
           "income"
         ]
       },
       "sources": {
-        "age": "· Are age 65 or older"
+        "age": "· Are age 65 or older",
+        "income": "· Have a combined household income of $500,000 or less"
       },
       "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
     },
@@ -1194,11 +1370,13 @@
     {
       "programId": "P015en",
       "programName": "Senior Citizen Rent Increase Exemption",
+      "partial": true,
       "scorable": true,
       "method": "heuristic",
       "criteria": {
         "nycResident": true,
         "minAge": 62,
+        "annualIncomeCap": 50000,
         "requiredCategories": [
           "residence",
           "income"
@@ -1206,7 +1384,8 @@
       },
       "sources": {
         "nycResident": "· Do you live in NYC in one of these types of housing?",
-        "age": "· Are you 62 or older?"
+        "age": "· Are you 62 or older?",
+        "income": "· Is your combined household income $50,000 or less in a year?"
       },
       "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
     },
@@ -1216,6 +1395,7 @@
       "scorable": true,
       "method": "heuristic",
       "criteria": {
+        "nycResident": true,
         "annualIncomeByHouseholdSize": {
           "1": 62600,
           "2": 84600,
@@ -1229,6 +1409,7 @@
         "additionalPersonIncrement": 22000
       },
       "sources": {
+        "nycResident": "· are an NYC resident",
         "income": "Household income table published by the agency."
       },
       "sourceUrl": "https://forms.office.com/pages/responsepage.aspx?id=x2_1MoFfIk6pWxXaZlE7700LHIA3cfpJrZeYbSHyN35UOFc4ME9ESUwxOEpaVUtWOVQyU1BFTDgwUyQlQCN0PWcu&route=shorturl"
@@ -1236,10 +1417,14 @@
     {
       "programId": "P022en",
       "programName": "Special Supplemental Nutrition Program for Women, Infants, and Children",
+      "partial": true,
+      "unchecked": [
+        "pregnancy",
+        "otherBenefits"
+      ],
       "scorable": true,
       "method": "heuristic",
       "criteria": {
-        "maxAge": 4,
         "annualIncomeByHouseholdSize": {
           "1": 29526,
           "2": 40034,
@@ -1258,7 +1443,6 @@
         ]
       },
       "sources": {
-        "age": "· Caring for a child under 5 (including dads, grandparents, foster parents, and other primary caregivers)",
         "income": "Household income table published by the agency."
       },
       "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
@@ -1275,33 +1459,41 @@
     {
       "programId": "P165",
       "programName": "Summer EBT",
+      "partial": true,
+      "unchecked": [
+        "otherBenefits"
+      ],
       "scorable": true,
       "method": "heuristic",
       "criteria": {
         "annualIncomeByHouseholdSize": {
-          "1": 2461,
-          "2": 3337,
-          "3": 4212,
-          "4": 5088,
-          "5": 5964,
-          "6": 6839,
-          "7": 7715,
-          "8": 8591
+          "1": 29532,
+          "2": 40044,
+          "3": 50544,
+          "4": 61056,
+          "5": 71568,
+          "6": 82068,
+          "7": 92580,
+          "8": 103092
         },
-        "additionalPersonIncrement": 876
+        "additionalPersonIncrement": 10512
       },
       "sources": {
-        "income": "Household income table published by the agency."
+        "income": "Monthly household income table published by the agency, converted to a yearly figure."
       },
       "sourceUrl": "https://summerebt.ny.gov/en-US/Before-You-Begin/"
     },
     {
       "programId": "P023en",
       "programName": "Summer Meals",
-      "scorable": false,
-      "method": "unmatched",
-      "criteria": {},
-      "sources": {},
+      "scorable": true,
+      "method": "heuristic",
+      "criteria": {
+        "maxAge": 18
+      },
+      "sources": {
+        "age": "Summer Meals are available to anyone age 18 or younger."
+      },
       "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
     },
     {
@@ -1336,10 +1528,14 @@
     {
       "programId": "P153en",
       "programName": "Text 2 Work",
-      "scorable": false,
-      "method": "unmatched",
-      "criteria": {},
-      "sources": {},
+      "scorable": true,
+      "method": "heuristic",
+      "criteria": {
+        "nycResident": true
+      },
+      "sources": {
+        "nycResident": "TXT-2-WORK is available to all New York City residents."
+      },
       "sourceUrl": "https://www1.nyc.gov/site/businesslink/contact/txt-2-work.page"
     },
     {
@@ -1358,6 +1554,12 @@
     {
       "programId": "P095en",
       "programName": "Train & Earn",
+      "partial": true,
+      "unchecked": [
+        "disability",
+        "pregnancy",
+        "otherBenefits"
+      ],
       "scorable": true,
       "method": "heuristic",
       "criteria": {
@@ -1395,6 +1597,10 @@
     {
       "programId": "P018en",
       "programName": "Veterans' Property Tax Exemption",
+      "partial": true,
+      "unchecked": [
+        "veteran"
+      ],
       "scorable": false,
       "method": "unmatched",
       "criteria": {

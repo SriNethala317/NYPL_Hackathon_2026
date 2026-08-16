@@ -23,6 +23,31 @@ import type { ProfileFieldKey } from '@/data/profile-fields';
 
 export type ProfileValues = Partial<Record<ProfileFieldKey, string>>;
 
+/**
+ * Whether pdf-lib's standard font can render this text.
+ *
+ * AcroForm text fields use WinAnsi (cp1252) by default, which covers Latin-1 and nothing else.
+ * Writing a Cyrillic, CJK, Arabic or Korean name made `doc.save()` throw, the whole form fail,
+ * and the screen report it as "the agency's link is not working" — a permanent, misdiagnosed
+ * denial of the core feature for a large share of the people this app exists for.
+ *
+ * Detecting it per value lets that one box fall back to hand-completion while the rest of the
+ * form still fills. Embedding a Unicode font would be better and is the real fix; it needs a
+ * font with the right glyph coverage, which is a bigger change than this.
+ */
+function isWinAnsiEncodable(value: string): boolean {
+  // cp1252 is Latin-1 plus a handful of printable characters in 0x80–0x9F.
+  return /^[\u0000-\u00FF\u20AC\u201A\u0192\u201E\u2026\u2020\u2021\u02C6\u2030\u0160\u2039\u0152\u017D\u2018\u2019\u201C\u201D\u2022\u2013\u2014\u02DC\u2122\u0161\u203A\u0153\u017E\u0178]*$/.test(
+    value,
+  );
+}
+
+/** A real calendar date, not merely digit-shaped. */
+function isRealDate(month: number, day: number, year: number): boolean {
+  if (month < 1 || month > 12 || day < 1 || year < 1900 || year > 2200) return false;
+  return day <= new Date(year, month, 0).getDate();
+}
+
 /** MM/DD/YYYY, which is what every form here wants. */
 function formatDate(date: Date): string {
   const mm = String(date.getMonth() + 1).padStart(2, '0');
@@ -30,13 +55,24 @@ function formatDate(date: Date): string {
   return `${mm}/${dd}/${date.getFullYear()}`;
 }
 
-function applyFormat(value: string, format: FieldMapping['format']): string {
+/**
+ * Reformats a value, or reports that it cannot be trusted on a signed form.
+ *
+ * Returns `null` rather than passing an unrecognised date through untouched. "13/40/1991" and
+ * "1991-04-18" were both being written verbatim into a date-of-birth box on a document signed
+ * under penalty of law.
+ */
+function applyFormat(value: string, format: FieldMapping['format']): string | null {
   if (format === 'digits') return value.replace(/\D/g, '');
+
   if (format === 'mmddyyyy') {
     const match = value.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/);
-    if (!match) return value;
-    return `${match[1].padStart(2, '0')}/${match[2].padStart(2, '0')}/${match[3]}`;
+    if (!match) return null;
+    const [, month, day, year] = match;
+    if (!isRealDate(Number(month), Number(day), Number(year))) return null;
+    return `${month.padStart(2, '0')}/${day.padStart(2, '0')}/${year}`;
   }
+
   return value;
 }
 
@@ -108,6 +144,25 @@ export async function fillForm(
 
     const text = applyFormat(outcome.value, mapping.format);
 
+    if (text === null) {
+      results.push({
+        pdfField: mapping.pdfField,
+        status: 'manual',
+        note: 'We could not read this as a date. Write it in yourself before you sign.',
+      });
+      continue;
+    }
+
+    if (!isWinAnsiEncodable(text)) {
+      // One box the applicant completes by hand, rather than the entire form failing.
+      results.push({
+        pdfField: mapping.pdfField,
+        status: 'manual',
+        note: 'This form cannot print those characters. Write this box in yourself before you sign.',
+      });
+      continue;
+    }
+
     try {
       form.getTextField(mapping.pdfField).setText(text);
       results.push({ pdfField: mapping.pdfField, value: text, status: 'filled' });
@@ -125,8 +180,20 @@ export async function fillForm(
     }
   }
 
+  /*
+   * Saving can still fail on a form whose own default appearance references a glyph we cannot
+   * supply. Letting that propagate would surface as "the agency's link is not working", which is
+   * both wrong and unfixable by the applicant.
+   */
+  let bytes: Uint8Array;
+  try {
+    bytes = await doc.save();
+  } catch (error) {
+    throw new Error(`This form could not be generated with the details provided: ${String(error)}`);
+  }
+
   return {
-    bytes: await doc.save(),
+    bytes,
     fields: results,
     filledCount: results.filter((f) => f.status === 'filled').length,
     manualCount: results.filter((f) => f.status === 'manual').length,

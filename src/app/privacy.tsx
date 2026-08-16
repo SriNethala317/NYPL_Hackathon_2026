@@ -3,6 +3,7 @@ import { Linking, ScrollView, StyleSheet, View } from 'react-native';
 
 import { BackHeader, Button, Card, Icon, SectionLabel, Text } from '@/components';
 import { documentsWeRead, fieldsWeKeep, labelForNeverStored, neverStored } from '@/data/privacy-facts';
+import { purgeGeneratedForms } from '@/features/forms';
 import { useStrings } from '@/i18n/use-strings';
 import { useAppStore } from '@/state/app-store';
 import { colors, layout, radius } from '@/theme';
@@ -92,6 +93,21 @@ export default function PrivacyScreen() {
             <Text variant="bodySm" color="muted">
               {strings.privacyScreen.whereBody}
             </Text>
+            {/*
+              Kept visibly separate from what is true today. Merging the two is how a plan turns
+              into a promise, which is exactly what went wrong with the previous version of this
+              screen.
+            */}
+            <Text variant="caption" color="disabled">
+              {strings.privacyScreen.whereNext}
+            </Text>
+          </Card>
+
+          <SectionLabel label={strings.privacyScreen.formTitle} />
+          <Card style={styles.card}>
+            <Text variant="bodySm" color="muted">
+              {strings.privacyScreen.formBody}
+            </Text>
           </Card>
 
           {/*
@@ -122,6 +138,9 @@ export default function PrivacyScreen() {
               variant="tertiary"
               size="md"
               onPress={() => {
+                // In-memory state alone is not "everything" -- a completed application PDF may
+                // still be on disk, and it is the most sensitive thing this app produces.
+                purgeGeneratedForms();
                 store.reset();
                 router.back();
               }}

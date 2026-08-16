@@ -140,3 +140,67 @@ describe('the template registry', () => {
     }
   });
 });
+
+/**
+ * Regressions from the independent form audit. Each was a way to hand somebody a wrong or
+ * missing government form without telling them.
+ */
+describe('names the standard PDF font cannot print', () => {
+  it.each([
+    ['Cyrillic', 'Владимир Петров'],
+    ['Chinese', '王小明'],
+    ['Arabic', 'محمد أحمد'],
+    ['Korean', '정민준'],
+  ])('produces a form for a %s name instead of failing', async (_script, fullName) => {
+    // pdf-lib's default WinAnsi font cannot encode these. The whole form used to throw, and the
+    // screen blamed the agency's link -- permanently, for a large share of this app's users.
+    const result = await fillForm(drie, BLANK, { ...MARIA, fullName });
+
+    expect(String.fromCharCode(...result.bytes.slice(0, 4))).toBe('%PDF');
+    const name = result.fields.find((f) => f.pdfField === 'name');
+    expect(name?.status).toBe('manual');
+    expect(name?.note).toMatch(/write this box in yourself/i);
+    // The rest of the form still fills; only the one box falls back.
+    expect(await readBack(result.bytes, 'city')).toBe('Bronx');
+  });
+
+  it('still fills accented Latin names normally', async () => {
+    const result = await fillForm(drie, BLANK, { ...MARIA, fullName: 'José Ñáñez' });
+    expect(await readBack(result.bytes, 'name')).toBe('José Ñáñez');
+  });
+});
+
+describe('dates that are not real dates', () => {
+  it.each(['13/40/1991', '1991-04-18', '04/18/91', '02/30/1991'])(
+    'refuses to write %s onto a signed form',
+    async (dob) => {
+      const result = await fillForm(drie, BLANK, { ...MARIA, dob });
+
+      expect(await readBack(result.bytes, 'DOB')).toBe('');
+      expect(result.fields.find((f) => f.pdfField === 'DOB')?.status).toBe('manual');
+    },
+  );
+
+  it('accepts a real leap day', async () => {
+    const result = await fillForm(drie, BLANK, { ...MARIA, dob: '2/29/2000' });
+    expect(await readBack(result.bytes, 'DOB')).toBe('02/29/2000');
+  });
+});
+
+describe('every required box is accounted for', () => {
+  it('tells the applicant about the tick-boxes it cannot fill', async () => {
+    // These are radio groups. Omitting them entirely let someone submit the form with its first
+    // question blank, having been told it was ready.
+    const result = await fillForm(drie, BLANK, MARIA);
+    const manual = result.fields.filter((f) => f.status === 'manual').map((f) => f.pdfField);
+
+    expect(manual).toEqual(expect.arrayContaining(['sect1_id', 'living_solo']));
+  });
+
+  it('lists all three phone boxes, not just the first', async () => {
+    const result = await fillForm(drie, BLANK, MARIA);
+    const manual = result.fields.filter((f) => f.status === 'manual').map((f) => f.pdfField);
+
+    expect(manual).toEqual(expect.arrayContaining(['area_code', 'phone1.1', 'phone1.2']));
+  });
+});

@@ -32,12 +32,14 @@ const en = {
   },
 
   /**
-   * Accurate under the actual architecture: documents are uploaded, read, then deleted. The
-   * handoff's original line claimed they never leave the device, which stopped being true the
-   * moment extraction moved to the cloud.
+   * Describes what the code does today, in the present tense.
+   *
+   * An earlier version promised documents were "encrypted in transit and at rest" and "deleted
+   * once we have read them". None of that was implemented — there is no upload, no storage and
+   * no encryption anywhere in this app — and it was being shown to people deciding whether it is
+   * safe to hand over a passport. Any claim here must be checkable against the code.
    */
-  privacy:
-    'Your documents are encrypted in transit and at rest, used only to fill your applications, and deleted once we have read them.',
+  privacy: 'We keep the details from your documents, never the documents themselves.',
 
   home: {
     emptyTitle: 'No applications yet',
@@ -135,17 +137,22 @@ const en = {
       'Only these fields. The document itself is deleted as soon as we have read it \u2014 there is no copy of your passport or pay stub anywhere.',
     neverTitle: 'What we never store',
     neverBody:
-      'We read these to complete an application when a program requires it, then drop them. They are never saved.',
+      'We do not read these at all. Where a form has a box for one, we leave it blank for you to fill in before you sign.',
     whereTitle: 'Where it goes',
     whereBody:
-      'Encrypted while it travels and while it is stored. Used only to fill in applications you choose to make. Never sold, never used for advertising.',
+      'Nowhere yet. Uploading is not connected in this version, so no document has left your phone. Your details are held only while the app is open and are gone when you close it.',
+    whereNext:
+      'When uploading is switched on, documents will travel over an encrypted connection, be read, and then be deleted. We will say so here only once that is true.',
+    formTitle: 'Filled application forms',
+    formBody:
+      'When you save a filled form it is written to your phone so you can share it, then deleted as soon as you have. \u201cDelete everything\u201d removes any that are left.',
     immigrationTitle: 'Does this affect my immigration status?',
     immigrationBody:
       'Public charge rules apply only to a small group of people applying for a green card, and most benefits are not counted at all. Many people who avoid benefits out of fear were never affected by the rule. If you are unsure, speak to an immigration legal provider before applying \u2014 not to us.',
     immigrationLink: 'Read the City guidance',
     controlTitle: 'Your control',
     controlBody:
-      'Remove any document and everything read from it goes with it. Reset the app and nothing is left.',
+      'Remove any document and everything read from it goes with it. \u201cDelete everything\u201d clears your details and removes any filled forms still on this phone.',
     deleteEverything: 'Delete everything',
   },
   /** Spoken by screen readers. Untranslated here means a Spanish user hears English. */
@@ -279,6 +286,10 @@ const en = {
     sourceNote: 'From NYC Open Data, fetched {date}',
     resultCount: '{count} programs',
     filterAll: 'All',
+    notFoundTitle: 'We could not find that programme',
+    notFoundBody:
+      'The link may be old, or the programme may have been removed from the City\u2019s list. Browse what is available instead.',
+    browseAll: 'See all programmes',
   },
 
   reasons: {
@@ -320,8 +331,7 @@ const es: Strings = {
     no: 'Puede no calificar',
   },
 
-  privacy:
-    'Sus documentos se cifran en tránsito y en reposo, se usan solo para completar sus solicitudes y se eliminan una vez leídos.',
+  privacy: 'Guardamos los datos de sus documentos, nunca los documentos.',
 
   home: {
     emptyTitle: 'Aún no hay solicitudes',
@@ -416,17 +426,22 @@ const es: Strings = {
       'Solo estos campos. El documento se elimina en cuanto lo leemos \u2014 no queda ninguna copia de su pasaporte ni de su talón de pago.',
     neverTitle: 'Qu\u00e9 nunca guardamos',
     neverBody:
-      'Leemos esto para completar una solicitud cuando un programa lo exige, y luego lo descartamos. Nunca se guarda.',
+      'No leemos esto en absoluto. Cuando un formulario tiene una casilla para ello, la dejamos en blanco para que usted la complete antes de firmar.',
     whereTitle: 'A d\u00f3nde va',
     whereBody:
-      'Cifrado mientras viaja y mientras se almacena. Se usa solo para completar las solicitudes que usted elija. Nunca se vende ni se usa para publicidad.',
+      'A ninguna parte todav\u00eda. La carga no est\u00e1 conectada en esta versi\u00f3n, as\u00ed que ning\u00fan documento ha salido de su tel\u00e9fono. Sus datos se guardan solo mientras la aplicaci\u00f3n est\u00e1 abierta.',
+    whereNext:
+      'Cuando se active la carga, los documentos viajar\u00e1n por una conexi\u00f3n cifrada, se leer\u00e1n y luego se eliminar\u00e1n. Lo diremos aqu\u00ed solo cuando sea cierto.',
+    formTitle: 'Formularios completados',
+    formBody:
+      'Cuando guarda un formulario completado, se escribe en su tel\u00e9fono para que pueda compartirlo y se elimina en cuanto lo hace. \u201cEliminar todo\u201d quita los que queden.',
     immigrationTitle: '\u00bfEsto afecta mi estatus migratorio?',
     immigrationBody:
       'Las reglas de carga p\u00fablica se aplican solo a un grupo peque\u00f1o de personas que solicitan la residencia permanente, y la mayor\u00eda de los beneficios no cuentan. Muchas personas que evitan los beneficios por miedo nunca estuvieron afectadas por la regla. Si tiene dudas, hable con un proveedor legal de inmigraci\u00f3n antes de solicitar \u2014 no con nosotros.',
     immigrationLink: 'Leer la gu\u00eda de la Ciudad',
     controlTitle: 'Su control',
     controlBody:
-      'Quite cualquier documento y todo lo le\u00eddo de \u00e9l se va con \u00e9l. Reinicie la aplicaci\u00f3n y no queda nada.',
+      'Quite cualquier documento y todo lo le\u00eddo de \u00e9l se va con \u00e9l. \u201cEliminar todo\u201d borra sus datos y quita los formularios que queden en este tel\u00e9fono.',
     deleteEverything: 'Eliminar todo',
   },
   form2: {
@@ -547,6 +562,10 @@ const es: Strings = {
     sourceNote: 'De NYC Open Data, obtenido el {date}',
     resultCount: '{count} programas',
     filterAll: 'Todos',
+    notFoundTitle: 'No encontramos ese programa',
+    notFoundBody:
+      'El enlace puede estar desactualizado, o el programa puede haber sido retirado de la lista de la Ciudad. Explore lo que hay disponible.',
+    browseAll: 'Ver todos los programas',
   },
 
   reasons: {
