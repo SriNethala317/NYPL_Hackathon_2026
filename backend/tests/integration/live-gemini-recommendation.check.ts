@@ -1,7 +1,10 @@
+import 'dotenv/config';
+
 import { GEMINI_CONFIG } from '@/config/gemini.config';
 import { preFilterPrograms } from '@/features/benefits-discovery/pre-filter-programs';
 import { toBenefitRecommendationContext } from '@/features/benefits-discovery/to-benefit-recommendation-context';
-import { buildGeminiEnhancementRequest, GeminiBenefitExplanationProvider } from '@/features/benefits-discovery/providers/gemini-benefit-explanation.provider';
+import { buildGeminiEnhancementRequest, buildGeminiGenerateContentUrl, GeminiBenefitExplanationProvider } from '@/features/benefits-discovery/providers/gemini-benefit-explanation.provider';
+import { resolveGeminiModelForConfiguredKey } from '@/features/benefits-discovery/providers/gemini-model-resolver';
 import { NycBenefitsCatalogProvider } from '@/features/benefits-discovery/providers/nyc-benefits-catalog.provider';
 import type { GeminiProgramMatch } from '@/features/benefits-discovery/types';
 import { DEMO_NYC_STUDENT_PROFILE } from './fixtures/demo-nyc-student';
@@ -47,11 +50,24 @@ async function run(): Promise<void> {
   console.log('\n========================================\nGEMINI BENEFITS MODEL EVALUATION\n========================================\n');
   console.log(`Gemini enabled: ${GEMINI_CONFIG.enabled}`);
   console.log(`API key configured: ${Boolean(GEMINI_CONFIG.apiKey)}`);
-  console.log(`Model: ${GEMINI_CONFIG.model}`);
+  console.log(`Configured model: ${GEMINI_CONFIG.model ?? '(none)'}`);
   if (!GEMINI_CONFIG.apiKey) {
     console.log('\nLive Gemini test skipped: GEMINI_API_KEY is not configured.');
     return;
   }
+
+  const resolution = await resolveGeminiModelForConfiguredKey();
+  const configuredModelAvailable = GEMINI_CONFIG.model
+    ? resolution.availableModels.some((model) => model.name === GEMINI_CONFIG.model)
+    : false;
+  console.log('\nGEMINI MODEL DISCOVERY');
+  console.log(`Configured model: ${GEMINI_CONFIG.model ?? '(none)'}`);
+  console.log(`Configured model available: ${configuredModelAvailable}`);
+  console.log('Available generateContent models:');
+  resolution.availableModels.forEach((model) => console.log(`- ${model.name}`));
+  console.log(`Resolved model: ${resolution.model}`);
+  console.log(`Resolution source: ${resolution.source}`);
+  console.log(`Request URL: ${buildGeminiGenerateContentUrl(resolution.model)}`);
 
   const context = toBenefitRecommendationContext(DEMO_NYC_STUDENT_PROFILE);
   console.log('\nSAFE USER CONTEXT');
@@ -77,7 +93,8 @@ async function run(): Promise<void> {
   const historical = candidates.filter((program) => KNOWN_HISTORICAL_PROGRAMS.has(program.programName));
   if (historical.length) console.log(`\nCURRENTNESS WARNING: catalog candidates include known historical programs: ${historical.map((program) => program.programName).join(', ')}.`);
 
-  const matches = await new GeminiBenefitExplanationProvider().enhance(candidates, context);
+  console.log(`\nLIVE GEMINI REQUEST\nPreferred model: ${resolution.model}`);
+  const matches = await new GeminiBenefitExplanationProvider((model) => console.log(`Attempting model: ${model}`)).enhance(candidates, context);
   const suppliedIds = new Set(candidates.map((program) => program.programId));
   validateMatches(matches, suppliedIds);
   const namesById = new Map(candidates.map((program) => [program.programId, program.programName]));
