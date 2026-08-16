@@ -26,5 +26,6 @@ export { SplashPanel, type SplashPanelProps } from './splash-panel';
 export { StageTracker, type StageTrackerProps } from './stage-tracker';
 export { StatusBadge, type StatusBadgeProps } from './status-badge';
 export { StickyFooter, type StickyFooterProps } from './sticky-footer';
+export { TabScreen, type TabScreenProps } from './tab-screen';
 export { TabBar, type TabBarProps, type TabItem, type TabKey } from './tab-bar';
 export { UploadOptionCard, type UploadOptionCardProps } from './upload-option-card';

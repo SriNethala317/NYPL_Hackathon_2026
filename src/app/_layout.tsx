@@ -2,18 +2,17 @@ import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { Pressable, StyleSheet } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+
+import { SplashPanel } from '@/components/enroll';
+import { useStrings } from '@/i18n/use-strings';
+import { AppStoreProvider } from '@/state/app-store';
+import { motion } from '@/theme';
 
 SplashScreen.preventAutoHideAsync();
 
-/**
- * Minimal root layout — enough to boot the app while the component library is built out.
- *
- * The real navigator (three tabs plus a stack for detail/form/review/confirm) lands with the
- * functional layer. The design's tab bar is a custom floating glass pill, so it will be a
- * `TabList`/`TabSlot` tree rendering `<TabBar />` rather than the platform tab bar.
- */
 export default function RootLayout() {
   // Loaded here rather than only through the app.json config plugin: plugins don't apply in
   // Expo Go, and this is the one font the design can't approximate.
@@ -30,8 +29,52 @@ export default function RootLayout() {
 
   return (
     <SafeAreaProvider>
-      <Stack screenOptions={{ headerShown: false }} />
-      <StatusBar style="dark" />
+      <AppStoreProvider>
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="confirmation" options={{ gestureEnabled: false }} />
+        </Stack>
+        <Splash />
+        <StatusBar style="dark" />
+      </AppStoreProvider>
     </SafeAreaProvider>
   );
 }
+
+/**
+ * The brand moment, overlaid on the navigator rather than routed.
+ *
+ * Keeping it out of the router means the tabs are already mounted behind it, so dismissing is
+ * instant and there is no back-navigation into a splash screen.
+ */
+function Splash() {
+  const strings = useStrings();
+  const [visible, setVisible] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setVisible(false), motion.splash);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (!visible) return null;
+
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel="Dismiss"
+      onPress={() => setVisible(false)}
+      style={styles.splash}>
+      <SplashPanel subtitle={[...strings.splash.agency]} badge={strings.splash.badge} />
+    </Pressable>
+  );
+}
+
+const styles = StyleSheet.create({
+  splash: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+});

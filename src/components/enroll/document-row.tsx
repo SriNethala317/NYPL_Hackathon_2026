@@ -9,33 +9,34 @@ export type DocumentRowProps = Omit<PressableProps, 'style' | 'children'> & {
   kind: DocumentKind;
   /** Localized document name — "Photo ID / IDNYC". */
   label: string;
-  /** The uploaded filename. Absent until the document is on file. */
-  filename?: string;
+  /**
+   * The subline. Under extract-then-discard there is no stored file to name, so this reads
+   * "Read Aug 16 · original deleted" once processed, and "Not added" before.
+   */
+  detail: string;
   verified?: boolean;
-  /** Localized status text: "Verified" / "Add" / "Not added". */
+  /** Localized chip text: "Verified" or "Add". */
   statusLabel: string;
-  placeholderLabel: string;
 };
 
 /**
  * One of the five document slots in Profile.
  *
- * A verified row is still pressable so the applicant can replace a document, but only an
- * unadded one advertises the action through its navy "Add" chip.
+ * A processed row stays pressable so the applicant can replace a document, but only an unadded
+ * one advertises the action through its navy "Add" chip.
  */
 export function DocumentRow({
   kind,
   label,
-  filename,
+  detail,
   verified = false,
   statusLabel,
-  placeholderLabel,
   ...rest
 }: DocumentRowProps) {
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={`${label}. ${verified ? `${statusLabel}, ${filename}` : placeholderLabel}`}
+      accessibilityLabel={`${label}. ${detail}`}
       {...rest}>
       {({ pressed }) => (
         <Card style={[styles.card, pressed && styles.pressed]}>
@@ -44,7 +45,7 @@ export function DocumentRow({
           <View style={styles.copy}>
             <Text variant="bodyStrong">{label}</Text>
             <Text variant="meta" mono color={verified ? 'muted' : 'disabled'}>
-              {verified ? filename : placeholderLabel}
+              {detail}
             </Text>
           </View>
 
