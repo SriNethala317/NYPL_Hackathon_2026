@@ -93,6 +93,17 @@ type Action =
   | { type: 'openSheet' }
   | { type: 'closeSheet' }
   | { type: 'uploadStarted'; id: string; at: number }
+  /**
+   * Throws away the demo profile the moment a real document arrives.
+   *
+   * The sample includes a passport, and a passport outranks a driver's licence for a legal name.
+   * So somebody who pressed "Load sample" and then photographed their own licence saw the demo's
+   * name win the reconciliation — their document was read correctly and then outvoted by fiction.
+   *
+   * Reconciliation was behaving exactly as designed; the mistake was letting invented documents
+   * sit in the same pile as real ones. Real and demo data must never compete.
+   */
+  | { type: 'clearSample' }
   | { type: 'classified'; id: string; docType: DocumentTypeId; confidence: number }
   | { type: 'read'; id: string; readOn: string; candidates: FieldCandidate[] }
   | { type: 'failed'; id: string; reason: FailureReason }
@@ -132,6 +143,9 @@ const initialState: State = {
   lastReference: null,
   sheet: { open: false },
 };
+
+/** Every fabricated document id starts with this. See `loadSample`. */
+const SAMPLE_PREFIX = 'sample-';
 
 function patchDocument(state: State, id: string, patch: Partial<UploadedDocument>): State {
   return {
@@ -194,6 +208,22 @@ function reducer(state: State, action: Action): State {
         confirmedFields: state.confirmedFields.filter(
           (field) => !touched.has(field) || state.overrides[field] !== undefined,
         ),
+      };
+    }
+
+    case 'clearSample': {
+      const sample = new Set(
+        state.documents.filter((d) => d.id.startsWith(SAMPLE_PREFIX)).map((d) => d.id),
+      );
+      if (sample.size === 0) return state;
+
+      return {
+        ...state,
+        documents: state.documents.filter((d) => !sample.has(d.id)),
+        candidates: state.candidates.filter((c) => !sample.has(c.documentId)),
+        // The demo's applications go too: a reference nobody issued, against a programme this
+        // person never applied for, is worse than an empty Home tab.
+        applications: [],
       };
     }
 
@@ -459,8 +489,18 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
 
     upload: (options = {}) => {
       counter.current += 1;
-      const id = `doc-${counter.current}`;
       const at = counter.current;
+
+      /*
+       * A demo document is named as one, so a real upload can throw it away.
+       *
+       * There are exactly two modes and they must not mix. "Load sample" and the demo buttons
+       * fabricate Maria Reyes; the camera and the photo library read whatever the applicant
+       * actually holds. Without the prefix, a demo document created through the upload sheet was
+       * indistinguishable from a real one, and its invented passport went on outranking a real
+       * driver's licence for the applicant's own legal name.
+       */
+      const id = options.simulate ? `${SAMPLE_PREFIX}doc-${counter.current}` : `doc-${counter.current}`;
 
       // The demo paths, kept so the failure states can be shown without a camera.
       if (options.simulate) {
@@ -493,6 +533,14 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
       void (async () => {
         const picked =
           options.source === 'camera' ? await captureDocument() : await chooseDocument();
+
+        /*
+         * A real document ends the demo.
+         *
+         * Done after the picker returns rather than before it opens, so cancelling out of the
+         * camera does not silently wipe a profile somebody was still looking at.
+         */
+        if (picked.ok) dispatch({ type: 'clearSample' });
 
         // Cancelling is not a failure and must not leave a dead row in the list.
         if (!picked.ok) {

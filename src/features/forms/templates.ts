@@ -197,6 +197,100 @@ export const formTemplates: readonly FormTemplate[] = [
       },
     ],
   },
+
+  {
+    /*
+     * IDNYC — the free municipal ID, and the one form here that a driver's licence alone can
+     * mostly fill.
+     *
+     * A sibling branch had already built an IDNYC filler against a copy of the form committed to
+     * the repo. That copy is not the form the City serves today — its bytes match neither the
+     * current English application nor the 10-to-13 version — and its fields are named "1" through
+     * "32", which took a separate offline exercise with pymupdf to decode.
+     *
+     * The official fillable form names its own fields ("First Name", "Date of Birth", one checkbox
+     * per borough), so it needs no decoding, and fetching it live means an applicant gets whatever
+     * the City is issuing on the day rather than a snapshot that quietly went stale. `Lanugage` is
+     * the agency's own spelling on the real PDF and has to be matched exactly.
+     */
+    programId: 'P032en',
+    formName: 'IDNYC Application',
+    url: 'https://www.nyc.gov/assets/idnyc/downloads/pdf/application-materials/application_english_fillable.pdf',
+    requiresSignature: true,
+    /*
+     * There is no submitting this one remotely. IDNYC takes a photograph and checks original
+     * documents, so the application is finished in person by appointment — the filled PDF saves
+     * the applicant filling it at the counter, and nothing more. Saying otherwise would send
+     * somebody to a post box with a form that cannot be posted.
+     */
+    channels: [
+      {
+        kind: 'in-person',
+        findUrl: 'https://www.nyc.gov/site/idnyc/enrollment/enrollment-centers.page',
+        instructions:
+          'Print this, sign it by hand, and take it to an IDNYC enrollment centre with your original documents. You cannot sign it electronically and it cannot be posted.',
+      },
+      {
+        kind: 'online-portal',
+        url: 'https://www.nyc.gov/site/idnyc/card/start-your-application.page',
+        instructions: 'Book the appointment you will need before you go.',
+      },
+    ],
+    fields: [
+      { pdfField: 'First Name', source: { from: 'name', part: 'first' } },
+      { pdfField: 'Middle Initial', source: { from: 'name', part: 'middleInitial' } },
+      { pdfField: 'Last Name', source: { from: 'name', part: 'last' } },
+      { pdfField: 'Date of Birth', source: { from: 'profile', key: 'dob' }, format: 'mmddyyyy' },
+      { pdfField: 'Address', source: { from: 'address', part: 'street' } },
+      { pdfField: 'APT', source: { from: 'address', part: 'apt' } },
+      { pdfField: 'City', source: { from: 'address', part: 'city' } },
+      { pdfField: 'Zip Code', source: { from: 'address', part: 'zip' } },
+
+      // One tick box per borough. Only the applicant's own is ticked; the rest stay correctly
+      // empty rather than being reported as four things we failed to fill.
+      { pdfField: 'Bronx', source: { from: 'borough', is: 'Bronx' } },
+      { pdfField: 'Brooklyn', source: { from: 'borough', is: 'Brooklyn' } },
+      { pdfField: 'Manhattan', source: { from: 'borough', is: 'Manhattan' } },
+      { pdfField: 'Queens', source: { from: 'borough', is: 'Queens' } },
+      { pdfField: 'Staten Island', source: { from: 'borough', is: 'Staten Island' } },
+
+      /*
+       * Everything below is on the form and cannot come from a licence.
+       *
+       * Height, eye colour and gender are printed on a New York licence, but they are not fields
+       * this app extracts or stores, and inventing them onto an identity application is not a
+       * shortcut worth taking.
+       */
+      {
+        pdfField: 'New Application',
+        source: {
+          from: 'manual',
+          reason: 'Tick whether this is a new card, a replacement, or a change of details.',
+        },
+      },
+      { pdfField: 'Phone', source: { from: 'manual', reason: 'Add a phone number they can reach you on.' } },
+      { pdfField: 'Email', source: { from: 'manual', reason: 'Add an email address you check.' } },
+      { pdfField: 'Eye Color', source: { from: 'manual', reason: 'Add your eye colour.' } },
+      { pdfField: 'Feet', source: { from: 'manual', reason: 'Add your height in feet.' } },
+      { pdfField: 'Inches', source: { from: 'manual', reason: 'Add the remaining inches of your height.' } },
+      {
+        pdfField: 'Lanugage',
+        source: { from: 'manual', reason: 'Add the language you would like to be served in.' },
+      },
+      {
+        pdfField: 'EM First Name',
+        source: { from: 'manual', reason: 'Add an emergency contact’s first name.' },
+      },
+      {
+        pdfField: 'EM Last Name',
+        source: { from: 'manual', reason: 'Add an emergency contact’s last name.' },
+      },
+      {
+        pdfField: 'EM Phone',
+        source: { from: 'manual', reason: 'Add an emergency contact’s phone number.' },
+      },
+    ],
+  },
 ];
 
 export function templateFor(programId: string): FormTemplate | undefined {

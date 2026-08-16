@@ -1,6 +1,7 @@
 import { PDFDocument } from 'pdf-lib';
 
 import { parseAddress } from './address';
+import { parseName } from './person-name';
 import type { FieldMapping, FieldSource, FilledField, FillResult, FormTemplate } from './types';
 
 import type { ProfileFieldKey } from '@/data/profile-fields';
@@ -95,6 +96,32 @@ function resolve(
         ? { value: part, status: 'filled' }
         : { status: 'missing', note: 'We could not read this part of your address.' };
     }
+    case 'name': {
+      const part = parseName(values.fullName)[source.part];
+      if (part) return { value: part, status: 'filled' };
+      /*
+       * Splitting refused rather than failed. "María García Piñedo" cannot be divided into first
+       * and last without knowing whether García is a middle name or the first of two surnames,
+       * and dropping half of somebody's family name off an identity application is not a smaller
+       * mistake than leaving the box blank.
+       */
+      return {
+        status: 'manual',
+        note: 'We could not split your name into these boxes safely. Write them in yourself.',
+      };
+    }
+    case 'borough': {
+      const parts = parseAddress(values.address);
+      const city = (parts.city ?? '').trim().toLowerCase();
+      // Only tick when the address genuinely names this borough. An unticked box is a question
+      // the applicant can answer; a wrongly ticked one is a false statement they sign.
+      if (!city) {
+        return { status: 'manual', note: 'Tick the borough you live in.' };
+      }
+      return city === source.is.toLowerCase()
+        ? { value: 'Yes', status: 'filled' }
+        : { status: 'skip' };
+    }
     case 'today':
       return { value: formatDate(now), status: 'filled' };
     case 'constant':
@@ -164,6 +191,20 @@ export async function fillForm(
     }
 
     try {
+      /*
+       * A tick box, not a text field.
+       *
+       * IDNYC prints one box per borough rather than a text field, so the borough source resolves
+       * to a tick rather than a string. Trying `getTextField` on a checkbox throws, which the
+       * catch below would then report as "the agency renamed this field" — a real mapping error
+       * and a checkbox would look identical.
+       */
+      if (mapping.source.from === 'borough') {
+        form.getCheckBox(mapping.pdfField).check();
+        results.push({ pdfField: mapping.pdfField, value: text, status: 'filled' });
+        continue;
+      }
+
       form.getTextField(mapping.pdfField).setText(text);
       results.push({ pdfField: mapping.pdfField, value: text, status: 'filled' });
     } catch {

@@ -14,6 +14,21 @@ export type FieldSource =
   | { from: 'profile'; key: ProfileFieldKey }
   /** A component of the parsed address. */
   | { from: 'address'; part: 'street' | 'apt' | 'city' | 'state' | 'zip' }
+  /**
+   * A component of the split name.
+   *
+   * Splitting is lossy and refuses to guess — see `person-name.ts`. A part that cannot be
+   * determined comes back missing, and the applicant writes it in.
+   */
+  | { from: 'name'; part: 'first' | 'middleInitial' | 'last' }
+  /**
+   * A tick box, checked when the applicant's address is in this borough.
+   *
+   * IDNYC prints one box per borough rather than a text field. Nothing is ticked when the borough
+   * cannot be read — a wrong borough on an identity application is worse than an empty one, and
+   * the applicant can see which box is blank.
+   */
+  | { from: 'borough'; is: 'Bronx' | 'Brooklyn' | 'Manhattan' | 'Queens' | 'Staten Island' }
   /** Today's date, for signature blocks. */
   | { from: 'today' }
   /** A fixed value, e.g. a state that is always NY. */
@@ -95,7 +110,12 @@ export function primaryChannel(template: FormTemplate): SubmissionChannel | unde
 export type FilledField = {
   pdfField: string;
   value?: string;
-  status: 'filled' | 'manual' | 'missing' | 'unknown-field';
+  /**
+   * `skip` is a box that correctly stays empty — the four boroughs the applicant does not live
+   * in. Counting those as "we could not fill this" would tell somebody four things went wrong on
+   * a form that is perfectly complete.
+   */
+  status: 'filled' | 'manual' | 'missing' | 'unknown-field' | 'skip';
   /** Why it was left blank, for `manual` and `missing`. */
   note?: string;
 };

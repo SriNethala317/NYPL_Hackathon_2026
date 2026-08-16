@@ -171,6 +171,7 @@ describe('the template registry', () => {
   it.each([
     ['DRIE', 'P005en', 'drie-application.pdf'],
     ['SCRIE', 'P015en', 'scrie-application.pdf'],
+    ['IDNYC', 'P032en', 'idnyc-application.pdf'],
   ])('maps only field names that exist on the real %s PDF', async (_name, programId, fixture) => {
     const template = formTemplates.find((t) => t.programId === programId);
     expect(template).toBeDefined();
@@ -261,5 +262,109 @@ describe('every required box is accounted for', () => {
     const manual = result.fields.filter((f) => f.status === 'manual').map((f) => f.pdfField);
 
     expect(manual).toEqual(expect.arrayContaining(['area_code', 'phone1.1', 'phone1.2']));
+  });
+});
+
+/**
+ * IDNYC filled from a driver's licence — the path a real person actually walks.
+ *
+ * The values here are exactly what the vision model returned from a photographed ID: one name
+ * string, one date, one address line. Everything the form needs beyond that has to be derived,
+ * and what cannot be derived has to stay visibly empty.
+ */
+describe('IDNYC, from a licence and nothing else', () => {
+  const IDNYC = readFileSync(join(__dirname, '__fixtures__', 'idnyc-application.pdf'));
+  const idnyc = formTemplates.find((t) => t.programId === 'P032en')!;
+
+  const FROM_LICENCE: ProfileValues = {
+    fullName: 'MARIA REYES',
+    dob: '04/18/1991',
+    address: '1240 GRAND CONCOURSE, BRONX, NY 10456',
+  };
+
+  it('splits the one name a licence prints into the boxes the form has', async () => {
+    const result = await fillForm(idnyc, IDNYC, FROM_LICENCE);
+
+    expect(await readBack(result.bytes, 'First Name')).toBe('MARIA');
+    expect(await readBack(result.bytes, 'Last Name')).toBe('REYES');
+  });
+
+  it('splits the one address line into street, city and ZIP', async () => {
+    const result = await fillForm(idnyc, IDNYC, FROM_LICENCE);
+
+    expect(await readBack(result.bytes, 'Address')).toBe('1240 GRAND CONCOURSE');
+    expect(await readBack(result.bytes, 'City')).toBe('BRONX');
+    expect(await readBack(result.bytes, 'Zip Code')).toBe('10456');
+    expect(await readBack(result.bytes, 'Date of Birth')).toBe('04/18/1991');
+  });
+
+  it('ticks only the borough the applicant lives in', async () => {
+    const result = await fillForm(idnyc, IDNYC, FROM_LICENCE);
+    const doc = await PDFDocument.load(result.bytes, {
+      ignoreEncryption: true,
+      throwOnInvalidObject: false,
+    });
+    const form = doc.getForm();
+
+    expect(form.getCheckBox('Bronx').isChecked()).toBe(true);
+    for (const other of ['Brooklyn', 'Manhattan', 'Queens', 'Staten Island']) {
+      expect(form.getCheckBox(other).isChecked()).toBe(false);
+    }
+  });
+
+  it('does not count the four unticked boroughs as failures', async () => {
+    // They are correctly empty. Reporting them as "we could not fill this" would tell somebody
+    // four things went wrong on a form that is exactly right.
+    const result = await fillForm(idnyc, IDNYC, FROM_LICENCE);
+
+    const skipped = result.fields.filter((f) => f.status === 'skip');
+    expect(skipped).toHaveLength(4);
+    expect(skipped.map((f) => f.pdfField).sort()).toEqual([
+      'Brooklyn',
+      'Manhattan',
+      'Queens',
+      'Staten Island',
+    ]);
+
+    /*
+     * The one genuine gap is APT, and it stays a gap on purpose: this address carries no
+     * apartment number, and "they do not live in a flat" is indistinguishable from "we could not
+     * read it". Reporting it lets the applicant confirm, which is the right outcome — the four
+     * boroughs are the ones that must not be counted, because they are correct as they are.
+     */
+    expect(result.fields.filter((f) => f.status === 'missing').map((f) => f.pdfField)).toEqual([
+      'APT',
+    ]);
+  });
+
+  it('refuses to split a name it cannot split safely', async () => {
+    /*
+     * "María García Piñedo" is either a first name, a middle name and a surname, or a first name
+     * and two surnames — and the two look identical. Guessing drops half of somebody's family
+     * name off an identity application.
+     */
+    const result = await fillForm(idnyc, IDNYC, {
+      ...FROM_LICENCE,
+      fullName: 'Maria Garcia Pinedo',
+    });
+
+    expect(await readBack(result.bytes, 'First Name')).toBe('');
+    expect(await readBack(result.bytes, 'Last Name')).toBe('');
+    const first = result.fields.find((f) => f.pdfField === 'First Name');
+    expect(first?.status).toBe('manual');
+  });
+
+  it('keeps a family-name particle with the surname', async () => {
+    const result = await fillForm(idnyc, IDNYC, { ...FROM_LICENCE, fullName: 'Maria de la Cruz' });
+
+    expect(await readBack(result.bytes, 'First Name')).toBe('Maria');
+    expect(await readBack(result.bytes, 'Last Name')).toBe('de la Cruz');
+  });
+
+  it('does not claim the form can be posted', () => {
+    // IDNYC photographs the applicant and checks original documents, so it is finished in person.
+    // Telling someone to post it would send them to a post box with a form nobody will read.
+    expect(idnyc.channels[0].kind).toBe('in-person');
+    expect(idnyc.channels.some((c) => c.kind === 'mail')).toBe(false);
   });
 });

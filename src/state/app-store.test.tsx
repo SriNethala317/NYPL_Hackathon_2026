@@ -348,3 +348,53 @@ describe('confirmation lapses when the value behind it can change', () => {
     expect(result.current.values.fullName).toBe('Maria Reyes-Gonzalez');
   });
 });
+
+/**
+ * Real documents and demo documents must never compete.
+ *
+ * Reported from a real device: someone photographed their own driver's licence and the profile
+ * kept showing the demo's name. Nothing was broken in extraction — the sample profile contains a
+ * passport, a passport outranks a licence for a legal name, and reconciliation dutifully picked
+ * the fictional document. Their licence was read correctly and then outvoted by fiction.
+ */
+describe('a real upload ends the demo', () => {
+  beforeEach(() => jest.useFakeTimers());
+  afterEach(() => jest.useRealTimers());
+
+  it('discards the sample profile rather than reconciling against it', async () => {
+    const { result } = setup();
+
+    act(() => result.current.loadSample());
+    expect(result.current.values.fullName).toBe('Maria Reyes');
+    expect(result.current.documents.length).toBeGreaterThan(0);
+
+    // The real path dispatches `clearSample` as soon as the picker returns a document.
+    act(() => result.current.upload({ simulate: 'sample', as: 'drivers_license' }));
+    act(() => jest.runAllTimers());
+    await waitFor(() => expect(result.current.documents.length).toBeGreaterThan(0));
+
+    // The simulated path deliberately does NOT clear, because it *is* the demo -- and every
+    // document it makes is named as demo data so a later real upload can remove it.
+    expect(result.current.documents.every((d) => d.id.startsWith('sample-'))).toBe(true);
+  });
+
+  it('marks a demo-button document as demo data too', async () => {
+    const { result } = setup();
+    await uploadAndSettle(result, { as: 'passport' });
+
+    // Otherwise a fabricated passport created through the upload sheet is indistinguishable from
+    // a real one, and goes on outranking the applicant's own licence for their legal name.
+    expect(result.current.documents[0].id.startsWith('sample-')).toBe(true);
+  });
+
+  it('leaves no fabricated application behind', () => {
+    const { result } = setup();
+    act(() => result.current.loadSample());
+    expect(result.current.applications.length).toBeGreaterThan(0);
+
+    // A reference nobody issued, against a programme this person never applied for, is worse
+    // than an empty Home tab.
+    act(() => result.current.reset());
+    expect(result.current.applications).toEqual([]);
+  });
+});
