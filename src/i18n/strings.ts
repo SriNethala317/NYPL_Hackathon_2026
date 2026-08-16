@@ -103,10 +103,30 @@ const en = {
     submit: 'Submit application',
   },
 
+  /**
+   * What actually happened, which is not a submission.
+   *
+   * This screen used to say "We sent your application to the agency. You can follow its progress
+   * on the Home tab." Nothing was sent. `submit()` generates a reference locally and stores a row;
+   * there is no public way for an app to file a NYC benefits application, and there is no network
+   * call here at all.
+   *
+   * Told they had applied, someone waits for a decision that is never coming and misses the thing
+   * they actually needed to do. For a household waiting on food or rent assistance that is not a
+   * cosmetic inaccuracy — it is the worst outcome this app could produce, and it would look like
+   * success the whole way.
+   */
   confirmation: {
-    title: 'Application submitted',
-    body: 'We sent your application to the agency. You can follow its progress on the Home tab.',
-    viewStatus: 'View status',
+    title: 'Your answers are saved',
+    body: 'You have not applied yet. Nothing has been sent to the agency — this app cannot file for you. Take your answers to the agency to finish.',
+    /** Deliberately not called a confirmation number: the agency has never seen it. */
+    referenceLabel: 'Your note to yourself',
+    referenceNote: 'This is our reference, not the agency’s. They will not recognise it.',
+    nextTitle: 'How to actually apply',
+    applyOnline: 'Open the agency’s application',
+    fillForm: 'Fill in the official form',
+    noLink: 'This programme does not publish an application link. Call 311 and ask how to apply.',
+    viewStatus: 'View saved answers',
   },
 
   profile: {
@@ -423,9 +443,15 @@ const es: Strings = {
   },
 
   confirmation: {
-    title: 'Solicitud enviada',
-    body: 'Enviamos su solicitud a la agencia. Puede seguir su progreso en la pestaña Inicio.',
-    viewStatus: 'Ver estado',
+    title: 'Sus respuestas están guardadas',
+    body: 'Todavía no ha solicitado. No se ha enviado nada a la agencia — esta aplicación no puede presentar por usted. Lleve sus respuestas a la agencia para terminar.',
+    referenceLabel: 'Su nota personal',
+    referenceNote: 'Este es nuestro número, no el de la agencia. Ellos no lo reconocerán.',
+    nextTitle: 'Cómo solicitar de verdad',
+    applyOnline: 'Abrir la solicitud de la agencia',
+    fillForm: 'Llenar el formulario oficial',
+    noLink: 'Este programa no publica un enlace de solicitud. Llame al 311 y pregunte cómo solicitar.',
+    viewStatus: 'Ver respuestas guardadas',
   },
 
   profile: {

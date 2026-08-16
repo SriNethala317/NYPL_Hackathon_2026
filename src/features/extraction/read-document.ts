@@ -121,7 +121,34 @@ export async function readDocument(
     };
   }
 
-  const fields = extractFields(text, classified.type);
+  /*
+   * The reader's own fields win, where it produced any.
+   *
+   * `extractFields` anchors on English labels — "GROSS PAY", "EMPLOYEE NAME" — which works on wage
+   * documents and fails completely on an identity card. A real New York driver's licence prints
+   * the family name and given name on unlabelled lines, the address on unlabelled lines, and
+   * exactly one English label: DOB, sitting beside the issue and expiry dates. Run through the
+   * matchers it yielded no name, no address, and the EXPIRY DATE as the date of birth.
+   *
+   * So where the reader can name fields itself, those are used, and the matchers become the
+   * fallback for the no-key path they were written for. Anything the reader left out still falls
+   * through to them, so a document it only partly understands is not all-or-nothing.
+   */
+  const matched = extractFields(text, classified.type);
+  const declared = new Set<string>(documentTypes.find((t) => t.id === classified.type)?.yields ?? []);
+
+  const fields = read.fields
+    ? [
+        // Only fields this document type is declared to yield: a licence has no income, and
+        // accepting one because the model volunteered it is how a stray number becomes a wage.
+        ...Object.entries(read.fields)
+          .filter(([key, value]) => declared.has(key) && value.trim() !== '')
+          .map(([key, value]) => ({ key, value, confidence: read.confidence || 0.8 })),
+        // Then anything the model did not supply, from the matchers.
+        ...matched.filter((field) => !read.fields?.[field.key as keyof typeof read.fields]),
+      ]
+    : matched;
+
   const candidates: FieldCandidate[] = fields
     // `employer` is captured for matching a pay stub to a W-2 later; it is not a profile field.
     .filter((field) => PROFILE_KEYS.has(field.key))

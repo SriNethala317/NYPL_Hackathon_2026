@@ -37,7 +37,7 @@ export default function ReviewScreen() {
           label={strings.review.submit}
           onPress={() => {
             const reference = store.submit(id);
-            router.replace({ pathname: '/confirmation', params: { reference } });
+            router.replace({ pathname: '/confirmation', params: { reference, id } });
           }}
         />
       }>

@@ -30,6 +30,14 @@ export type OcrOutcome =
        * stronger claim than a page handed back with a silent gap in it.
        */
       removed?: string[];
+      /**
+       * Fields the reader identified itself, when it is able to.
+       *
+       * A vision model can name the fields on an identity card; label matching cannot, because an
+       * ID prints no "Name:" or "Address:" to anchor to. When these are present they are preferred
+       * over the matchers — see `readDocument`. Absent for a pure text engine like tesseract.
+       */
+      fields?: Partial<Record<'fullName' | 'dob' | 'address' | 'income' | 'household', string>>;
     }
   | { ok: false; reason: 'unavailable-on-platform' | 'failed'; detail: string };
 
