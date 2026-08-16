@@ -219,7 +219,12 @@ yarn-error.*
 *.pem
 
 # local env files
+.env
 .env*.local
+
+# Backend build output and local dependencies
+backend/dist/
+backend/node_modules/
 
 # typescript
 *.tsbuildinfo
