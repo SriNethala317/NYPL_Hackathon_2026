@@ -98,18 +98,30 @@ export async function saveDocument(
 
   if (candidates.length === 0) return { ok: true, data: null };
 
-  // One row per field, keyed on (user, field): the newest read of a field replaces the old one,
-  // which is what `unique (user_id, key)` in the schema enforces.
-  const { error: fieldError } = await db.from('profile_fields').upsert(
+  /*
+   * Inserted, never upserted.
+   *
+   * An earlier version wrote one row per (user, field) and upserted onto a unique constraint, so
+   * the second document that mentioned a field silently overwrote the first. That made it
+   * impossible for two documents to disagree in the database, which quietly disabled every
+   * conflict the reconciliation rules exist to surface — a passport and a pay stub spelling a name
+   * differently is precisely what the app is supposed to ask about.
+   *
+   * `document_type_id` is written explicitly rather than left to a join. Reconciliation ranks
+   * candidates by which kind of document they came from, and a candidate that cannot say what it
+   * came from is not a weaker candidate — `authorityRank` returns Infinity for 'unknown' and it is
+   * discarded entirely.
+   */
+  const { error: fieldError } = await db.from('field_candidates').insert(
     candidates.map((candidate) => ({
       user_id: userId,
-      key: candidate.field,
+      document_id: document.id,
+      field_key: candidate.field,
+      document_type_id: candidate.documentType,
       value: candidate.value,
-      source_document_id: document.id,
       confidence: candidate.confidence,
-      updated_at: new Date().toISOString(),
+      read_at: new Date(candidate.readAt).toISOString(),
     })),
-    { onConflict: 'user_id,key' },
   );
   if (fieldError) return { ok: false, reason: fieldError.message };
 
@@ -126,7 +138,7 @@ export async function loadProfile(): Promise<RepoOutcome<PersistedProfile>> {
 
   const [documents, fields, applications] = await Promise.all([
     db.from('documents').select('*'),
-    db.from('profile_fields').select('*'),
+    db.from('field_candidates').select('*'),
     db.from('applications').select('*'),
   ]);
 
@@ -143,15 +155,22 @@ export async function loadProfile(): Promise<RepoOutcome<PersistedProfile>> {
         confidence: row.confidence ?? undefined,
         readAt: row.read_at ?? undefined,
       })),
+      /*
+       * Every candidate comes back whole, including the kind of document it was read from.
+       *
+       * An earlier version hardcoded `documentType: 'unknown'` here with a comment calling it a
+       * harmless default. It was not harmless: `authorityRank` returns Infinity for 'unknown',
+       * `resolveField` drops every candidate that scores Infinity, and so a profile reloaded from
+       * the server resolved to nothing — the app would sign in, fetch a full set of fields, and
+       * show an empty Profile with no error anywhere.
+       */
       candidates: (fields.data ?? []).map((row) => ({
-        field: row.key as ProfileFieldKey,
+        field: row.field_key as ProfileFieldKey,
         value: row.value,
-        documentId: row.source_document_id ?? '',
-        // The document type is recoverable from the joined document; defaulting keeps the shape
-        // valid when a document has been removed but its field has not yet been cleaned up.
-        documentType: 'unknown' as DocumentTypeId,
-        confidence: row.confidence ?? 0.5,
-        readAt: Date.parse(row.updated_at) || 0,
+        documentId: row.document_id,
+        documentType: row.document_type_id as DocumentTypeId,
+        confidence: row.confidence,
+        readAt: Date.parse(row.read_at) || 0,
       })),
       applications: (applications.data ?? []).map((row) => ({
         programId: row.program_id,

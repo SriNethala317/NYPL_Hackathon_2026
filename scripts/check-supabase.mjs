@@ -110,12 +110,15 @@ if (signIn.ok) {
 }
 
 // 5. Are the private tables actually protected?
-const leak = await fetch(`${url}/rest/v1/profile_fields?select=id&limit=1`, { headers });
+const leak = await fetch(`${url}/rest/v1/field_candidates?select=id&limit=1`, { headers });
 if (leak.status === 200) {
   const rows = await leak.json();
   Array.isArray(rows) && rows.length === 0
     ? pass('private tables return nothing without a session (RLS active)')
-    : fail('private data is readable without signing in', 'Check RLS is enabled on profile_fields.');
+    : fail(
+        'private data is readable without signing in',
+        'Check RLS is enabled on field_candidates.',
+      );
 } else if (leak.status === 401 || leak.status === 403) {
   pass('private tables reject unauthenticated reads (RLS active)');
 } else if (leak.status === 404) {
