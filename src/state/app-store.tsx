@@ -7,40 +7,47 @@ import {
   type ReactNode,
 } from 'react';
 
+import { documentType, type DocumentTypeId } from '@/data/document-types';
 import type { ProgramId } from '@/data/programs';
-import type { ProfileFieldKey } from '@/data/profile-fields';
-import {
-  sampleApplication,
-  sampleDocuments,
-  sampleProfile,
-  sampleReadDate,
-} from '@/data/sample-profile';
+import { profileFields, type ProfileFieldKey } from '@/data/profile-fields';
+import { reconcile, unresolved, type FieldCandidate, type ResolvedField } from '@/data/reconcile';
+import { extractionFor, sampleApplication, sampleUploads } from '@/data/sample-profile';
 import type { Language } from '@/i18n/strings';
-import { motion, type DocumentKind } from '@/theme';
+import { motion, type DocumentCategory } from '@/theme';
 
 /**
  * All app state, in one reducer.
  *
  * Deliberately absent: the design's `tab`, `route` and `programId` fields. Those are navigation,
- * and expo-router owns them — duplicating them here is how the two get out of sync.
+ * and expo-router owns them.
  *
- * When Supabase lands, everything below the UI section becomes server state. The shapes are
- * chosen so that swap does not reach the screens.
+ * The document model is open — a user uploads whatever they have and the pipeline works out what
+ * it is. See docs/upload-pipeline.md. When Supabase lands, `documents` and `candidates` become
+ * server state; the shapes are chosen so that swap does not reach the screens.
  */
 
 /**
- * A document is never simply "there or not". Upload → OCR → LLM is asynchronous and can fail,
- * so `scanning` is a real state rather than a 1700ms cosmetic delay.
+ * Upload → classify → extract is asynchronous and fails routinely, so each step is a real state
+ * rather than a cosmetic delay.
  *
- * `failed` has no screen in the design — see docs/architecture-review.md. It is modelled here so
- * the gap is visible in the type rather than silently impossible.
+ * `needsType` is what the classifier reports when it is not confident enough to name the
+ * document. Guessing there would propagate a wrong type into every field read from it.
  */
-export type DocumentStatus = 'missing' | 'scanning' | 'read' | 'failed';
+export type DocumentStatus = 'uploading' | 'reading' | 'read' | 'needsType' | 'failed';
 
-export type DocumentState = {
+export type FailureReason = 'unreadable' | 'timeout' | 'noFields';
+
+export type UploadedDocument = {
+  id: string;
+  type: DocumentTypeId;
   status: DocumentStatus;
-  /** When the document was read. Under extract-then-discard there is no file left to name. */
+  /** Display date the document was read. The original is deleted at that point. */
   readOn?: string;
+  /** Ordering key for reconciliation tie-breaks. */
+  readAt: number;
+  /** Classifier confidence, 0–1. */
+  confidence: number;
+  failure?: FailureReason;
 };
 
 export type Application = {
@@ -53,57 +60,64 @@ export type Application = {
 
 type State = {
   language: Language;
-  documents: Record<DocumentKind, DocumentState>;
-  /** Values extracted from documents, or typed by the user. */
-  values: Partial<Record<ProfileFieldKey, string>>;
+  documents: UploadedDocument[];
+  /** Every value any document yielded, with provenance. Reconciled on read. */
+  candidates: FieldCandidate[];
+  /** Values the user typed. These always beat anything a machine extracted. */
+  overrides: Partial<Record<ProfileFieldKey, string>>;
+  /** How the user settled a conflict between equally authoritative documents. */
+  conflictChoices: Partial<Record<ProfileFieldKey, string>>;
   /**
-   * Fields the user has actually looked at and accepted, mirroring `confirmedFields` in the
-   * eligibility engine. An LLM-extracted value the user never saw should not be certified as
-   * true on a government form.
+   * Fields the user has looked at and accepted. An extracted value the user never saw must not
+   * be certified as true on a government form.
    */
   confirmedFields: ProfileFieldKey[];
   applications: Application[];
   consent: boolean;
-  /** Validation is only revealed after a failed submit attempt, per the design. */
   touched: boolean;
   lastReference: string | null;
-  sheet: { open: boolean; target: DocumentKind | null };
+  sheet: { open: boolean };
 };
 
 type Action =
   | { type: 'toggleLanguage' }
-  | { type: 'openSheet'; target: DocumentKind | null }
+  | { type: 'openSheet' }
   | { type: 'closeSheet' }
-  | { type: 'scanStarted'; kind: DocumentKind }
-  | { type: 'scanFinished'; kind: DocumentKind; readOn: string }
+  | { type: 'uploadStarted'; id: string; at: number }
+  | { type: 'classified'; id: string; docType: DocumentTypeId; confidence: number }
+  | { type: 'read'; id: string; readOn: string; candidates: FieldCandidate[] }
+  | { type: 'failed'; id: string; reason: FailureReason }
+  | { type: 'setType'; id: string; docType: DocumentTypeId }
+  | { type: 'removeDocument'; id: string }
   | { type: 'setValue'; key: ProfileFieldKey; value: string }
+  | { type: 'resolveConflict'; key: ProfileFieldKey; value: string }
   | { type: 'confirmField'; key: ProfileFieldKey }
-  | { type: 'prefillForm' }
   | { type: 'setConsent'; value: boolean }
   | { type: 'setTouched'; value: boolean }
   | { type: 'submitted'; programId: ProgramId; reference: string; date: string }
-  | { type: 'loadSample'; readOn: string; date: string }
+  | { type: 'loadSample'; readOn: string; at: number; date: string }
   | { type: 'reset' };
-
-const emptyDocuments: Record<DocumentKind, DocumentState> = {
-  id: { status: 'missing' },
-  address: { status: 'missing' },
-  income: { status: 'missing' },
-  lease: { status: 'missing' },
-  utility: { status: 'missing' },
-};
 
 const initialState: State = {
   language: 'en',
-  documents: emptyDocuments,
-  values: {},
+  documents: [],
+  candidates: [],
+  overrides: {},
+  conflictChoices: {},
   confirmedFields: [],
   applications: [],
   consent: false,
   touched: false,
   lastReference: null,
-  sheet: { open: false, target: null },
+  sheet: { open: false },
 };
+
+function patchDocument(state: State, id: string, patch: Partial<UploadedDocument>): State {
+  return {
+    ...state,
+    documents: state.documents.map((d) => (d.id === id ? { ...d, ...patch } : d)),
+  };
+}
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
@@ -111,36 +125,68 @@ function reducer(state: State, action: Action): State {
       return { ...state, language: state.language === 'en' ? 'es' : 'en' };
 
     case 'openSheet':
-      return { ...state, sheet: { open: true, target: action.target } };
+      return { ...state, sheet: { open: true } };
 
     case 'closeSheet':
-      return { ...state, sheet: { open: false, target: null } };
+      return { ...state, sheet: { open: false } };
 
-    case 'scanStarted':
+    case 'uploadStarted':
       return {
         ...state,
-        documents: { ...state.documents, [action.kind]: { status: 'scanning' } },
+        documents: [
+          ...state.documents,
+          {
+            id: action.id,
+            type: 'unknown',
+            status: 'uploading',
+            readAt: action.at,
+            confidence: 0,
+          },
+        ],
       };
 
-    case 'scanFinished': {
-      const documents = {
-        ...state.documents,
-        [action.kind]: { status: 'read' as const, readOn: action.readOn },
+    case 'classified':
+      return patchDocument(state, action.id, {
+        type: action.docType,
+        confidence: action.confidence,
+        // Below the threshold the classifier declines to name it and the user picks.
+        status: action.docType === 'unknown' ? 'needsType' : 'reading',
+      });
+
+    case 'read':
+      return {
+        ...patchDocument(state, action.id, { status: 'read', readOn: action.readOn }),
+        candidates: [...state.candidates, ...action.candidates],
       };
-      // Extraction fills only the fields this document is the source for, and never
-      // overwrites something the user has already typed.
-      const values = { ...state.values };
-      for (const [key, value] of Object.entries(extractionFor(action.kind))) {
-        if (!values[key as ProfileFieldKey]) values[key as ProfileFieldKey] = value;
-      }
-      return { ...state, documents, values };
-    }
+
+    case 'failed':
+      return patchDocument(state, action.id, { status: 'failed', failure: action.reason });
+
+    case 'setType':
+      return patchDocument(state, action.id, { type: action.docType, status: 'reading' });
+
+    case 'removeDocument':
+      return {
+        ...state,
+        documents: state.documents.filter((d) => d.id !== action.id),
+        // Values sourced from a removed document go with it.
+        candidates: state.candidates.filter((c) => c.documentId !== action.id),
+      };
 
     case 'setValue':
       return {
         ...state,
-        values: { ...state.values, [action.key]: action.value },
+        overrides: { ...state.overrides, [action.key]: action.value },
         // Typing a value is itself confirmation of it.
+        confirmedFields: state.confirmedFields.includes(action.key)
+          ? state.confirmedFields
+          : [...state.confirmedFields, action.key],
+      };
+
+    case 'resolveConflict':
+      return {
+        ...state,
+        conflictChoices: { ...state.conflictChoices, [action.key]: action.value },
         confirmedFields: state.confirmedFields.includes(action.key)
           ? state.confirmedFields
           : [...state.confirmedFields, action.key],
@@ -153,9 +199,6 @@ function reducer(state: State, action: Action): State {
           ? state.confirmedFields
           : [...state.confirmedFields, action.key],
       };
-
-    case 'prefillForm':
-      return { ...state, touched: false };
 
     case 'setConsent':
       return { ...state, consent: action.value };
@@ -176,52 +219,60 @@ function reducer(state: State, action: Action): State {
         touched: false,
       };
 
-    case 'loadSample':
+    case 'loadSample': {
+      const documents = sampleUploads.map((upload, index) => ({
+        id: `sample-${upload.type}`,
+        type: upload.type,
+        status: 'read' as const,
+        readOn: action.readOn,
+        readAt: action.at + index,
+        confidence: 0.97,
+      }));
+      const candidates = documents.flatMap((doc) =>
+        extractionFor(doc.type, doc.id, doc.readAt),
+      );
       return {
         ...state,
-        documents: sampleDocuments.reduce(
-          (acc, kind) => ({ ...acc, [kind]: { status: 'read' as const, readOn: action.readOn } }),
-          { ...emptyDocuments },
-        ),
-        values: { ...sampleProfile.values },
+        documents,
+        candidates,
+        overrides: {},
+        conflictChoices: {},
         confirmedFields: [],
         applications: [{ ...sampleApplication, date: action.date }],
       };
+    }
 
     case 'reset':
       return { ...initialState, language: state.language };
   }
 }
 
-/** What each document yields. The real pipeline returns this from an Edge Function. */
-function extractionFor(kind: DocumentKind): Partial<Record<ProfileFieldKey, string>> {
-  switch (kind) {
-    case 'id':
-      return { fullName: sampleProfile.values.fullName, dob: sampleProfile.values.dob };
-    case 'address':
-      return { address: sampleProfile.values.address };
-    case 'income':
-      return { income: sampleProfile.values.income };
-    case 'lease':
-      return { household: sampleProfile.values.household };
-    case 'utility':
-      return {};
-  }
-}
-
 type Store = State & {
   toggleLanguage: () => void;
-  openSheet: (target?: DocumentKind | null) => void;
+  openSheet: () => void;
   closeSheet: () => void;
-  scan: (kind: DocumentKind) => void;
+  /** Runs the whole upload → classify → extract pipeline for one file. */
+  upload: (options?: { as?: DocumentTypeId; simulate?: 'unknown' | 'failure' }) => void;
+  setDocumentType: (id: string, docType: DocumentTypeId) => void;
+  removeDocument: (id: string) => void;
   setValue: (key: ProfileFieldKey, value: string) => void;
+  resolveConflict: (key: ProfileFieldKey, value: string) => void;
   confirmField: (key: ProfileFieldKey) => void;
   setConsent: (value: boolean) => void;
   setTouched: (value: boolean) => void;
   submit: (programId: ProgramId) => string;
   loadSample: () => void;
   reset: () => void;
-  documentsOnFile: DocumentKind[];
+
+  /** Derived: the reconciled profile. */
+  resolved: ResolvedField[];
+  values: Partial<Record<ProfileFieldKey, string>>;
+  conflicts: ResolvedField[];
+  categoriesOnFile: DocumentCategory[];
+  /** Nothing else may be uploaded until an identity document is on file. */
+  hasIdentityDocument: boolean;
+  /** Mandatory fields still unanswered, for the "still needed" list. */
+  missingFields: ProfileFieldKey[];
 };
 
 const AppStoreContext = createContext<Store | null>(null);
@@ -229,31 +280,105 @@ const AppStoreContext = createContext<Store | null>(null);
 export function AppStoreProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(reducer, initialState);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const counter = useRef(0);
 
   useEffect(() => {
     const pending = timers.current;
     return () => pending.forEach(clearTimeout);
   }, []);
 
+  const after = (ms: number, fn: () => void) => {
+    timers.current.push(setTimeout(fn, ms));
+  };
+
+  const readDocuments = state.documents.filter((d) => d.status === 'read');
+
+  const resolved = reconcile(state.candidates);
+  const conflicts = unresolved(resolved);
+
+  // Precedence: what the user typed, then how they settled a conflict, then the reconciled
+  // winner. A machine never overrides a person.
+  const values: Partial<Record<ProfileFieldKey, string>> = {};
+  for (const field of resolved) values[field.field] = field.value;
+  for (const [key, value] of Object.entries(state.conflictChoices)) {
+    if (value) values[key as ProfileFieldKey] = value;
+  }
+  for (const [key, value] of Object.entries(state.overrides)) {
+    if (value) values[key as ProfileFieldKey] = value;
+  }
+
+  const categoriesOnFile = [
+    ...new Set(readDocuments.map((d) => documentType(d.type).category)),
+  ];
+
   const store: Store = {
     ...state,
+    resolved,
+    conflicts,
+    values,
+    categoriesOnFile,
+    hasIdentityDocument: readDocuments.some((d) => documentType(d.type).isIdentity),
+    missingFields: profileFields
+      .filter((f) => f.mandatory && !values[f.key]?.trim())
+      .map((f) => f.key),
 
     toggleLanguage: () => dispatch({ type: 'toggleLanguage' }),
-    openSheet: (target = null) => dispatch({ type: 'openSheet', target }),
+    openSheet: () => dispatch({ type: 'openSheet' }),
     closeSheet: () => dispatch({ type: 'closeSheet' }),
 
-    scan: (kind) => {
-      dispatch({ type: 'scanStarted', kind });
-      // Stands in for upload → OCR → LLM. Real latency is seconds, not milliseconds, and this
-      // call can fail; see the `failed` status above.
-      const timer = setTimeout(() => {
-        dispatch({ type: 'scanFinished', kind, readOn: today() });
-        dispatch({ type: 'closeSheet' });
-      }, motion.scanDuration);
-      timers.current.push(timer);
+    upload: (options = {}) => {
+      counter.current += 1;
+      const id = `doc-${counter.current}`;
+      const at = counter.current;
+      dispatch({ type: 'uploadStarted', id, at });
+
+      // Stands in for the Edge Function round-trip. Real latency is seconds, and every one of
+      // these branches happens in practice.
+      after(motion.scanDuration / 2, () => {
+        if (options.simulate === 'failure') {
+          dispatch({ type: 'failed', id, reason: 'unreadable' });
+          dispatch({ type: 'closeSheet' });
+          return;
+        }
+        const docType = options.simulate === 'unknown' ? 'unknown' : (options.as ?? 'passport');
+        dispatch({
+          type: 'classified',
+          id,
+          docType,
+          confidence: docType === 'unknown' ? 0.3 : 0.96,
+        });
+        if (docType === 'unknown') {
+          dispatch({ type: 'closeSheet' });
+          return;
+        }
+        after(motion.scanDuration / 2, () => {
+          dispatch({
+            type: 'read',
+            id,
+            readOn: today(),
+            candidates: extractionFor(docType, id, at),
+          });
+          dispatch({ type: 'closeSheet' });
+        });
+      });
     },
 
+    setDocumentType: (id, docType) => {
+      dispatch({ type: 'setType', id, docType });
+      const doc = state.documents.find((d) => d.id === id);
+      after(motion.scanDuration / 2, () =>
+        dispatch({
+          type: 'read',
+          id,
+          readOn: today(),
+          candidates: extractionFor(docType, id, doc?.readAt ?? 0),
+        }),
+      );
+    },
+
+    removeDocument: (id) => dispatch({ type: 'removeDocument', id }),
     setValue: (key, value) => dispatch({ type: 'setValue', key, value }),
+    resolveConflict: (key, value) => dispatch({ type: 'resolveConflict', key, value }),
     confirmField: (key) => dispatch({ type: 'confirmField', key }),
     setConsent: (value) => dispatch({ type: 'setConsent', value }),
     setTouched: (value) => dispatch({ type: 'setTouched', value }),
@@ -264,12 +389,8 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
       return reference;
     },
 
-    loadSample: () => dispatch({ type: 'loadSample', readOn: sampleReadDate, date: today() }),
+    loadSample: () => dispatch({ type: 'loadSample', readOn: today(), at: 1000, date: today() }),
     reset: () => dispatch({ type: 'reset' }),
-
-    documentsOnFile: (Object.keys(state.documents) as DocumentKind[]).filter(
-      (kind) => state.documents[kind].status === 'read',
-    ),
   };
 
   return <AppStoreContext.Provider value={store}>{children}</AppStoreContext.Provider>;

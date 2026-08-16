@@ -12,7 +12,7 @@ export default function ApplicationFormScreen() {
   const { id } = useLocalSearchParams<{ id: ProgramId }>();
   const strings = useStrings();
   const store = useAppStore();
-  const { values, consent, touched, documents } = store;
+  const { values, consent, touched, resolved } = store;
 
   const missing = profileFields.filter((f) => f.mandatory && !values[f.key]?.trim());
   const canContinue = missing.length === 0 && consent;
@@ -35,7 +35,9 @@ export default function ApplicationFormScreen() {
             {profileFields.map((field) => {
               const value = values[field.key] ?? '';
               const invalid = touched && field.mandatory && !value.trim();
-              const sourceRead = field.source && documents[field.source].status === 'read';
+              // Provenance follows the reconciled winner, so the hint names the document the
+              // value actually came from rather than a category it might have come from.
+              const from = resolved.find((r) => r.field === field.key);
 
               return (
                 <TextField
@@ -52,9 +54,9 @@ export default function ApplicationFormScreen() {
                    * and which they have to supply themselves.
                    */
                   hint={
-                    field.extractable && sourceRead && field.source
+                    from
                       ? fill(strings.form.fromDocument, {
-                          document: strings.documents[field.source],
+                          document: strings.documents[from.documentType],
                         })
                       : strings.form.notExtracted
                   }

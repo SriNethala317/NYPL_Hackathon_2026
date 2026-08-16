@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import { SplashPanel } from '@/components/enroll';
+import { AppLock, SplashPanel } from '@/components/enroll';
 import { useStrings } from '@/i18n/use-strings';
 import { AppStoreProvider } from '@/state/app-store';
 import { motion } from '@/theme';
@@ -35,6 +35,7 @@ export default function RootLayout() {
           <Stack.Screen name="confirmation" options={{ gestureEnabled: false }} />
         </Stack>
         <Splash />
+        <Lock />
         <StatusBar style="dark" />
       </AppStoreProvider>
     </SafeAreaProvider>
@@ -66,6 +67,27 @@ function Splash() {
       style={styles.splash}>
       <SplashPanel subtitle={[...strings.splash.agency]} badge={strings.splash.badge} />
     </Pressable>
+  );
+}
+
+/**
+ * The device lock sits above everything, including the splash, so nothing behind it is legible
+ * before the user authenticates. It resolves open where local authentication is unavailable —
+ * see `AppLock` for why locking someone out is worse than not locking.
+ */
+function Lock() {
+  const strings = useStrings();
+  const [locked, setLocked] = useState(true);
+
+  if (!locked) return null;
+
+  return (
+    <AppLock
+      title={strings.lock.title}
+      body={strings.lock.body}
+      action={strings.lock.action}
+      onUnlock={() => setLocked(false)}
+    />
   );
 }
 

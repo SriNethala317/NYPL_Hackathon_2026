@@ -1,7 +1,7 @@
 import { programById, programs, type ProgramId } from './programs';
 import type { ProfileFieldKey } from './profile-fields';
 
-import type { DocumentKind, EligibilityStatus as VisualStatus } from '@/theme';
+import { documentCategories, type DocumentCategory, type EligibilityStatus as VisualStatus } from '@/theme';
 
 /**
  * A stand-in for `checkEligibility()` from `src/features/eligibility` on the validation-system
@@ -37,7 +37,8 @@ export type EligibilityInput = {
   householdSize?: number;
   /** Annual, matching the engine. The form captures monthly and converts at this boundary. */
   annualIncome?: number;
-  documentsOnFile: readonly DocumentKind[];
+  /** Kinds of proof the user has supplied, whatever the underlying files were. */
+  categoriesOnFile: readonly DocumentCategory[];
 };
 
 /** Engine vocabulary → the theme's visual token keys, so styling never learns engine terms. */
@@ -63,7 +64,7 @@ export function evaluate(programId: ProgramId, input: EligibilityInput): Eligibi
   const reasons: string[] = [];
   const missingFields: string[] = [];
 
-  const missingDocs = program.requires.filter((d) => !input.documentsOnFile.includes(d));
+  const missingDocs = program.requires.filter((c) => !input.categoriesOnFile.includes(c));
   missingFields.push(...missingDocs);
 
   // Only judge income once the household size it depends on is actually known — a limit read
@@ -99,9 +100,9 @@ export function evaluateAll(input: EligibilityInput): EligibilityResult[] {
   return programs.map((p) => evaluate(p.id, input));
 }
 
-/** `missingFields` mixes document kinds and profile fields; the UI renders them differently. */
-export function isDocumentKind(field: string): field is DocumentKind {
-  return ['id', 'address', 'income', 'lease', 'utility'].includes(field);
+/** `missingFields` mixes proof categories and profile fields; the UI renders them differently. */
+export function isDocumentCategory(field: string): field is DocumentCategory {
+  return (documentCategories as readonly string[]).includes(field);
 }
 
 export function isProfileFieldKey(field: string): field is ProfileFieldKey {

@@ -39,8 +39,10 @@ describe('translation completeness', () => {
     // Catches keys copy-pasted from English and never translated. Proper nouns and a few
     // shared brand strings legitimately match, so they are exempt.
     const allowedIdentical = new Set([
+      // Proper nouns and brand names, which do not translate.
       'programs.fair_fares.name',
       'programs.medicaid.name',
+      'documents.idnyc',
       'detail.facts.agency',
     ]);
 

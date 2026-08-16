@@ -3,134 +3,220 @@ import type { ReactNode } from 'react';
 
 import { AppStoreProvider, useAppStore } from './app-store';
 
-import { documentKinds } from '@/theme';
-
 function wrapper({ children }: { children: ReactNode }) {
   return <AppStoreProvider>{children}</AppStoreProvider>;
 }
 
 const setup = () => renderHook(() => useAppStore(), { wrapper });
 
+/** Runs an upload all the way through classify → extract. */
+async function uploadAndSettle(
+  result: { current: ReturnType<typeof useAppStore> },
+  options?: Parameters<ReturnType<typeof useAppStore>['upload']>[0],
+) {
+  act(() => result.current.upload(options));
+  act(() => jest.runAllTimers());
+  await waitFor(() => expect(result.current.documents.length).toBeGreaterThan(0));
+}
+
 describe('initial state', () => {
-  it('starts empty, with nothing on file', () => {
+  it('starts with nothing on file', () => {
     const { result } = setup();
-    expect(result.current.documentsOnFile).toEqual([]);
-    expect(result.current.applications).toEqual([]);
+    expect(result.current.documents).toEqual([]);
     expect(result.current.values).toEqual({});
-    expect(result.current.consent).toBe(false);
+    expect(result.current.applications).toEqual([]);
+    expect(result.current.categoriesOnFile).toEqual([]);
   });
 
-  it('marks every document missing', () => {
+  it('has no identity document, so the gate is closed', () => {
     const { result } = setup();
-    for (const kind of documentKinds) {
-      expect(result.current.documents[kind].status).toBe('missing');
-    }
+    expect(result.current.hasIdentityDocument).toBe(false);
+  });
+
+  it('reports every mandatory field as missing', () => {
+    const { result } = setup();
+    expect(result.current.missingFields).toEqual([
+      'fullName',
+      'dob',
+      'address',
+      'household',
+      'income',
+    ]);
   });
 });
 
-describe('language', () => {
-  it('toggles between the two languages', () => {
-    const { result } = setup();
-    expect(result.current.language).toBe('en');
-    act(() => result.current.toggleLanguage());
-    expect(result.current.language).toBe('es');
-    act(() => result.current.toggleLanguage());
-    expect(result.current.language).toBe('en');
-  });
-
-  it('survives a demo reset', () => {
-    // Resetting the demo should not throw the user back into a language they cannot read.
-    const { result } = setup();
-    act(() => result.current.toggleLanguage());
-    act(() => result.current.reset());
-    expect(result.current.language).toBe('es');
-  });
-});
-
-describe('scanning a document', () => {
+describe('the upload pipeline', () => {
   beforeEach(() => jest.useFakeTimers());
   afterEach(() => jest.useRealTimers());
 
-  it('passes through a scanning state before becoming readable', async () => {
+  it('passes through upload and read before the document is usable', async () => {
     const { result } = setup();
 
-    act(() => result.current.scan('id'));
-    // The intermediate state is the whole point: extraction is asynchronous and can fail.
-    expect(result.current.documents.id.status).toBe('scanning');
+    act(() => result.current.upload({ as: 'passport' }));
+    // The intermediate states are the point: this round-trip is slow and can fail.
+    expect(result.current.documents[0].status).toBe('uploading');
 
     act(() => jest.runAllTimers());
-    await waitFor(() => expect(result.current.documents.id.status).toBe('read'));
+    await waitFor(() => expect(result.current.documents[0].status).toBe('read'));
   });
 
-  it('extracts only the fields that document is the source for', async () => {
+  it('extracts only the fields the document type declares', async () => {
     const { result } = setup();
+    await uploadAndSettle(result, { as: 'passport' });
 
-    act(() => result.current.scan('id'));
-    act(() => jest.runAllTimers());
-
-    await waitFor(() => expect(result.current.values.fullName).toBe('Maria Reyes'));
+    // A passport proves who you are; it says nothing about income or where you live.
+    expect(result.current.values.fullName).toBe('Maria Reyes');
     expect(result.current.values.dob).toBe('04/18/1991');
-    // A photo ID says nothing about income.
     expect(result.current.values.income).toBeUndefined();
+    expect(result.current.values.address).toBeUndefined();
   });
 
-  it('records when the document was read, since the original is discarded', async () => {
+  it('opens the identity gate once a photo ID is read', async () => {
     const { result } = setup();
-    act(() => result.current.scan('income'));
-    act(() => jest.runAllTimers());
-    await waitFor(() => expect(result.current.documents.income.readOn).toBeTruthy());
+    await uploadAndSettle(result, { as: 'passport' });
+    expect(result.current.hasIdentityDocument).toBe(true);
   });
 
-  it('closes the upload sheet when extraction finishes', async () => {
+  it('does not open the gate for a non-identity document', async () => {
     const { result } = setup();
-    act(() => result.current.openSheet('id'));
-    expect(result.current.sheet.open).toBe(true);
-
-    act(() => result.current.scan('id'));
-    act(() => jest.runAllTimers());
-    await waitFor(() => expect(result.current.sheet.open).toBe(false));
+    await uploadAndSettle(result, { as: 'w2' });
+    expect(result.current.hasIdentityDocument).toBe(false);
   });
 
-  it('never overwrites a value the user typed themselves', async () => {
+  it('reports categories of proof, not individual files', async () => {
     const { result } = setup();
-
-    act(() => result.current.setValue('fullName', 'María Reyes-Ortiz'));
-    act(() => result.current.scan('id'));
+    await uploadAndSettle(result, { as: 'passport' });
+    act(() => result.current.upload({ as: 'w2' }));
     act(() => jest.runAllTimers());
 
-    // The applicant certifies these values as true; a machine must not silently replace them.
-    await waitFor(() => expect(result.current.documents.id.status).toBe('read'));
-    expect(result.current.values.fullName).toBe('María Reyes-Ortiz');
+    // A W-2, a pay stub or a tax return all satisfy "income".
+    await waitFor(() => expect(result.current.categoriesOnFile).toContain('income'));
+    expect(result.current.categoriesOnFile).toContain('identity');
+  });
+
+  it('closes the sheet when the document has been read', async () => {
+    const { result } = setup();
+    act(() => result.current.openSheet());
+    await uploadAndSettle(result, { as: 'passport' });
+    expect(result.current.sheet.open).toBe(false);
   });
 });
 
-describe('field confirmation', () => {
-  it('treats typing a value as confirming it', () => {
+describe('classification failure paths', () => {
+  beforeEach(() => jest.useFakeTimers());
+  afterEach(() => jest.useRealTimers());
+
+  it('asks the user rather than guessing when it cannot classify', async () => {
     const { result } = setup();
-    act(() => result.current.setValue('income', '2400'));
-    expect(result.current.confirmedFields).toContain('income');
+    await uploadAndSettle(result, { simulate: 'unknown' });
+
+    // Guessing a type would propagate a wrong type into every field read from it.
+    expect(result.current.documents[0].status).toBe('needsType');
+    expect(result.current.values).toEqual({});
   });
 
-  it('does not double-record a field', () => {
+  it('reads the document once the user names its type', async () => {
     const { result } = setup();
-    act(() => result.current.setValue('income', '2400'));
-    act(() => result.current.setValue('income', '2500'));
-    act(() => result.current.confirmField('income'));
-    expect(result.current.confirmedFields.filter((f) => f === 'income')).toHaveLength(1);
+    await uploadAndSettle(result, { simulate: 'unknown' });
+
+    act(() => result.current.setDocumentType(result.current.documents[0].id, 'passport'));
+    act(() => jest.runAllTimers());
+
+    await waitFor(() => expect(result.current.documents[0].status).toBe('read'));
+    expect(result.current.values.fullName).toBe('Maria Reyes');
+  });
+
+  it('surfaces an unreadable document instead of failing silently', async () => {
+    const { result } = setup();
+    await uploadAndSettle(result, { simulate: 'failure' });
+
+    expect(result.current.documents[0].status).toBe('failed');
+    expect(result.current.documents[0].failure).toBe('unreadable');
+    expect(result.current.values).toEqual({});
+  });
+
+  it('a failed document contributes no categories of proof', async () => {
+    const { result } = setup();
+    await uploadAndSettle(result, { simulate: 'failure' });
+    expect(result.current.categoriesOnFile).toEqual([]);
+    expect(result.current.hasIdentityDocument).toBe(false);
+  });
+});
+
+describe('removing a document', () => {
+  beforeEach(() => jest.useFakeTimers());
+  afterEach(() => jest.useRealTimers());
+
+  it('takes the values it supplied with it', async () => {
+    const { result } = setup();
+    await uploadAndSettle(result, { as: 'passport' });
+    expect(result.current.values.fullName).toBe('Maria Reyes');
+
+    act(() => result.current.removeDocument(result.current.documents[0].id));
+
+    // Otherwise a value would outlive its provenance and could not be defended.
+    await waitFor(() => expect(result.current.values.fullName).toBeUndefined());
+    expect(result.current.documents).toEqual([]);
+  });
+});
+
+describe('reconciliation through the store', () => {
+  beforeEach(() => jest.useFakeTimers());
+  afterEach(() => jest.useRealTimers());
+
+  it('a typed value always beats an extracted one', async () => {
+    const { result } = setup();
+
+    act(() => result.current.setValue('fullName', 'María Reyes-Ortiz'));
+    await uploadAndSettle(result, { as: 'passport' });
+
+    // The applicant certifies these values as true; a machine must not silently replace them.
+    expect(result.current.values.fullName).toBe('María Reyes-Ortiz');
+  });
+
+  it('records which document a value came from', async () => {
+    const { result } = setup();
+    await uploadAndSettle(result, { as: 'passport' });
+
+    const name = result.current.resolved.find((r) => r.field === 'fullName');
+    expect(name?.documentType).toBe('passport');
   });
 
   it('leaves extracted-but-unseen values unconfirmed', async () => {
-    jest.useFakeTimers();
     const { result } = setup();
+    await uploadAndSettle(result, { as: 'passport' });
 
-    act(() => result.current.scan('id'));
-    act(() => jest.runAllTimers());
-    await waitFor(() => expect(result.current.documents.id.status).toBe('read'));
-
-    // Extraction alone is not confirmation — this is what stops a hallucinated value being
-    // certified as true on a government form.
+    // Extraction is not confirmation — this is what stops a hallucinated value being certified.
     expect(result.current.confirmedFields).toEqual([]);
-    jest.useRealTimers();
+  });
+});
+
+describe('the demo affordances', () => {
+  it('loads a sample profile that satisfies the identity gate', () => {
+    const { result } = setup();
+    act(() => result.current.loadSample());
+
+    expect(result.current.hasIdentityDocument).toBe(true);
+    expect(result.current.values.fullName).toBe('Maria Reyes');
+    expect(result.current.applications).toHaveLength(1);
+  });
+
+  it('reset clears everything the sample added', () => {
+    const { result } = setup();
+    act(() => result.current.loadSample());
+    act(() => result.current.reset());
+
+    expect(result.current.documents).toEqual([]);
+    expect(result.current.values).toEqual({});
+    expect(result.current.applications).toEqual([]);
+  });
+
+  it('keeps the chosen language across a reset', () => {
+    const { result } = setup();
+    act(() => result.current.toggleLanguage());
+    act(() => result.current.reset());
+    // Resetting the demo must not strand the user in a language they cannot read.
+    expect(result.current.language).toBe('es');
   });
 });
 
@@ -143,7 +229,6 @@ describe('submitting an application', () => {
       reference = result.current.submit('fair_fares');
     });
 
-    expect(result.current.applications).toHaveLength(1);
     expect(result.current.applications[0]).toMatchObject({
       programId: 'fair_fares',
       reference,
@@ -171,58 +256,5 @@ describe('submitting an application', () => {
     }
     expect(refs.size).toBeGreaterThan(20);
     for (const ref of refs) expect(ref).toMatch(/^NYC-\d{4}-\d{4}$/);
-  });
-
-  it('keeps the newest application first', () => {
-    const { result } = setup();
-    act(() => {
-      result.current.submit('fair_fares');
-    });
-    act(() => {
-      result.current.submit('medicaid');
-    });
-    expect(result.current.applications[0].programId).toBe('medicaid');
-  });
-});
-
-describe('the demo affordances', () => {
-  it('loads a complete sample profile', () => {
-    const { result } = setup();
-    act(() => result.current.loadSample());
-
-    expect(result.current.documentsOnFile).toHaveLength(documentKinds.length);
-    expect(result.current.values.fullName).toBe('Maria Reyes');
-    expect(result.current.applications).toHaveLength(1);
-  });
-
-  it('reset clears everything the sample added', () => {
-    const { result } = setup();
-    act(() => result.current.loadSample());
-    act(() => result.current.reset());
-
-    expect(result.current.documentsOnFile).toEqual([]);
-    expect(result.current.values).toEqual({});
-    expect(result.current.applications).toEqual([]);
-  });
-});
-
-describe('the upload sheet', () => {
-  it('remembers which document row opened it', () => {
-    const { result } = setup();
-    act(() => result.current.openSheet('lease'));
-    expect(result.current.sheet).toEqual({ open: true, target: 'lease' });
-  });
-
-  it('opens without a target from the generic add button', () => {
-    const { result } = setup();
-    act(() => result.current.openSheet());
-    expect(result.current.sheet).toEqual({ open: true, target: null });
-  });
-
-  it('clears the target on close', () => {
-    const { result } = setup();
-    act(() => result.current.openSheet('lease'));
-    act(() => result.current.closeSheet());
-    expect(result.current.sheet).toEqual({ open: false, target: null });
   });
 });

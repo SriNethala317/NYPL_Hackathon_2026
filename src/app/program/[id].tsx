@@ -13,7 +13,7 @@ import {
 } from '@/components';
 import {
   evaluate,
-  isDocumentKind,
+  isDocumentCategory,
   limitFromReason,
   monthlyToAnnual,
   toVisualStatus,
@@ -26,7 +26,7 @@ import { colors, layout } from '@/theme';
 export default function ProgramDetailScreen() {
   const { id } = useLocalSearchParams<{ id: ProgramId }>();
   const strings = useStrings();
-  const { values, documentsOnFile } = useAppStore();
+  const { values, categoriesOnFile } = useAppStore();
 
   const program = programById(id);
   const copy = strings.programs[id];
@@ -34,11 +34,11 @@ export default function ProgramDetailScreen() {
   const result = evaluate(id, {
     householdSize: values.household ? Number(values.household) : undefined,
     annualIncome: values.income ? monthlyToAnnual(values.income) : undefined,
-    documentsOnFile,
+    categoriesOnFile,
   });
   const status = toVisualStatus(result.status);
 
-  const missingDocs = result.missingFields.filter(isDocumentKind);
+  const missingCategories = result.missingFields.filter(isDocumentCategory);
   const limit = result.reasons.map(limitFromReason).find((n): n is number => n !== null);
 
   return (
@@ -65,12 +65,12 @@ export default function ProgramDetailScreen() {
             <DataRow label={strings.detail.facts.source} value={program.source.lastVerified} />
           </RowGroup>
 
-          {missingDocs.length > 0 && (
+          {missingCategories.length > 0 && (
             <Card style={styles.explain}>
               <Text variant="cardTitle">{strings.detail.beforeYouCanApply}</Text>
-              {missingDocs.map((kind) => (
-                <Text key={kind} variant="bodySm" color="muted">
-                  · {strings.documents[kind]}
+              {missingCategories.map((category) => (
+                <Text key={category} variant="bodySm" color="muted">
+                  · {strings.categories[category]}
                 </Text>
               ))}
             </Card>

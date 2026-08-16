@@ -1,4 +1,5 @@
 export { AppHeader, type AppHeaderProps } from './app-header';
+export { AppLock, type AppLockProps } from './app-lock';
 export { ApplicationCard, type ApplicationCardProps } from './application-card';
 export { AttachedDocumentRow, type AttachedDocumentRowProps } from './attached-document-row';
 export { BackHeader, type BackHeaderProps } from './back-header';

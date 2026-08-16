@@ -1,4 +1,4 @@
-import type { DocumentKind } from '@/theme';
+import type { DocumentCategory } from '@/theme';
 
 /**
  * The three programs the design mocks up.
@@ -17,8 +17,11 @@ export type ProgramId = 'fair_fares' | 'snap' | 'medicaid';
 
 export type Program = {
   id: ProgramId;
-  /** Documents that must be on file before an application can be prefilled. */
-  requires: readonly DocumentKind[];
+  /**
+   * Kinds of proof needed before an application can be prefilled — not specific files. A W-2,
+   * a pay stub and a tax return all satisfy `income`, so the user brings whatever they have.
+   */
+  requires: readonly DocumentCategory[];
   /** Annual household income cap by household size. */
   annualIncomeLimit: (householdSize: number) => number;
   agency: string;
@@ -58,7 +61,7 @@ function scaledLimit(base: number, perPerson: number) {
 export const programs: readonly Program[] = [
   {
     id: 'fair_fares',
-    requires: ['id', 'income'],
+    requires: ['identity', 'income'],
     annualIncomeLimit: fairFaresLimit,
     agency: 'NYC Human Resources Administration',
     benefit: '50% off subway and bus fares',
@@ -71,7 +74,7 @@ export const programs: readonly Program[] = [
   },
   {
     id: 'snap',
-    requires: ['id', 'income', 'address'],
+    requires: ['identity', 'income', 'residence'],
     annualIncomeLimit: scaledLimit(23_000, 8_100),
     agency: 'NYS Office of Temporary and Disability Assistance',
     benefit: 'Monthly grocery money on an EBT card',
@@ -84,7 +87,7 @@ export const programs: readonly Program[] = [
   },
   {
     id: 'medicaid',
-    requires: ['id', 'income'],
+    requires: ['identity', 'income'],
     annualIncomeLimit: scaledLimit(21_600, 7_600),
     agency: 'NYS Department of Health',
     benefit: 'Free or low-cost health coverage',

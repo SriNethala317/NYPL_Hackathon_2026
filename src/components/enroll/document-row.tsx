@@ -3,10 +3,10 @@ import { Pressable, StyleSheet, View, type PressableProps } from 'react-native';
 import { DocumentThumbnail } from './document-thumbnail';
 
 import { Badge, Card, Text } from '@/components/ui';
-import { colors, layout, type DocumentKind } from '@/theme';
+import { colors, layout, type DocumentCategory } from '@/theme';
 
 export type DocumentRowProps = Omit<PressableProps, 'style' | 'children'> & {
-  kind: DocumentKind;
+  category: DocumentCategory;
   /** Localized document name — "Photo ID / IDNYC". */
   label: string;
   /**
@@ -26,7 +26,7 @@ export type DocumentRowProps = Omit<PressableProps, 'style' | 'children'> & {
  * one advertises the action through its navy "Add" chip.
  */
 export function DocumentRow({
-  kind,
+  category,
   label,
   detail,
   verified = false,
@@ -40,7 +40,7 @@ export function DocumentRow({
       {...rest}>
       {({ pressed }) => (
         <Card style={[styles.card, pressed && styles.pressed]}>
-          <DocumentThumbnail kind={kind} verified={verified} />
+          <DocumentThumbnail category={category} verified={verified} />
 
           <View style={styles.copy}>
             <Text variant="bodyStrong">{label}</Text>

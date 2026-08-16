@@ -37,10 +37,10 @@ describe('programs', () => {
     }
   });
 
-  it('requires photo ID for every program', () => {
-    // The pipeline gates on ID before anything else; nothing should be applicable without it.
+  it('requires identity for every program', () => {
+    // The pipeline gates on a photo ID before anything else; nothing is applicable without it.
     for (const program of programs) {
-      expect(program.requires).toContain('id');
+      expect(program.requires).toContain('identity');
     }
   });
 

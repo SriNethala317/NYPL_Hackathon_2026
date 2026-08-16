@@ -1,7 +1,7 @@
 import {
   evaluate,
   evaluateAll,
-  isDocumentKind,
+  isDocumentCategory,
   isProfileFieldKey,
   limitFromReason,
   monthlyToAnnual,
@@ -9,9 +9,10 @@ import {
 } from './mock-eligibility';
 import { programById } from './programs';
 
-import type { DocumentKind } from '@/theme';
+import type { DocumentCategory } from '@/theme';
 
-const allDocs: DocumentKind[] = ['id', 'address', 'income', 'lease', 'utility'];
+/** Every kind of proof on file. */
+const allDocs: DocumentCategory[] = ['identity', 'income', 'residence'];
 
 describe('monthlyToAnnual', () => {
   it('multiplies by twelve', () => {
@@ -45,7 +46,7 @@ describe('evaluate', () => {
     const result = evaluate('fair_fares', {
       householdSize: 3,
       annualIncome: 27_720,
-      documentsOnFile: allDocs,
+      categoriesOnFile: allDocs,
     });
 
     expect(result.status).toBe('potentially_eligible');
@@ -57,18 +58,18 @@ describe('evaluate', () => {
     const result = evaluate('snap', {
       householdSize: 3,
       annualIncome: 27_720,
-      documentsOnFile: ['id', 'income'],
+      categoriesOnFile: ['identity', 'income'],
     });
 
     expect(result.status).toBe('needs_more_information');
-    expect(result.missingFields).toContain('address');
+    expect(result.missingFields).toContain('residence');
   });
 
   it('is only ever "likely" not eligible, never a determination', () => {
     const result = evaluate('fair_fares', {
       householdSize: 1,
       annualIncome: 90_000,
-      documentsOnFile: allDocs,
+      categoriesOnFile: allDocs,
     });
 
     // The app screens; the agency decides. This wording is load-bearing.
@@ -81,7 +82,7 @@ describe('evaluate', () => {
     const result = evaluate('fair_fares', {
       householdSize: 3,
       annualIncome: limit,
-      documentsOnFile: allDocs,
+      categoriesOnFile: allDocs,
     });
 
     // An off-by-one here would wrongly turn away someone right on the boundary.
@@ -92,7 +93,7 @@ describe('evaluate', () => {
     const result = evaluate('fair_fares', {
       householdSize: undefined,
       annualIncome: 27_720,
-      documentsOnFile: allDocs,
+      categoriesOnFile: allDocs,
     });
 
     // A limit read against the wrong household size is worse than no answer.
@@ -102,14 +103,14 @@ describe('evaluate', () => {
   });
 
   it('does not ask for income before the documents that supply it', () => {
-    const result = evaluate('fair_fares', { documentsOnFile: [] });
+    const result = evaluate('fair_fares', { categoriesOnFile: [] });
 
-    expect(result.missingFields).toContain('id');
+    expect(result.missingFields).toContain('identity');
     expect(result.missingFields).not.toContain('household');
   });
 
   it('carries the rule source through, so the UI can show when it was last checked', () => {
-    const result = evaluate('fair_fares', { documentsOnFile: allDocs });
+    const result = evaluate('fair_fares', { categoriesOnFile: allDocs });
     expect(result.source.url).toMatch(/^https:\/\//);
     expect(result.source.lastVerified).toMatch(/^\d{4}-\d{2}-\d{2}$/);
   });
@@ -117,7 +118,7 @@ describe('evaluate', () => {
 
 describe('evaluateAll', () => {
   it('returns one result per program', () => {
-    const results = evaluateAll({ documentsOnFile: allDocs });
+    const results = evaluateAll({ categoriesOnFile: allDocs });
     expect(results.map((r) => r.programId).sort()).toEqual(['fair_fares', 'medicaid', 'snap']);
   });
 
@@ -128,7 +129,7 @@ describe('evaluateAll', () => {
     const results = evaluateAll({
       householdSize: 3,
       annualIncome: monthlyToAnnual(2310),
-      documentsOnFile: allDocs,
+      categoriesOnFile: allDocs,
     });
 
     expect(results.every((r) => r.status === 'potentially_eligible')).toBe(true);
@@ -140,7 +141,7 @@ describe('reason codes', () => {
     const result = evaluate('medicaid', {
       householdSize: 3,
       annualIncome: 500_000,
-      documentsOnFile: allDocs,
+      categoriesOnFile: allDocs,
     });
 
     const limit = limitFromReason(result.reasons[0]);
@@ -154,17 +155,17 @@ describe('reason codes', () => {
 });
 
 describe('missingFields discrimination', () => {
-  it('separates document kinds from profile fields', () => {
-    expect(isDocumentKind('address')).toBe(true);
-    expect(isDocumentKind('household')).toBe(false);
+  it('separates proof categories from profile fields', () => {
+    expect(isDocumentCategory('residence')).toBe(true);
+    expect(isDocumentCategory('household')).toBe(false);
     expect(isProfileFieldKey('household')).toBe(true);
-    expect(isProfileFieldKey('utility')).toBe(false);
+    expect(isProfileFieldKey('residence')).toBe(false);
   });
 
   it('classifies every field the engine can emit', () => {
-    const result = evaluate('snap', { documentsOnFile: [] });
+    const result = evaluate('snap', { categoriesOnFile: [] });
     for (const field of result.missingFields) {
-      expect(isDocumentKind(field) || isProfileFieldKey(field)).toBe(true);
+      expect(isDocumentCategory(field) || isProfileFieldKey(field)).toBe(true);
     }
   });
 });

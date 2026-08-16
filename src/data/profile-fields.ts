@@ -1,4 +1,4 @@
-import type { DocumentKind } from '@/theme';
+import type { DocumentCategory } from '@/theme';
 
 /**
  * The Master Profile — every field an application can ask for, and where it comes from.
@@ -18,49 +18,64 @@ export type ProfileFieldKey = 'fullName' | 'dob' | 'address' | 'household' | 'in
 
 export type ProfileFieldDef = {
   key: ProfileFieldKey;
-  /** The document this field is read from. `null` means it cannot be extracted at all. */
-  source: DocumentKind | null;
+  /**
+   * The kind of proof this field comes from, not a specific file. Any document in the category
+   * can supply it — a W-2, a pay stub and a tax return all prove income.
+   */
+  source: DocumentCategory | null;
   extractable: boolean;
   mandatory: boolean;
   /** Kept beside the field so the extraction logic cannot drift away from the schema. */
   note: string;
   keyboard: 'default' | 'numeric';
+  /**
+   * Whether a newer document legitimately supersedes an older one.
+   *
+   * People move and their pay changes, so a recent document simply wins for those fields. A
+   * legal name or date of birth should not drift — a disagreement there means an OCR error or
+   * a different person, and both are worth stopping to ask about rather than silently picking.
+   */
+  timeVarying: boolean;
 };
 
 export const profileFields: readonly ProfileFieldDef[] = [
   {
     key: 'fullName',
-    source: 'id',
+    source: 'identity',
     extractable: true,
     mandatory: true,
     note: 'Read from the name line of the photo ID.',
     keyboard: 'default',
+    timeVarying: false,
   },
   {
     key: 'dob',
-    source: 'id',
+    source: 'identity',
     extractable: true,
     mandatory: true,
     note: 'Read from the date-of-birth line of the photo ID. Normalized to MM/DD/YYYY.',
     keyboard: 'default',
+    timeVarying: false,
   },
   {
     key: 'address',
-    source: 'address',
+    source: 'residence',
     extractable: true,
     mandatory: true,
     // Borough is never asked for — it falls out of the ZIP.
     note: 'Read from the proof of address. Borough is derived from the ZIP, not asked.',
     keyboard: 'default',
+    timeVarying: true,
   },
   {
     key: 'household',
-    source: 'lease',
+    source: 'residence',
     // A lease lists occupants too inconsistently to trust OCR here.
     extractable: false,
     mandatory: true,
     note: 'Not reliably extractable. Falls back to a one-tap choice when no tax return is on file.',
     keyboard: 'numeric',
+    timeVarying: true,
   },
   {
     key: 'income',
@@ -69,6 +84,7 @@ export const profileFields: readonly ProfileFieldDef[] = [
     mandatory: true,
     note: 'Gross monthly income, averaged from the most recent pay stubs.',
     keyboard: 'numeric',
+    timeVarying: true,
   },
 ] as const;
 

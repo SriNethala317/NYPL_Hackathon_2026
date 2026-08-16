@@ -1,9 +1,14 @@
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
 import type { ReactNode } from 'react';
 
-import ApplicationFormScreen from './[id]';
+import ApplicationFormScreen from '@/app/apply/[id]';
 
 import { AppStoreProvider } from '@/state/app-store';
+
+/**
+ * Lives outside `src/app` on purpose: that directory is the expo-router routes root, so any file
+ * placed there becomes a route and Metro tries to bundle its imports into the app.
+ */
 
 // `mock`-prefixed so Jest allows it inside the hoisted factory below.
 const mockPush = jest.fn();

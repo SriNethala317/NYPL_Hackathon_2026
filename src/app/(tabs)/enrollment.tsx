@@ -4,7 +4,7 @@ import { Fragment } from 'react';
 import { EmptyStateCard, PrivacyNote, ProgramRow, SectionLabel, TabScreen } from '@/components';
 import {
   evaluateAll,
-  isDocumentKind,
+  isDocumentCategory,
   limitFromReason,
   monthlyToAnnual,
   toVisualStatus,
@@ -21,15 +21,15 @@ const groupOrder: EligibilityStatus[] = ['yes', 'more', 'no'];
 export default function EnrollmentScreen() {
   const strings = useStrings();
   const store = useAppStore();
-  const { language, toggleLanguage, values, documentsOnFile } = store;
+  const { language, toggleLanguage, values, categoriesOnFile } = store;
 
   const results = evaluateAll({
     householdSize: values.household ? Number(values.household) : undefined,
     annualIncome: values.income ? monthlyToAnnual(values.income) : undefined,
-    documentsOnFile,
+    categoriesOnFile,
   });
 
-  const hasAnyDocument = documentsOnFile.length > 0;
+  const hasAnyDocument = categoriesOnFile.length > 0;
 
   const grouped = groupOrder.map((group) => ({
     group,
@@ -90,9 +90,9 @@ export default function EnrollmentScreen() {
  * working unchanged once the real engine replaces the mock.
  */
 function metaFor(result: EligibilityResult, strings: ReturnType<typeof useStrings>) {
-  const missingDoc = result.missingFields.find(isDocumentKind);
-  if (missingDoc) {
-    return fill(strings.reasons.addDocument, { document: strings.documents[missingDoc] });
+  const missingCategory = result.missingFields.find(isDocumentCategory);
+  if (missingCategory) {
+    return fill(strings.reasons.addDocument, { document: strings.categories[missingCategory] });
   }
 
   const limit = result.reasons.map(limitFromReason).find((n): n is number => n !== null);

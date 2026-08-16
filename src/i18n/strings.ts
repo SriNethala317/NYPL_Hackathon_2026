@@ -65,7 +65,12 @@ const en = {
     // The app screens; it does not decide. Every dead end says so.
     onlyAgencyDecides:
       'Based on what you have uploaded you may not qualify, but only the agency can decide.',
-    facts: { benefit: 'Benefit', appliesTo: 'Applies to', agency: 'Agency', source: 'Rules last checked' },
+    facts: {
+      benefit: 'Benefit',
+      appliesTo: 'Applies to',
+      agency: 'Agency',
+      source: 'Rules last checked',
+    },
   },
 
   form: {
@@ -104,37 +109,83 @@ const en = {
 
   profile: {
     yourDocuments: 'Your documents',
+    stillNeeded: 'Still needed',
     addADocument: 'Add a document',
     loadSample: 'Load sample',
     resetDemo: 'Reset demo',
-    countVerified: '{done} of {total} documents verified',
+    countRead: '{done} documents read',
     none: 'No documents on file yet',
     verified: 'Verified',
-    add: 'Add',
-    notAdded: 'Not added',
     /** Extract-then-discard: the original is gone, so there is no filename to show. */
     readOn: 'Read {date} · original deleted',
     /** The same fact, short enough to sit on one line beside a document name. */
     readShort: 'Read {date}',
+    missingField: 'We could not read your {field}',
+    remove: 'Remove',
+  },
+
+  lock: {
+    title: 'Unlock Enroll NYC',
+    body: 'Your benefit information is behind your device lock.',
+    action: 'Try again',
+  },
+
+  /** Shown until a photo ID is on file; nothing else is accepted before it. */
+  gate: {
+    title: 'Start with a photo ID',
+    body: 'We need to know who you are before anything else. A passport, state ID, IDNYC or permanent resident card all work.',
+    action: 'Add a photo ID',
+  },
+
+  conflict: {
+    title: 'Two documents disagree',
+    body: 'Your documents do not match on {field}. Which is right?',
+    use: 'Use this',
   },
 
   upload: {
     titleGeneric: 'Add a document',
-    titleFor: 'Add {document}',
     scan: 'Scan with camera',
     scanBody: 'Photograph the document',
     choose: 'Choose a file',
     chooseBody: 'PDF or image from Files',
     cancel: 'Cancel',
+    uploading: 'Uploading',
     reading: 'Reading your document',
+    whatIsThis: 'What is this document?',
+    whatIsThisBody: 'We could not tell what this is. Pick the closest match and we will read it.',
+    failedTitle: 'We could not read that',
+    failedBody: 'The photo may be blurry or cropped. Try again with the whole page in frame.',
+    tryAgain: 'Try again',
+    demoUnknown: 'Demo: unrecognised',
+    demoFailure: 'Demo: failed read',
   },
 
+  /** One label per entry in the open document registry. */
   documents: {
-    id: 'Photo ID / IDNYC',
-    address: 'Proof of address',
-    income: 'Pay stubs',
+    passport: 'Passport',
+    state_id: 'State ID',
+    drivers_license: 'Driver licence',
+    idnyc: 'IDNYC',
+    permanent_resident_card: 'Permanent resident card',
+    i20: 'Form I-20',
+    w2: 'W-2',
+    pay_stub: 'Pay stub',
+    tax_return: 'Tax return',
+    bank_statement: 'Bank statement',
+    benefits_letter: 'Benefits letter',
     lease: 'Lease',
-    utility: 'Utility bill',
+    utility_bill: 'Utility bill',
+    unknown: 'Unrecognised document',
+  },
+
+  /** What a document proves, used wherever any of several files would do. */
+  categories: {
+    identity: 'Photo ID',
+    immigration: 'Immigration document',
+    income: 'Proof of income',
+    residence: 'Proof of address',
+    other: 'Other document',
   },
 
   programs: {
@@ -224,8 +275,7 @@ const es: Strings = {
   },
 
   form: {
-    banner:
-      'Completado con sus documentos subidos. Revise cada campo antes de continuar.',
+    banner: 'Completado con sus documentos subidos. Revise cada campo antes de continuar.',
     fields: {
       fullName: 'Nombre completo',
       dob: 'Fecha de nacimiento',
@@ -260,35 +310,78 @@ const es: Strings = {
 
   profile: {
     yourDocuments: 'Sus documentos',
+    stillNeeded: 'Aún falta',
     addADocument: 'Agregar un documento',
     loadSample: 'Cargar ejemplo',
     resetDemo: 'Reiniciar demo',
-    countVerified: '{done} de {total} documentos verificados',
+    countRead: '{done} documentos leídos',
     none: 'Aún no hay documentos archivados',
     verified: 'Verificado',
-    add: 'Agregar',
-    notAdded: 'No agregado',
     readOn: 'Leído {date} · original eliminado',
     readShort: 'Leído {date}',
+    missingField: 'No pudimos leer su {field}',
+    remove: 'Quitar',
+  },
+
+  lock: {
+    title: 'Desbloquear Enroll NYC',
+    body: 'Su información de beneficios está protegida por el bloqueo de su dispositivo.',
+    action: 'Intentar de nuevo',
+  },
+
+  gate: {
+    title: 'Empiece con una identificación con foto',
+    body: 'Necesitamos saber quién es usted antes que nada. Sirve un pasaporte, una identificación estatal, IDNYC o una tarjeta de residente permanente.',
+    action: 'Agregar identificación con foto',
+  },
+
+  conflict: {
+    title: 'Dos documentos no coinciden',
+    body: 'Sus documentos no coinciden en {field}. ¿Cuál es correcto?',
+    use: 'Usar este',
   },
 
   upload: {
     titleGeneric: 'Agregar un documento',
-    titleFor: 'Agregar {document}',
     scan: 'Escanear con la cámara',
     scanBody: 'Fotografíe el documento',
     choose: 'Elegir un archivo',
     chooseBody: 'PDF o imagen de Archivos',
     cancel: 'Cancelar',
+    uploading: 'Subiendo',
     reading: 'Leyendo su documento',
+    whatIsThis: '¿Qué documento es este?',
+    whatIsThisBody: 'No pudimos identificarlo. Elija la opción más parecida y lo leeremos.',
+    failedTitle: 'No pudimos leer eso',
+    failedBody: 'La foto puede estar borrosa o cortada. Intente de nuevo con la página completa.',
+    tryAgain: 'Intentar de nuevo',
+    demoUnknown: 'Demo: no reconocido',
+    demoFailure: 'Demo: lectura fallida',
   },
 
   documents: {
-    id: 'Identificación con foto / IDNYC',
-    address: 'Comprobante de domicilio',
-    income: 'Talones de pago',
+    passport: 'Pasaporte',
+    state_id: 'Identificación estatal',
+    drivers_license: 'Licencia de conducir',
+    idnyc: 'IDNYC',
+    permanent_resident_card: 'Tarjeta de residente permanente',
+    i20: 'Formulario I-20',
+    w2: 'Formulario W-2',
+    pay_stub: 'Talón de pago',
+    tax_return: 'Declaración de impuestos',
+    bank_statement: 'Estado de cuenta bancario',
+    benefits_letter: 'Carta de beneficios',
     lease: 'Contrato de arrendamiento',
-    utility: 'Factura de servicios',
+    utility_bill: 'Factura de servicios',
+    unknown: 'Documento no reconocido',
+  },
+
+  categories: {
+    identity: 'Identificación con foto',
+    immigration: 'Documento de inmigración',
+    income: 'Comprobante de ingresos',
+    residence: 'Comprobante de domicilio',
+    other: 'Otro documento',
   },
 
   programs: {

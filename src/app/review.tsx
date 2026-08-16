@@ -12,11 +12,12 @@ import {
   StickyFooter,
   Text,
 } from '@/components';
+import { documentType } from '@/data/document-types';
 import { profileFields } from '@/data/profile-fields';
 import { formatUsd, type ProgramId } from '@/data/programs';
 import { fill, useStrings } from '@/i18n/use-strings';
 import { useAppStore } from '@/state/app-store';
-import { colors, documentKinds, layout } from '@/theme';
+import { colors, layout } from '@/theme';
 
 export default function ReviewScreen() {
   const { id } = useLocalSearchParams<{ id: ProgramId }>();
@@ -24,7 +25,7 @@ export default function ReviewScreen() {
   const store = useAppStore();
   const { values, documents } = store;
 
-  const attached = documentKinds.filter((k) => documents[k].status === 'read');
+  const attached = documents.filter((d) => d.status === 'read');
 
   return (
     <View style={styles.root}>
@@ -52,14 +53,14 @@ export default function ReviewScreen() {
 
           <SectionLabel label={strings.review.attached} />
           <Card style={styles.attached}>
-            {attached.map((kind) => (
+            {attached.map((doc) => (
               <AttachedDocumentRow
-                key={kind}
-                kind={kind}
-                label={strings.documents[kind]}
+                key={doc.id}
+                category={documentType(doc.type).category}
+                label={strings.documents[doc.type]}
                 // No filename: the original is deleted once read, so the date is what is left.
                 // The short form keeps the row on one line beside the document name.
-                filename={fill(strings.profile.readShort, { date: documents[kind].readOn ?? '' })}
+                filename={fill(strings.profile.readShort, { date: doc.readOn ?? '' })}
               />
             ))}
           </Card>
