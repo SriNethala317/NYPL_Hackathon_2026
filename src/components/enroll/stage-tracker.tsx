@@ -1,0 +1,93 @@
+import { Fragment } from 'react';
+import { StyleSheet, View } from 'react-native';
+
+import { Text } from '@/components/ui';
+import { colors } from '@/theme';
+
+export type StageTrackerProps = {
+  /** Localized stage names, in order — typically Submitted → In review → Decision. */
+  labels: string[];
+  /** Zero-based index of the stage reached. `0` means only the first stage is complete. */
+  stage: number;
+};
+
+/**
+ * The progress rail on an application card.
+ *
+ * Each stage owns a dot plus the connector trailing it, so the columns stay equal width and
+ * the labels sit flush under their own dot no matter how long the translated names get.
+ */
+export function StageTracker({ labels, stage }: StageTrackerProps) {
+  const current = labels[stage];
+
+  return (
+    <View
+      accessible
+      accessibilityRole="progressbar"
+      accessibilityLabel={`Stage ${stage + 1} of ${labels.length}${current ? `: ${current}` : ''}`}
+      style={styles.container}>
+      <View style={styles.rail}>
+        {labels.map((label, index) => {
+          const reached = index <= stage;
+          // The connector belongs to this stage but takes the *next* stage's color, so the
+          // navy line stops exactly at the last dot the applicant has reached.
+          const connectorReached = index + 1 <= stage;
+
+          return (
+            <Fragment key={label}>
+              <View
+                style={[
+                  styles.dot,
+                  { backgroundColor: reached ? colors.navy : colors.border },
+                ]}
+              />
+              <View
+                style={[
+                  styles.connector,
+                  { backgroundColor: connectorReached ? colors.navy : colors.border },
+                ]}
+              />
+            </Fragment>
+          );
+        })}
+      </View>
+
+      <View style={styles.labels}>
+        {labels.map((label, index) => (
+          <Text
+            key={label}
+            variant="micro"
+            color={index <= stage ? 'navy' : 'disabled'}
+            style={styles.label}>
+            {label}
+          </Text>
+        ))}
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    gap: 8,
+  },
+  rail: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  dot: {
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+  },
+  connector: {
+    flex: 1,
+    height: 2,
+  },
+  labels: {
+    flexDirection: 'row',
+  },
+  label: {
+    flex: 1,
+  },
+});
