@@ -174,11 +174,28 @@ function reducer(state: State, action: Action): State {
         status: action.docType === 'unknown' ? 'needsType' : 'reading',
       });
 
-    case 'read':
+    case 'read': {
+      /*
+       * A new document un-confirms the fields it speaks to.
+       *
+       * Confirmation means "a person looked at this exact value and said it was right". A W-2 read
+       * after a licence can change the reconciled winner for `fullName`, and leaving the field
+       * marked confirmed would carry that approval onto a value nobody ever saw — which is
+       * precisely the assurance the confirmation step exists to provide.
+       *
+       * A value the user typed themselves is left alone: `overrides` outrank every document, so
+       * nothing a document says can change what they will see.
+       */
+      const touched = new Set(action.candidates.map((candidate) => candidate.field));
+
       return {
         ...patchDocument(state, action.id, { status: 'read', readOn: action.readOn }),
         candidates: [...state.candidates, ...action.candidates],
+        confirmedFields: state.confirmedFields.filter(
+          (field) => !touched.has(field) || state.overrides[field] !== undefined,
+        ),
       };
+    }
 
     case 'failed':
       return patchDocument(state, action.id, { status: 'failed', failure: action.reason });
@@ -325,6 +342,8 @@ type Store = State & {
   resolved: ResolvedField[];
   values: Partial<Record<ProfileFieldKey, string>>;
   conflicts: ResolvedField[];
+  /** Disagreements the user has not yet settled. Use this to prompt, never `conflicts`. */
+  openConflicts: ResolvedField[];
   categoriesOnFile: DocumentCategory[];
   /** Nothing else may be uploaded until an identity document is on file. */
   hasIdentityDocument: boolean;
@@ -393,6 +412,19 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
   const resolved = reconcile(state.candidates);
   const conflicts = unresolved(resolved);
 
+  /*
+   * The disagreements still worth asking about.
+   *
+   * `conflicts` is computed from the documents alone, so it never shrinks — answering one leaves
+   * it in the list and the app would ask the same question again on every render, forever. A
+   * conflict is settled once the user has chosen between the readings or typed their own value.
+   */
+  const openConflicts = conflicts.filter(
+    (conflict) =>
+      state.conflictChoices[conflict.field] === undefined &&
+      state.overrides[conflict.field] === undefined,
+  );
+
   // Precedence: what the user typed, then how they settled a conflict, then the reconciled
   // winner. A machine never overrides a person.
   const values: Partial<Record<ProfileFieldKey, string>> = {};
@@ -412,6 +444,7 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
     ...state,
     resolved,
     conflicts,
+    openConflicts,
     values,
     categoriesOnFile,
     hasIdentityDocument: readDocuments.some((d) => documentType(d.type).isIdentity),

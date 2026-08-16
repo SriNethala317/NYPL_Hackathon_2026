@@ -263,3 +263,88 @@ describe('submitting an application', () => {
     for (const ref of refs) expect(ref).toMatch(/^NYC-\d{4}-\d{4}$/);
   });
 });
+
+/**
+ * Two behaviours the confirmation gate depends on, neither of which existed.
+ *
+ * They matter together: a form is only allowed to be generated once a person has looked at every
+ * value going onto it, and both of these were silently undermining that. A conflict that could
+ * never be settled meant the question was asked forever; a confirmation that could never lapse
+ * meant approval given for one value was carried onto a different one.
+ */
+describe('settling a disagreement between documents', () => {
+  beforeEach(() => jest.useFakeTimers());
+  afterEach(() => jest.useRealTimers());
+
+  it('stops asking once the user has chosen', async () => {
+    const { result } = setup();
+    await uploadAndSettle(result);
+
+    // Force a disagreement between two documents of equal authority on a stable field.
+    act(() => result.current.resolveConflict('fullName', 'Maria Reyes'));
+
+    expect(result.current.openConflicts.map((c) => c.field)).not.toContain('fullName');
+  });
+
+  it('stops asking once the user types their own value instead', async () => {
+    const { result } = setup();
+    await uploadAndSettle(result);
+
+    act(() => result.current.setValue('fullName', 'Maria Reyes-Gonzalez'));
+
+    expect(result.current.openConflicts.map((c) => c.field)).not.toContain('fullName');
+  });
+
+  it('keeps the raw disagreement visible for anyone who wants to see it', async () => {
+    // `conflicts` is the record of what the documents said; `openConflicts` is the to-do list.
+    // Settling one must not rewrite history.
+    const { result } = setup();
+    await uploadAndSettle(result);
+
+    act(() => result.current.resolveConflict('fullName', 'Maria Reyes'));
+    expect(result.current.conflicts.length).toBeGreaterThanOrEqual(
+      result.current.openConflicts.length,
+    );
+  });
+});
+
+describe('confirmation lapses when the value behind it can change', () => {
+  // The upload pipeline is timer-driven; without these `runAllTimers` is a no-op and a document
+  // never leaves 'reading'.
+  beforeEach(() => jest.useFakeTimers());
+  afterEach(() => jest.useRealTimers());
+
+  it('un-confirms a field a newly read document speaks to', async () => {
+    const { result } = setup();
+
+    // A passport, yielding a name the user then approves.
+    await uploadAndSettle(result);
+    await waitFor(() => expect(result.current.documents[0].status).toBe('read'));
+
+    act(() => result.current.confirmField('fullName'));
+    expect(result.current.confirmedFields).toContain('fullName');
+
+    // A W-2 also yields a name, so the reconciled winner for `fullName` can move — and the
+    // approval the user gave was for whatever they were shown before it arrived.
+    act(() => result.current.upload({ simulate: 'sample', as: 'w2' }));
+    act(() => jest.runAllTimers());
+    await waitFor(() => expect(result.current.documents).toHaveLength(2));
+    await waitFor(() => expect(result.current.documents[1].status).toBe('read'));
+
+    expect(result.current.confirmedFields).not.toContain('fullName');
+  });
+
+  it('leaves a typed value confirmed, because no document can outrank it', async () => {
+    const { result } = setup();
+    await uploadAndSettle(result);
+
+    act(() => result.current.setValue('fullName', 'Maria Reyes-Gonzalez'));
+    expect(result.current.confirmedFields).toContain('fullName');
+
+    await uploadAndSettle(result);
+
+    // The value on screen did not change, so the approval still applies to what they saw.
+    expect(result.current.confirmedFields).toContain('fullName');
+    expect(result.current.values.fullName).toBe('Maria Reyes-Gonzalez');
+  });
+});
