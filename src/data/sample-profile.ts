@@ -23,8 +23,32 @@ import type { FieldCandidate } from './reconcile';
  * NYC residency, so an out-of-state address screens as ineligible almost everywhere. That is the
  * eligibility engine being right, and it looks like a broken app.
  */
-function fromEnv(name: string, fallback: string): string {
-  const value = process.env[`EXPO_PUBLIC_DEMO_${name}`];
+/*
+ * Every read below is written out in full on purpose.
+ *
+ * Expo replaces `process.env.EXPO_PUBLIC_X` with a literal at bundle time by scanning the source
+ * for that exact text. A computed key — `process.env[`EXPO_PUBLIC_DEMO_${name}`]` — is never
+ * matched, so it survives into the bundle as a lookup on an object that does not exist at runtime
+ * and quietly evaluates to undefined. Every value would fall back to the invented applicant, on
+ * device only, with the tests still passing.
+ */
+const CONFIGURED = {
+  NAME: process.env.EXPO_PUBLIC_DEMO_NAME,
+  DOB: process.env.EXPO_PUBLIC_DEMO_DOB,
+  ADDRESS: process.env.EXPO_PUBLIC_DEMO_ADDRESS,
+  HOUSEHOLD: process.env.EXPO_PUBLIC_DEMO_HOUSEHOLD,
+  INCOME: process.env.EXPO_PUBLIC_DEMO_INCOME,
+  SEX: process.env.EXPO_PUBLIC_DEMO_SEX,
+  HEIGHT_FEET: process.env.EXPO_PUBLIC_DEMO_HEIGHT_FEET,
+  HEIGHT_INCHES: process.env.EXPO_PUBLIC_DEMO_HEIGHT_INCHES,
+  EYES: process.env.EXPO_PUBLIC_DEMO_EYES,
+  LICENCE_CLASS: process.env.EXPO_PUBLIC_DEMO_LICENCE_CLASS,
+  ISSUED: process.env.EXPO_PUBLIC_DEMO_ISSUED,
+  EXPIRES: process.env.EXPO_PUBLIC_DEMO_EXPIRES,
+} as const;
+
+function fromEnv(name: keyof typeof CONFIGURED, fallback: string): string {
+  const value = CONFIGURED[name];
   return value && value.trim() !== '' ? value.trim() : fallback;
 }
 
