@@ -5,6 +5,7 @@ export { AttachedDocumentRow, type AttachedDocumentRowProps } from './attached-d
 export { BackHeader, type BackHeaderProps } from './back-header';
 export { ConfirmationPanel, type ConfirmationPanelProps } from './confirmation-panel';
 export { ConsentRow, type ConsentRowProps } from './consent-row';
+export { DetailScreen, type DetailScreenProps } from './detail-screen';
 export { DocumentRow, type DocumentRowProps } from './document-row';
 export {
   DocumentThumbnail,

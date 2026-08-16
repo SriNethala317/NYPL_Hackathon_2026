@@ -8,7 +8,6 @@ import {
 } from 'react';
 
 import { documentType, type DocumentTypeId } from '@/data/document-types';
-import type { ProgramId } from '@/data/programs';
 import { profileFields, type ProfileFieldKey } from '@/data/profile-fields';
 import { reconcile, unresolved, type FieldCandidate, type ResolvedField } from '@/data/reconcile';
 import { extractionFor, sampleApplication, sampleUploads } from '@/data/sample-profile';
@@ -51,7 +50,8 @@ export type UploadedDocument = {
 };
 
 export type Application = {
-  programId: ProgramId;
+  /** Catalogue program id, e.g. "S2R001". */
+  programId: string;
   reference: string;
   date: string;
   /** Index into the three stages: Submitted, In review, Decision. */
@@ -94,7 +94,7 @@ type Action =
   | { type: 'confirmField'; key: ProfileFieldKey }
   | { type: 'setConsent'; value: boolean }
   | { type: 'setTouched'; value: boolean }
-  | { type: 'submitted'; programId: ProgramId; reference: string; date: string }
+  | { type: 'submitted'; programId: string; reference: string; date: string }
   | { type: 'loadSample'; readOn: string; at: number; date: string }
   | { type: 'reset' };
 
@@ -260,7 +260,7 @@ type Store = State & {
   confirmField: (key: ProfileFieldKey) => void;
   setConsent: (value: boolean) => void;
   setTouched: (value: boolean) => void;
-  submit: (programId: ProgramId) => string;
+  submit: (programId: string) => string;
   loadSample: () => void;
   reset: () => void;
 

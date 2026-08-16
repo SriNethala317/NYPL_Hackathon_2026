@@ -1,26 +1,25 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 
 import {
   AttachedDocumentRow,
-  BackHeader,
   Button,
   Card,
   DataRow,
+  DetailScreen,
   RowGroup,
   SectionLabel,
-  StickyFooter,
   Text,
 } from '@/components';
 import { documentType } from '@/data/document-types';
 import { profileFields } from '@/data/profile-fields';
-import { formatUsd, type ProgramId } from '@/data/programs';
+import { programById } from '@/data/catalogue';
 import { fill, useStrings } from '@/i18n/use-strings';
 import { useAppStore } from '@/state/app-store';
-import { colors, layout } from '@/theme';
+import { formatUsd } from '@/data/eligibility';
 
 export default function ReviewScreen() {
-  const { id } = useLocalSearchParams<{ id: ProgramId }>();
+  const { id } = useLocalSearchParams<{ id: string }>();
   const strings = useStrings();
   const store = useAppStore();
   const { values, documents } = store;
@@ -28,15 +27,24 @@ export default function ReviewScreen() {
   const attached = documents.filter((d) => d.status === 'read');
 
   return (
-    <View style={styles.root}>
-      <BackHeader label={strings.review.edit} title={strings.review.title} onPress={() => router.back()} />
-
-      <ScrollView contentContainerStyle={styles.content}>
-        <View style={styles.body}>
+    <DetailScreen
+      backLabel={strings.review.edit}
+      title={strings.review.title}
+      onBack={() => router.back()}
+      gap={14}
+      footer={
+        <Button
+          label={strings.review.submit}
+          onPress={() => {
+            const reference = store.submit(id);
+            router.replace({ pathname: '/confirmation', params: { reference } });
+          }}
+        />
+      }>
           <Text variant="reviewHeading">{strings.review.heading}</Text>
 
           <RowGroup>
-            <DataRow label={strings.review.program} value={strings.programs[id].name} />
+            <DataRow label={strings.review.program} value={programById(id)?.name ?? ''} />
             {profileFields.map((field) => (
               <DataRow
                 key={field.key}
@@ -64,39 +72,11 @@ export default function ReviewScreen() {
               />
             ))}
           </Card>
-        </View>
-      </ScrollView>
-
-      <StickyFooter>
-        <Button
-          label={strings.review.submit}
-          onPress={() => {
-            const reference = store.submit(id);
-            router.replace({ pathname: '/confirmation', params: { reference } });
-          }}
-        />
-      </StickyFooter>
-    </View>
+    </DetailScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: colors.offWhite,
-  },
-  content: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    paddingTop: 18,
-    paddingHorizontal: layout.screenPaddingX,
-    paddingBottom: 40,
-  },
-  body: {
-    flex: 1,
-    gap: 14,
-    maxWidth: layout.maxContentWidth,
-  },
   attached: {
     paddingHorizontal: 14,
     paddingVertical: 6,

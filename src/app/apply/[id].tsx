@@ -2,14 +2,14 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
 
 import { BackHeader, Button, ConsentRow, InfoBanner, StickyFooter, Text, TextField } from '@/components';
+import { programById } from '@/data/catalogue';
 import { profileFields } from '@/data/profile-fields';
-import type { ProgramId } from '@/data/programs';
 import { fill, useStrings } from '@/i18n/use-strings';
 import { useAppStore } from '@/state/app-store';
 import { colors, layout } from '@/theme';
 
 export default function ApplicationFormScreen() {
-  const { id } = useLocalSearchParams<{ id: ProgramId }>();
+  const { id } = useLocalSearchParams<{ id: string }>();
   const strings = useStrings();
   const store = useAppStore();
   const { values, consent, touched, resolved } = store;
@@ -21,7 +21,7 @@ export default function ApplicationFormScreen() {
     <View style={styles.root}>
       <BackHeader
         label={strings.detail.back}
-        title={strings.programs[id].name}
+        title={programById(id)?.name ?? ''}
         onPress={() => router.back()}
       />
 

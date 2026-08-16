@@ -1,0 +1,1520 @@
+{
+  "fetchedAt": "2026-08-16T07:08:01.999Z",
+  "dataset": "kvhd-5fmu",
+  "count": 97,
+  "programs": [
+    {
+      "id": "P085en",
+      "programCode": "S2R085",
+      "name": "3-K",
+      "plainLanguageName": "Early education for three-year-olds",
+      "category": "Education",
+      "agency": "NYC Department of Education (DOE)",
+      "populationServed": [
+        "All New Yorkers",
+        "regardless of immigration status",
+        "Families with children"
+      ],
+      "summary": "Free, full-day and high-quality education for New York City three-year-olds.",
+      "eligibilityText": "All New York City families with children born in 2023 can apply for the upcoming school year. This includes children with disabilities or new English speakers.\nChildren do not need to be toilet trained to attend 3-K.",
+      "requiredDocumentsText": "View the pre-registration checklist to learn more about the documents you need to pre-register your child and accept their 3-K offer.",
+      "applyUrl": "https://www.myschools.nyc/en/",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P088en",
+      "name": "Accelerated Study in Associate Programs",
+      "acronym": "CUNY ASAP",
+      "plainLanguageName": "Help earning your CUNY degree",
+      "category": "Education",
+      "agency": "The City University of New York (CUNY)",
+      "populationServed": [
+        "Students",
+        "Youth (10+)"
+      ],
+      "summary": "CUNY students can get financial, academic, and personal support to help them complete their associate degree.",
+      "eligibilityText": "To be eligible for CUNY ASAP, you should:\n· Apply and be accepted to a CUNY college that offers ASAP\n· Be a New York City resident or eligible for in-state tuition\n· Agree to enter into a full-time associate degree program in an ASAP-approved major\n· Be proficient in Math and/or English (reading and writing)\n· Have no more than 15 college credits and a minimum GPA of 2.0.",
+      "applyUrl": "http://www2.cuny.edu/admissions/",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P042en",
+      "name": "Access-A-Ride Paratransit Service",
+      "acronym": "AAR",
+      "plainLanguageName": "Public transportation for people with disabilities",
+      "category": "Health",
+      "agency": "New York City Transit (NYCT)",
+      "populationServed": [
+        "People with disabilities"
+      ],
+      "summary": "Paratransit service for travel within NYC and nearby parts of Nassau and Westchester counties.",
+      "eligibilityText": "You may qualify for Access-A-Ride if:\nYou have a disability that prevents you from using buses or subways for some or all of your trips.\nYour needs match ADA requirements. You'll be asked about your ability to:\n· Go up or down subway stairs\n· Travel to a bus or subway station\n· Get on, ride, and exit a bus or subway\n· Navigate the bus or subway system on your own\nYou're temporarily unable to use public transit. This includes recovering from surgery, managing a long-term condition, or looking for paratransit services while visiting NYC.",
+      "requiredDocumentsText": "You will need medical documents that prove your transportation-related disability.",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P041en",
+      "name": "Adult Protective Services",
+      "acronym": "APS",
+      "plainLanguageName": "Help for adults in danger of abuse, neglect or exploitation",
+      "category": "Family Services",
+      "agency": "NYC Human Resources Administration (HRA)",
+      "populationServed": [
+        "People with disabilities",
+        "Older Adults"
+      ],
+      "summary": "Refer someone to APS if you suspect they are in danger of abuse, neglect, or exploitation.",
+      "eligibilityText": "To be eligible for APS, you should be able to answer yes to the following questions:\n· Are you 18 or older?\n· Do you have a physical or mental disability?\n· Are you unable to manage your own resources, carry out daily activities, or protect yourself from dangerous situations without help from others?\n· Do you have no one else who is willing and able to help you responsibly?",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P164",
+      "name": "Affordable Broadband Act",
+      "acronym": "ABA",
+      "plainLanguageName": "Low-cost plans for home internet",
+      "category": "Cash & expenses",
+      "agency": "Department of Public Service",
+      "populationServed": [],
+      "summary": "Get discounted home internet through the Affordable Broadband Act if you receive SNAP, Medicaid, or other benefits.",
+      "eligibilityText": "You may qualify for low-cost home internet if someone in your household receives any of the following benefits:\n· Supplemental Nutrition Assistance Program\n· Medicaid\n· Senior Citizen Rent Increase Exemption\n· Disability Rent Increase Exemption\n· Affordability benefit from a utility, such as the Home Energy Assistance Program (HEAP)\n· Free or reduced-priced lunch through the National School Lunch Program\nNot enrolled in any qualifying programs? You may still qualify based on household income. Contact your internet provider for income limits.",
+      "applyUrl": "https://mapmybroadband.dps.ny.gov/",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P046en",
+      "name": "Beacon Programs",
+      "plainLanguageName": "A year-round community centers for young people",
+      "category": "Enrichment",
+      "agency": "NYC Department of Youth & Community Development (DYCD)",
+      "populationServed": [
+        "All New Yorkers regardless of legal status",
+        "Everyone"
+      ],
+      "summary": "School-based community centers serving youth ages 5-21 young people",
+      "eligibilityText": "· Youth ages 5-21 who are enrolled in school can participate.\n· Beacon also offers adult programs for people who are over 21 years old.",
+      "applyUrl": "discoverdycd.dycdconnect.nyc",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P156en",
+      "programCode": "S2R054",
+      "name": "Big Apple Connect",
+      "plainLanguageName": "Free internet for NYCHA residents",
+      "category": "Cash & expenses",
+      "agency": "NYC Office of Technology & Innovation (OTI), NYC Housing Authority (NYCHA)",
+      "populationServed": [
+        "NYCHA residents"
+      ],
+      "summary": "Sign up with Optimum or Spectrum.",
+      "eligibilityText": "You can enroll in Big Apple Connect if you\nlive in any of these NYCHA developments\n.",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P101en",
+      "name": "Career and Technical Education",
+      "acronym": "CTE",
+      "plainLanguageName": "Career training for high school students",
+      "category": "Education",
+      "agency": "NYC Department of Education (DOE)",
+      "populationServed": [
+        "Children (0-13)",
+        "Students",
+        "Youth (10+)"
+      ],
+      "summary": "Students can get hands-on career training while finishing high school or their high school equivalency (HSE).",
+      "eligibilityText": "To be eligible to apply for a New York City public high school, you must be able to answer yes to these questions:\n· Are you a New York City resident?\n· Are you currently an 8th-grade student or a first-time 9th-grade student?",
+      "applyUrl": "http://cte.nyc/web/",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P010en",
+      "programCode": "S2R010",
+      "name": "Cash Assistance",
+      "plainLanguageName": "Monthly cash help when you are in need",
+      "category": "Cash & expenses",
+      "agency": "NYC Human Resources Administration (HRA)",
+      "populationServed": [],
+      "summary": "Cash assistance can help you pay rent, utilities, and other emergency expenses.",
+      "eligibilityText": "This program looks at several things to decide if you are eligible. Some of them include:\n· how much money you earn\n· how much money you receive from benefits\n· how many people live in your house\n· resources like cash or a checking account",
+      "requiredDocumentsText": "To apply for Cash Assistance you will need to prove the following:\n· Your identity: such as a photo ID, drivers license, passport, naturalization certificate, or hospital records.\n· Where you live: such as a statement from your landlord, current rent receipt, lease, or mortgage records.\n· Your income (if any): such as a current pay stub, business records, current income tax return, or an Unemployment Insurance Benefit statement.\nCheck the Cash Assistance document guide to see what else you can use as proof.",
+      "applyUrl": "https://a069-access.nyc.gov/ACCESSNYC/application.do",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P142en",
+      "name": "Center For NYC Neighborhoods",
+      "acronym": "CNYCN",
+      "plainLanguageName": "Resources for affordable homeownership",
+      "category": "Housing",
+      "agency": "Center for NYC Neighborhoods (CNYCN); NYC Department of Housing Preservation and Development (HPD); NYS Attorney General's Office (OAG)",
+      "populationServed": [
+        "All New Yorkers",
+        "regardless of immigration status",
+        "Homeowners"
+      ],
+      "summary": "Get help avoiding foreclosure, dealing with late mortgage payments, preventing scams, and more.",
+      "applyUrl": "https://cnycn.org/get-help/",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P001en",
+      "programCode": "S2R001",
+      "name": "Child and Dependent Care Tax Credit",
+      "plainLanguageName": "Tax credit to help pay for childcare or care for disabled dependents",
+      "category": "Cash & expenses",
+      "agency": "NYC Department of Consumer and Worker Protection (DCWP); Internal Revenue Service (IRS)",
+      "populationServed": [
+        "Families with children",
+        "Pregnant & new parents"
+      ],
+      "summary": "Get money back if you paid for childcare or care for disabled dependents while working or looking for work.",
+      "eligibilityText": "To claim the federal Child Tax Credit, you need to meet all of these requirements:\n· You (and your spouse if filing a joint return) have earned income\n· You paid for care so you could work (you must identify your care provider with their name, address, and tax ID or Social Security Number on your tax return)\n· You're filing as single, head of household, qualifying surviving spouse, or married filing jointly\nWho counts as a dependent?\n· A child under age 13 who you claim as a dependent, or\n· Your spouse or dependent of any age who can't care for themselves due to a physical or mental disability and lives with you for more than half the year\nIf you qualify for the federal credit, you can also claim the New York State credit when you file your state taxes. The state credit works the same way as the federal credit.\nYou can get an additional NYC credit if you meet all of these requirements:\n· You lived in NYC for all or part of 2025.\n· You paid childcare expenses for at least one child under age four on December 31, 2025.\n· Your federal adjusted gross income was $30,000 or less.\n· You qualified for the New York State credit.",
+      "requiredDocumentsText": "You'll need documents like W-2s, receipts from your care provider, your care provider's tax ID or Social Security Number, and records showing how much you paid for care.",
+      "applyUrl": "https://www.nyc.gov/site/dca/talk-money/file-your-taxes.page",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P133en",
+      "programCode": "S2R040",
+      "name": "Child Care Vouchers",
+      "plainLanguageName": "Help paying for child care",
+      "category": "Child Care",
+      "agency": "NYC Administration for Children's Services (ACS)",
+      "populationServed": [
+        "Families with children",
+        "People with disabilities",
+        "Pregnant & new parents"
+      ],
+      "summary": "Child care vouchers cover most or all child care costs at licensed centers, registered home-based providers, or with family and friends.",
+      "eligibilityText": "You may qualify if you get cash assistance or if your household income is below these amounts:\nFamily size\nMonthly income\n2\n$6,601.24\n3\n$8,155.48\n4\n$9,707.70\n5\n$11,260.94\n6\n$12,814.18\n7\n$13,105.40\n8\n$13,396,64\n9\n$13,687.87\n10\n$13,979.10\n11\n$14,270.33\n12\n$14,561.56\n13\n$14,852.79\n14\n$15,144.03\n15\n$15,435.26\n16\n$15,726.49\n17\n$16,017.72\n18\n$16,308.95\n19\n$16,600.18\n20\n$16,891.41\nFamilies who work 10+ hours per week must make at least minimum wage ($16.50/hour) to qualify for child care assistance.\nEach parent must have a qualifying reason for care:\n· In school or job training\n· Looking for work\n· Unhoused\n· Receiving domestic violence services\n· Receiving treatment for substance misuse",
+      "applyUrl": "https://mycity.nyc.gov/s/childcarelanding?language=en_US&LanguageCode=en_US",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P060en",
+      "programCode": "S2R057",
+      "name": "Child Health Plus",
+      "acronym": "CHP",
+      "plainLanguageName": "Free or low-cost health insurance for children 18 and under",
+      "category": "Health",
+      "agency": "NYS Department of Health (NYS DOH)",
+      "populationServed": [
+        "All New Yorkers",
+        "regardless of immigration status",
+        "Families with children"
+      ],
+      "summary": "Your child is potentially eligible for Child Health Plus regardless of income or their immigration status.",
+      "eligibilityText": "All children 18 years of age or under are potentially eligible Child Health Plus regardless of income or immigration status. They must also:\n· Live in New York State\n· Meet certain income eligibility requirements based on your household size to qualify for lower premiums\n· Have no other health insurance coverage and do not qualify for Medicaid",
+      "applyUrl": "https://nystateofhealth.ny.gov/",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P004en",
+      "programCode": "S2R004",
+      "name": "Child Tax Credit",
+      "acronym": "CTC",
+      "plainLanguageName": "Tax credit for families with children",
+      "category": "Cash & expenses",
+      "agency": "NYC Department of Consumer and Worker Protection (DCWP); Internal Revenue Service (IRS)",
+      "populationServed": [
+        "Families with children",
+        "Pregnant & new parents"
+      ],
+      "summary": "Claim the federal Child Tax Credit and the Empire State Child Tax Credit to get up to $3,200 per child under age four and up to $2,700 per child ages 4 to 16.",
+      "eligibilityText": "To claim the federal Child Tax Credit, you need to meet all of these requirements:\nFiling status\nAnnual income limit\nSingle, head of household, or qualifying surviving spouse\nUp to $200,000\nMarried filing jointly\nUp to $400,000\nYou must have:\n· A child, stepchild, grandchild, foster child, adopted child, sibling, niece, or nephew under age 17\n· A Social Security Number (SSN) or Adoption Tax Identification Number (ATIN) for yourself and your dependent(s)\n· Lived with your dependent(s) for more than half the year in the US\n· Claimed the dependent on your tax return (the dependent cannot provide more than half of their own financial support)\nImportant: Only one parent can claim a child for the CTC. If you share custody, talk with the other parent about who will claim your child to avoid filing issues.\nRequirements for the Empire State Child Tax Credit\nYou qualify if you're a full-year New York State resident or are married to one, have a qualifying child, and meet one of these requirements:\n· You claimed the federal CTC, or\n· Your New York adjusted gross income is $75,000 or less (single/head of household), $110,000 or less (married filing jointly), or $55,000 or less (married filing separately)\nEach child listed on your claim needs a valid SSN or Individual Taxpayer Identification Number (ITIN).",
+      "requiredDocumentsText": "Youll need specific documents to file your taxes, like W-2s, receipts, and ID.",
+      "applyUrl": "https://www.nyc.gov/site/dca/talk-money/file-your-taxes.page",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P054en",
+      "name": "Children and Youth with Special Health Care Needs",
+      "acronym": "CYSHCN",
+      "plainLanguageName": "Health care for children and youth with disabilities",
+      "category": "Health",
+      "agency": "NYC Department of Health & Mental Hygiene (DOHMH)",
+      "populationServed": [
+        "People with disabilities"
+      ],
+      "summary": "Help for children with medical conditions that require special medical services.",
+      "eligibilityText": "Eligible children must:\n· Be age 21 or younger\n· Live in New York City\n· Have been diagnosed with or may have a serious or chronic health condition, physical disability, or developmental or emotional/behavioral condition\n· Need extra health care and assistance",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P027en",
+      "programCode": "S2R027",
+      "name": "Commodity Supplemental Food Program",
+      "acronym": "CSFP",
+      "plainLanguageName": "Monthly food packages for older adults",
+      "category": "Food",
+      "agency": "NYS Department of Health (NYS DOH)",
+      "populationServed": [
+        "Older Adults"
+      ],
+      "summary": "Food packages for low-income adults ages 60 and older.",
+      "eligibilityText": "You qualify for CSFP if all of the following are true:\n· You're 60 or older\n· You're a New York State resident\n· Your household income is at or below these limits\nHousehold size\nIncome in a year\n1\n$23,940\n2\n$32,460\n3\n$40,980\n4\n$49,500\n5\n$58,020\n6\n$66,540\n7\n$75,060\n8\n$83,580\nEach additional person:\n+$8,520",
+      "applyUrl": "https://www.health.ny.gov/prevention/nutrition/csfp/apply.htm",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P039en",
+      "programCode": "S2R056",
+      "name": "Community Food Connection",
+      "acronym": "CFC",
+      "plainLanguageName": "Food from pantries and community kitchens",
+      "category": "Food",
+      "agency": "NYC Human Resources Administration (HRA)",
+      "populationServed": [
+        "All New Yorkers",
+        "regardless of immigration status"
+      ],
+      "summary": "Free food from food pantries and community kitchens.",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P009en",
+      "programCode": "S2R009",
+      "name": "Comprehensive After School System of NYC",
+      "acronym": "COMPASS NYC",
+      "plainLanguageName": "Afterschool programs for students",
+      "category": "Enrichment",
+      "agency": "NYC Department of Youth & Community Development (DYCD)",
+      "populationServed": [
+        "Families with children",
+        "Students"
+      ],
+      "summary": "COMPASS NYC has hundreds of programs for young people in kindergarten through 12th grade.",
+      "eligibilityText": "All NYC students in kindergarten to 12th grade are eligible to enroll in COMPASS programs.\nEach program may have different age and eligibility requirements.",
+      "requiredDocumentsText": "To apply, you will need to provide one of the following proofs of identity for your child:\n· Birth certificate\n· Naturalization certificate\n· Official birth records\n· Official school records\n· Passport\n· IDNYC\n· Adoption records\n· Baptismal or another religious certificate",
+      "applyUrl": "https://discoverdycd.dycdconnect.nyc/",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P105en",
+      "programCode": "S2R033",
+      "name": "Cooling Assistance Benefit",
+      "plainLanguageName": "Financial help to cover the cost and installation of an air conditioner or fan",
+      "category": "Cash & expenses",
+      "agency": "NYC Human Resources Administration (HRA)",
+      "populationServed": [
+        "People with disabilities",
+        "Pregnant & new parents",
+        "Older Adults"
+      ],
+      "summary": "This benefit helps you buy and install an air conditioner or fan for your home to stay cool during hot weather.",
+      "eligibilityText": "You may qualify by either:\n· Meeting income limits: Your household's gross monthly income is at or below the limit for your household size (see table below), or\n· Receiving other benefits: You currently receive one of the following\n· SNAP benefits (food stamps)\n· Cash Assistance\n· Code A Supplemental Security Income (SSI Living Alone)\n· A HEAP Regular Benefit over $21 this program year or equal to $21 if you live in government-subsidized housing (such as NYCHA or Section 8) with heat included in your rent\nYou or someone in your household must also:\n· Have a documented medical condition worsened by extreme heat, be age 60 or older, or be under age 6\n· Be a U.S. citizen or qualified non-citizen (like a Green Card holder, refugee, asylee, or parolee)\n· Not currently have a working air conditioner, or have one that is at least five years old\n· Not have received a HEAP-funded air conditioner within the past five years\nHousehold size\nMaximum household income for 2026\n1\n$3,473\n2\n$4,542\n3\n$5,611\n4\n$6,680\n5\n$7,749\n6\n$8,818\n7\n$9,018\n8\n$9,218\n9\n$9,419\n10\n$9,619\n11\n$9,820\n12\n$10,020\n13\n$10,221\nEach additional person\n+$687",
+      "requiredDocumentsText": "To apply for Cooling Assistance, at least one household member will need a valid Social Security Number (SSN).\nYou also need to show:\n· Identities of the people you live with (birth certificate, driver's license, US passport, or naturalization certificate)\n· Where you live (current rent receipt or lease)\n· Income (pay stubs, employment letters)\n· Medical conditions (a letter from a doctor, physician assistance, or nurse practitioner documenting that someone in your household has a medical condition that is exacerbated by extreme heat)",
+      "applyUrl": "https://a069-access.nyc.gov/accesshra/",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P077en",
+      "name": "Cornerstone Programs",
+      "plainLanguageName": "Learning and support programs for kids and adults",
+      "category": "Enrichment",
+      "agency": "NYC Department of Youth & Community Development (DYCD)",
+      "populationServed": [
+        "Children (0-13)",
+        "Families",
+        "NYCHA residents",
+        "Students",
+        "Youth (10+)"
+      ],
+      "summary": "Year-round programs for youth and adults hosted at public housing community centers.",
+      "eligibilityText": "Cornerstone Programs are available to NYCHA residents who are Kindergarten-age or older.",
+      "applyUrl": "https://discoverdycd.dycdconnect.nyc",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P128en",
+      "name": "COVID-19 Funeral Assistance",
+      "plainLanguageName": "Money for funerals due to COVID-19",
+      "category": "Cash & expenses",
+      "agency": "Federal Emergency Management Agency (FEMA)",
+      "populationServed": [],
+      "summary": "Up to $9,000 for each funeral related to COVID-19.",
+      "eligibilityText": "You may be eligible if:\n· You are a U.S. citizen, noncitizen national, or qualified noncitizen.\n· You incurred COVID-19-related funeral expenses on or after January 20, 2020.\n· The death was attributed to COVID-19, as noted on the death certificate.",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P051en",
+      "name": "CUNY Fatherhood Academy",
+      "acronym": "CFA",
+      "plainLanguageName": "High school & college for young dads",
+      "category": "Education",
+      "agency": "The City University of New York (CUNY)",
+      "populationServed": [
+        "Families",
+        "Pregnant & new parents",
+        "Youth (10+)"
+      ],
+      "summary": "Education, employment, and parenting help for fathers ages 18 - 30.",
+      "eligibilityText": "To be eligible for CUNY Fatherhood Academy, you should be able to answer yes to these questions.\nFor the high school equivalency AND college prep track:\n· Do you live in New York City?\n· Are you a father or an expecting father?\nFor the high school equivalency track only:\n· Are you between 18 and 30 years old?\n· Can you commit to a 16-week program for three days a week?\nFor the college prep track only:\n· Are you between 18 and 30 years old?\n· Do you have a high school diploma, HSE diploma, or GED?\n· Do you have less than 12 college credits?\n· Are you currently not enrolled in college?",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P089en",
+      "name": "CUNY Start",
+      "plainLanguageName": "Academic support for CUNY students",
+      "category": "Education",
+      "agency": "The City University of New York (CUNY)",
+      "populationServed": [
+        "Students",
+        "Youth (10+)"
+      ],
+      "summary": "CUNY students can get help meeting CUNY's proficiency standards and preparing for college-level courses.",
+      "eligibilityText": "You might be eligible for CUNY Start/Math Start if you can answer yes to these questions:\n· Have you earned a high school or high school equivalency diploma?\n· Have you completed all CUNY admissions requirements and accepted your offer to CUNY?\n· Could you benefit from extra support in English and/or math based on your proficiency index scores?\n· Are you able to commit to the program's academic schedule and its unique, student-centered instructional approach?\nSpecific colleges may have other eligibility criteria. Contact the CUNY Start program at your campus for more information.",
+      "applyUrl": "http://www2.cuny.edu/admissions/undergraduate/",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P005en",
+      "programCode": "S2R005",
+      "name": "Disability Rent Increase Exemption",
+      "acronym": "DRIE",
+      "plainLanguageName": "Rent freeze for people with disabilities",
+      "category": "Housing",
+      "agency": "NYC Department of Finance (DOF)",
+      "populationServed": [
+        "People with disabilities"
+      ],
+      "summary": "A rent freeze program to help eligible New Yorkers stay in their home",
+      "eligibilityText": "To qualify for DRIE, you'll need to meet basic requirements, live in certain types of apartments, and receive a qualifying disability benefit.\nBasic requirements\n· You're 18 years old or older\n· Your name is on the lease\n· Your household income is $50,000 or less per year\n· You spend more than one-third of your monthly income on rent\nWhere you live\n· Rent stabilized apartment\n· Rent controlled apartment\n· Mitchell-Lama development\n· Limited Dividend development\n· Redevelopment company development\n· Housing Development Fund Company (HDFC) Cooperative development\n· Section 213 Cooperative unit\n· Rent-regulated hotel or single-room occupancy unit\nQualifying disability benefits\n· Supplemental Security Income (SSI)\n· Social Security Disability Insurance (SSDI)\n· Veterans Affairs (VA) disability pension or compensation\n· Disability-related Medicaid",
+      "requiredDocumentsText": "When you apply, have copies of these documents ready:\n· Proof of identity and age: Government-issued ID (passport, driver's license, state ID)\n· Proof of where you live: Current lease, recent rent receipt or payment confirmation\n· Proof of income: Last year's tax return, W-2s, pay stubs, and benefit letters for all household members\n· Proof of your disability benefit: Award letter from SSI, SSDI, VA, or Medicaid",
+      "applyUrl": "https://www.nyc.gov/assets/finance/jump/nyctap.html",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P017en",
+      "programCode": "S2R017",
+      "name": "Disabled Homeowners' Exemption",
+      "acronym": "DHE",
+      "plainLanguageName": "Property tax break for homeowners with disabilities",
+      "category": "Cash & expenses",
+      "agency": "NYC Department of Finance (DOF)",
+      "populationServed": [
+        "Homeowners",
+        "People with disabilities"
+      ],
+      "summary": "Lowered property tax for homeowners with disabilities who earn up to a certain income.",
+      "eligibilityText": "To be eligible for DHE, you must meet these requirements:\n· Own a one-, two-, or three-family home, condo, or coop apartment.\n· All property owners are people with disabilities. However, if you own the property with a spouse or sibling, only one of you need to have a disability to qualify.\n· You must live on the property as your primary residence.\n· The combined income for all owners must be less than or equal to $58,399.\nYou may be eligible if your property is in a Housing Development Fund Corporation development and is in the Division of Alternative Management Program. Your property cannot be within a housing development controlled by a Limited Profit Housing Company, Mitchell-Lama, Limited Dividend Housing Company, or redevelopment company. Contact your property manager if you're not sure.",
+      "requiredDocumentsText": "To apply for DHE you will need to prove the following:\nYour disability status: one of the following for an owner:\n·\n· Copy of Disability Award letter from the Social Security Administration\n· Copy of Disability Award letter from the Railroad Retirement Board or the U.S Postal Service\n· Copy of Certificate from the New York State Commission for the Blind, or a Veterans Administration letter stating that you are entitled to a veterans disability pension.\n· Your income: copies of federal tax returns and additional forms (schedules) for all owners. If any owners do not file a tax return, provide proof of yearly earnings.\n· Your deductions:\n· Copies of receipts for your paid medical bills not covered by insurance for your income documentation year, OR\n· Copy of your Schedule A",
+      "applyUrl": "https://a836-pts-efile.nyc.gov/SmartFile/Filing/FilingType/Info/NYC_DHE",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P006en",
+      "programCode": "S2R006",
+      "name": "Earned Income Tax Credit",
+      "acronym": "EITC",
+      "plainLanguageName": "Tax credit for working individuals and families",
+      "category": "Cash & expenses",
+      "agency": "NYC Department of Consumer and Worker Protection (DCWP); Internal Revenue Service (IRS)",
+      "populationServed": [
+        "Families with children"
+      ],
+      "summary": "Tax credit worth up to $11,000 for qualifying families, noncustodial parents, and individuals who work full time or part time or are self-employed.",
+      "eligibilityText": "Income requirements for the federal EITC\nYour 2025 income must fall within these limits:\nHousehold type\nAnnual income limit\nMarried with qualifying children\nUp to $68,675\nMarried without qualifying children\nUp to $26,214\nSingle with qualifying children\nUp to $61,555\nSingle without qualifying children\nUp to $19,104\nOther federal requirements\n· You must have a valid Social Security number\n· Your investment income in 2025 must have been less than $11,950\n· You must be between 25 and 64 years old if you don't have dependents (can be your children, stepchildren, foster children, or grandchildren)\n· You can claim the EITC if your dependent(s) lived with you for more than half the year and you were legally separated at the end of 2025 or lived apart from your spouse for the last six months of 2025\nRequirements for state and city credits\nIf you qualify for the federal EITC, you automatically qualify for New York State and City credits when you file your state taxes.\nNot sure if you qualify? Use the IRS calculator to check your eligibility.",
+      "requiredDocumentsText": "Youll need specific documents to file your taxes, like W-2s, receipts, and ID.",
+      "applyUrl": "https://www.nyc.gov/site/dca/talk-money/file-your-taxes.page",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P143en",
+      "name": "Emergency Assistance / One Shot Deal",
+      "plainLanguageName": "One-time cash help during an emergency",
+      "category": "Cash & expenses",
+      "agency": "NYC Human Resources Administration (HRA)",
+      "populationServed": [],
+      "summary": "Cash help for people who can't pay an expense due to an unexpected situation or event.",
+      "eligibilityText": "Eligibility is determined on a case-by-case basis. Factors that may be considered include:\n· income (earned and unearned)\n· household size\n· the reason for the need, like as losing a job\n· available savings and resources\n· affordability of housing\n· disability\n· a future plan to pay the expense moving forward\n· citizenship or immigration status",
+      "requiredDocumentsText": "HRA will request specific documents on a case by case basis. They may include:\n· Birth certificate or Social Security Number and/or a photo ID for each adult in the household\n· Proof of income for all members of your household\n· Bills or letters from the landlord for monthly rent, and rent owed\n· Copies of court orders\n· Lease\nAfter you give HRA the information it needs for your application, they will make a decision as soon as possible. HRA will send you a notice if they need more information or documents from you.",
+      "applyUrl": "https://a069-access.nyc.gov/accesshra/",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P160en",
+      "programCode": "S2R058",
+      "name": "Essential Plan",
+      "plainLanguageName": "Health insurance for adults who don't qualify for Medicaid",
+      "category": "Health",
+      "populationServed": [],
+      "summary": "Comprehensive health insurance benefits with $0 monthly premiums and low cost-sharing.",
+      "eligibilityText": "You may qualify if you're:\n· A New York State resident and meet immigration status requirements\n· Ages 19 to 64\n· Not eligible for Medicaid or Child Health Plus\n· Not eligible for employer and other coverage\n· Meet these income requirements based on your household size:\nHousehold size\nYearly income\nMonthly income\n1\n$31,920\n$2,660\n2\n$43,280\n$3,606.67\n3\n$54,640\n$4,553.33\n4\n$66,000\n$5,500\n5\n$77,360\n$6,446.67\n6\n$88,720\n$7,393.33\n7\n$100,080\n$8,340\n8\n$111,440\n$9,286.67\nEach additional person:\n+$11,360\n+$946.67",
+      "requiredDocumentsText": "You'll need the following for each member of your household:\n· Birth dates\n· Social security numbers\n· Employment, income, and health insurance information",
+      "applyUrl": "http://www.nystateofhealth.ny.gov/",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P003en",
+      "programCode": "S2R003",
+      "name": "Extended Day/Year Infant and Toddler Programs",
+      "plainLanguageName": "Free or low-cost child care for infants and toddlers",
+      "category": "Child Care",
+      "agency": "NYC Public Schools",
+      "populationServed": [
+        "Families with children",
+        "Pregnant & new parents"
+      ],
+      "summary": "Year-round early care and education for up to 10 hours a day",
+      "eligibilityText": "Residency requirements for infant and toddler programs\n· Your family must live in New York City\n· Your child must be a US citizen or have legal immigration status\n· Children in foster care outside of New York City can still qualify\nIncome requirements for infant and toddler programs\nYour household income must be at or below the following levels and at least one of the following must apply:\n· You work at least 10 hours per week or are in an education or job training program\n· You're looking for work (up to 6 months unemployed)\n· You're receiving services related to domestic violence\n· You're living in temporary housing\nIn two-parent households, both parents need to meet one of these conditions.\nFamily size\nMonthly income\nYearly income\n2\n$6,436\n$77,226\n3\n$7,950\n$95,397\n4\n$9,464\n$113,568\n5\n$10,978\n$131,738\n6\n$12,492\n$149,909\n7\n$12,776\n$153,316\n8\n$13,060\n$156,723",
+      "applyUrl": "https://mycity.nyc.gov/s/childcarelanding?language=en_US&LanguageCode=en_US",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P120en",
+      "programCode": "S2R034",
+      "name": "Fair Fares NYC",
+      "acronym": "FFNYC",
+      "plainLanguageName": "Ride for half price",
+      "category": "Cash & expenses",
+      "agency": "NYC Human Resources Administration (HRA)",
+      "populationServed": [
+        "All New Yorkers",
+        "regardless of immigration status"
+      ],
+      "summary": "Save 50% on public transportation including subway fares, eligible bus fares, and Access-A-Ride paratransit trips.",
+      "eligibilityText": "You may be eligible if you answer yes to these questions:\n· Do you live in New York City?\n· Are you 18-64 years old?\n· Do you have a household income at or below these amounts?\nHousehold size\nYearly income\n1\n$23,475\n2\n$31,725\n3\n$39,975\n4\n$48,225\n5\n$56,475\n6\n$64,725\n7\n$72,975\n8\n$81,225\nFor each additional person\n+$8,250",
+      "requiredDocumentsText": "You will need documents that prove your identity, age, residency, and income. See the Fair Fares NYC List of Suggested Documentation.",
+      "applyUrl": "https://a069-access.nyc.gov/accesshra/fairfares",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P073en",
+      "name": "Family Assessment Program",
+      "acronym": "FAP",
+      "plainLanguageName": "Help for at-risk youth",
+      "category": "Family Services",
+      "agency": "NYC Administration for Childrens Services (ACS)",
+      "populationServed": [
+        "Children (0-13)",
+        "Families",
+        "Youth (10+)"
+      ],
+      "summary": "Support for families concerned about an at-risk youth.",
+      "eligibilityText": "· Children up to 18 years old and their families who are struggling to relate to one another can get help.\n· Any family can get help from FAP; you do NOT need to have an open ACS case.",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P138en",
+      "name": "Family Homelessness and Eviction Prevention Supplement",
+      "acronym": "FHEPS",
+      "plainLanguageName": "Help with rent for families with children",
+      "category": "Housing",
+      "agency": "Department of Social Services (DSS); Department of Homeless Services (DHS); Human Resources Administration (HRA)",
+      "populationServed": [],
+      "summary": "Pays part of or all of the rent to eligible families at risk of or being evicted, or living in an HRA shelter.",
+      "eligibilityText": "· Your family must have one of the following:\n· A child under 18 years of age\n· A child under 19 years of age who is enrolled full-time in high school or a vocational or technical training program\n· A pregnant person\n· One of these must also apply to your family:\n· Have an active Cash Assistance case\n· If you are in shelter, qualify for Cash Assistance when you leave shelter\n· Your family must also meet one of the following:\n· You are in HRA shelter.\n· You are in DHS shelter and eligible for HRA shelter.\n· You are in DHS shelter and were evicted* in NYC sometime in the year before you entered shelter.\n· You are currently being evicted or were evicted* in NYC within the last 12 months.\n*Evicted can mean:\n· An eviction proceeding against you or the person on the lease for your home.\n· A foreclosure action for your building or home.\n· A City agency said that you must leave your building or home because of health or safety reasons.\n· A landlord has issued you a rent demand letter and threatened an eviction for non-payment of rent.",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P031en",
+      "programCode": "S2R031",
+      "name": "Family Planning Benefit Program",
+      "acronym": "FPBP",
+      "plainLanguageName": "Confidential family planning services",
+      "category": "Family Services",
+      "agency": "NYS Department of Health (NYS DOH)",
+      "populationServed": [
+        "Pregnant & new parents"
+      ],
+      "summary": "Free and confidential family planning services for teens, women, and men.",
+      "eligibilityText": "To be eligible, you need to meet these criteria:\n· You're a New York State resident.\n· You're a U.S. Citizen, National, or lawfully present.\n· You cannot be enrolled in Medicaid.\n· If you have Medicaid, confidential family planning is already included in your coverage.\n· Your income is equal to or less than these income limits:\nFamily size\nMonthly income\n1\n$2,909\n2\n$3,931\n3\n$4,953\n4\n$5,975\n5\n$6,997\n6\n$8,019\n7\n$9,041\n8\n$10,063\nFor each additional person, add:\n$1,023",
+      "requiredDocumentsText": "You will need documents to prove the following:\n· Identity: such as a photo ID, drivers license, passport, or other official photo ID\n· Age: such as Birth certificate, adoption or foster care records, or official hospital or school records\n· Citizenship or immigration status: such as your birth certificate, US passport, or green card\n· Social Security Number\n· Income (if any): such as a recent pay stub, letter from employer stating income, unemployment, child support, or alimony award letter\n· Residency: such as a photo ID with your address, postmarked envelope, utility bill, or lease\n· Health insurance: such as benefit card or policy statements (if you have health insurance).",
+      "applyUrl": "https://www.health.ny.gov/community/pregnancy/family_planning/program_sites.htm",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P068en",
+      "name": "Family Resource Centers",
+      "acronym": "FRC",
+      "plainLanguageName": "Support for children with behavioral challenges",
+      "category": "Family Services",
+      "agency": "NYC Department of Health & Mental Hygiene (DOHMH)",
+      "populationServed": [
+        "Everyone"
+      ],
+      "summary": "Help for parents and their children who have emotional, behavioral, or mental health challenges through peer-led programs.",
+      "eligibilityText": "Parents or caregivers of a child 0 to 24 years old who is at risk of or currently experiences emotional, behavioral or mental health challenges.",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P140en",
+      "name": "Family Type Homes for Adults",
+      "acronym": "FTHA",
+      "plainLanguageName": "Homes for adults who cannot live alone",
+      "category": "Housing",
+      "agency": "NYS Office of Children and Family Services (OCFS); NYC Human Resources Administration (HRA)",
+      "populationServed": [
+        "People with disabilities",
+        "Older Adults"
+      ],
+      "summary": "Supportive housing for adults who cannot live alone due to old age, developmental disabilities, or physical or mental health.",
+      "eligibilityText": "You must meet these basic requirements:\n· Be at least 18 years old\n· Need help with daily living tasks (you can't live independently without support)\n· Have a developmental disability, physical disability, cognitive impairment, or mental illness\nIf you have certain diagnoses, you also need to:\n· Attend a day treatment program (if you've been diagnosed with a developmental disability or mental illness)\n· Be at least five years clean or sober (if you have a history of substance abuse)\nYou won't qualify for FTHAs if you:\n· Are wheelchair-bound or bed-ridden\n· Have a history of substance abuse (unless you're five years clean or sober)\n· Have difficulties following medication and treatment plans\n· Have a history of arson\n· Have a history of verbal or abusive behavior\n· Have been incarcerated",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P008en",
+      "programCode": "S2R008",
+      "name": "Head Start / Early Head Start",
+      "plainLanguageName": "Free education and services for families with kids from birth to age 5",
+      "category": "Child Care",
+      "agency": "U.S. Department of Health & Human Services",
+      "populationServed": [
+        "Families with children"
+      ],
+      "summary": "Head Start and Early Head Start are free early childhood education programs for low-income families with kids ages 5 and under",
+      "eligibilityText": "Your family may qualify for Head Start or Early Head Start if any of the following apply to you:\n· You live in temporary housing\n· You currently receive cash assistance, SNAP (food stamps), or SSI (Supplemental Security Income)\n· You're enrolling a child who is in foster care\n· Your household income is at or below these levels:\nHousehold size\nYearly income\n2\n$21,640\n3\n$27,320\n4\n$33,000\n5\n$38,680\n6\n$44,360\n7\n$50,040\n8\n$55,720\nFor each additional person:\n+$5,680\nYou may still qualify even if your income is over the limit. If you spend more than 30 percent of your income on housing costs, Head Start and Early Head Start can subtract those costs when calculating your income. You will need to provide documents showing your housing expenses.",
+      "applyUrl": "https://headstart.gov/how-apply",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P040en",
+      "name": "HIV/AIDS Services Administration",
+      "acronym": "HASA",
+      "plainLanguageName": "Services for people with HIV or AIDS",
+      "category": "Health",
+      "agency": "NYC Human Resources Administration (HRA)",
+      "populationServed": [],
+      "summary": "HASA helps people living with HIV or AIDS get health care and other public benefits.",
+      "eligibilityText": "To be eligible for HASA, you must have been diagnosed with HIV or with AIDS, as defined by the Centers for Disease Control and Prevention (CDC). You do not need to have symptoms to be eligible.",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P082en",
+      "programCode": "S2R037",
+      "name": "Home Care Services Program",
+      "acronym": "HCSP",
+      "plainLanguageName": "Long-term care at home",
+      "category": "Health",
+      "agency": "NYC Human Resources Administration (HRA)",
+      "populationServed": [
+        "People with disabilities",
+        "Older Adults"
+      ],
+      "summary": "Seniors and people with disabilities can receive health care in their home.",
+      "eligibilityText": "Home care programs have different eligibility requirements, but they all require that you must be eligible for Medicaid.",
+      "applyUrl": "https://www.nyc.gov/assets/hra/downloads/pdf/HCSP-3037-CASA-List-of-Borough-Offices-1-16-2020.pdf",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P019en",
+      "programCode": "S2R019",
+      "name": "Home Energy Assistance Program",
+      "acronym": "HEAP",
+      "plainLanguageName": "Money for heat and utility expenses",
+      "category": "Cash & expenses",
+      "agency": "NYC Human Resources Administration (HRA)",
+      "populationServed": [
+        "Families with children",
+        "Homeowners",
+        "People with disabilities",
+        "Older Adults"
+      ],
+      "summary": "HEAP helps eligible households meet the cost of heating their homes.",
+      "eligibilityText": "Eligibility for the Regular HEAP benefit is based on:\n· the presence of a household member who is under age 6, age 60 or older or permanently disabled\n· the primary heating source\n· income and household size\nYour household may be eligible for aRegular HEAP benefit if:\n· A member of your household is a United States Citizen or Qualified Non-Citizen\n· You receive Supplemental Nutrition Assistance Program (SNAP) benefits or\n· You receive Temporary Assistance (TA) or\n· You receive Code A Supplemental Security Income (SSI Living Alone)\n· Your households gross monthly income is at or below the current income guides for your household size based on this table:\nHousehold Size\nMaximum Monthly Gross Income for 2024-2025\n1\n$3,322\n2\n$4,345\n3\n$5,367\n4\n$6,390\n5\n$7,412\n6\n$8,434\n7\n$8,626\n8\n$8,818\n9\n$9,010\n10\n$9,201\n11\n$9,393\n12\n$9,585\n13\n$9,952\nFor each additional person, add:\nAdd $672\nYour household may be eligible for Emergency HEAP benefits if you can answer yes to these questions:\n· Do any of these apply to you?\n· The electricity that runs your heating system or thermostat is shut off or scheduled to be shut off.\n· Your heat has been turned off or is in danger of being turned off.\n· You are out of fuel or you have less than a quarter tank of fuel.\n· Is your heating or electric bill in your name?\n· Are your household's available resources:\n· less than $3,750 if it includes someone 60 or older, or under age 6?\n· less than $2,500 if it doesn't include someone 60 or older, or under age 6?\n· Do you meet one of these income guidelines?\n· You receive SNAP benefits, Temporary Assistance, or Code A Supplemental Security Income.\n· Your family is at or under the following gross monthly income guidelines for your household size in the table above.",
+      "requiredDocumentsText": "To apply for HEAP, at least one household member will need a valid Social Security Number (SSN).\nYou will also need to give documents that show:\n· the identity of the people who live with you: such as a birth certificate, driver's license, US passport, or naturalization certificate\n· where you live: such as current rent receipt or lease\n· your income: such as pay stubs\n· your fuel or utility expenses: such as a recent bill or statement from your landlord stating that utilities are included in your rent.\n· disability status: if someone in your household has a disability.",
+      "applyUrl": "https://a069-access.nyc.gov/accesshra/",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P122en",
+      "name": "Homebase",
+      "plainLanguageName": "Services to help you keep your housing",
+      "category": "Housing",
+      "agency": "NYC Human Resources Administration (HRA)",
+      "populationServed": [
+        "All New Yorkers regardless of legal status",
+        "Everyone"
+      ],
+      "summary": "If you're at risk of homelessness, Homebase offers support to stay out of shelter and remain stably housed.",
+      "eligibilityText": "You may be eligible for Homebase services if you:\n· Live in one of the five boroughs of NYC\n· May be soon at risk of entering the NYC shelter system\n· Want to remain stably housed in your community\nIf you think you need Homebase services, contact a local office so they can review your specific situation and offer support. Even if you are not eligible, Homebase can help you find resources that might be helpful.",
+      "requiredDocumentsText": "These are the documents you need to bring on your first appointment. If you don't have all of these documents, Homebase can still assess your case and help.\n· ID for all household members 18 years or older\n· Proof of income/employment for every working member of the household (recent paystubs dated within 30 days of Homebase appointment)\n· If you have an active Cash Assistance (CA) case, bring a CA Budget Letter or Welfare Management System (WMS) printout dated within 30 days\n· Unemployment letter\n· Supplemental Security Income (SSI) or Social Security Disability (SSD) Award Letter, dated within the last year\n· Copy of lease or written rental agreement\n· Rental Assistance referral, certificate, voucher, or award letter\n· Rent demand, landlord letter, or court documents\n· Light, gas, and telephone bill",
+      "applyUrl": "https://www1.nyc.gov/site/hra/help/homebase-locations.page",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P148en",
+      "name": "HomeFirst Down Payment Assistance",
+      "plainLanguageName": "Forgivable loan for down payment of closing costs",
+      "category": "Housing",
+      "agency": "NYC Housing Preservation and Development (HPD)",
+      "populationServed": [
+        "Homeowners"
+      ],
+      "summary": "Up to $100,000 toward the down payment or closing costs on a new home.",
+      "eligibilityText": "You will need to meet these income requirements to qualify for a HomeFirst loan:\nFamily Size\nMaximum Household Income (120% AMI)\n1\n$136,080\n2\n$155,520\n3\n$174,960\n4\n$194,400\n5\n$210,000\n6\n$225,600\n7\n$241,080\n8\n$256,680\nYou will also need to meet all these criteria:\n· Be a first-time homebuyer.\n· This means you cannot have owned a home three years before buying a home with a HomeFirst loan.\n· Provide documents to verify household income eligibility.\n· This includes tax returns, pay stubs, profit and loss statements, or other documents.\n· Complete a homebuyer education course taught by an HPD-approved counseling agency.\n· Pay some of the down payment or closing costs.\n· Get a mortgage from a bank whose loans are regulated by a federal or state agency.To get a mortgage, you will need:\n· an employment record, and\n· enough financial resources and credit\n· Buy a 1-4 family home, cooperative, or condominium.\n· This must be in the five boroughs of New York City\n· The purchase price must be within approved limits.\n· The home must pass a housing inspection that certifies that it is safe to live in.\n· Live in the home as your primary residence. Depending on the loan amount, you will need to live in the home for at least:\n· 10 years for loans less than or equal to $40,000\n· 15 years for loans greater than $40,000.",
+      "requiredDocumentsText": "You will need to show:\n· Proof of income (tax returns, pay stubs, profit and loss statements or other documents that verify your income).\n· Employment records\n· Proof of sufficient financial resources and credit",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P146en",
+      "name": "Homeless Intake Shelters & Drop-In Centers",
+      "plainLanguageName": "Adult and family shelters and drop-in housing services",
+      "category": "Housing",
+      "agency": "NYC Department of Homeless Services (DHS)",
+      "populationServed": [
+        "All New Yorkers",
+        "regardless of immigration status"
+      ],
+      "summary": "If you're experiencing homelessness or a housing crisis, you can apply for shelter or get help finding stable housing.",
+      "eligibilityText": "Visit an intake center to apply for shelter and discuss your eligibility. Drop-in centers are open to everyone.",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P032en",
+      "programCode": "S2R032",
+      "name": "IDNYC",
+      "plainLanguageName": "A free City ID card",
+      "category": "City ID Card",
+      "agency": "NYC Human Resources Administration (HRA)",
+      "populationServed": [
+        "All New Yorkers",
+        "regardless of immigration status"
+      ],
+      "summary": "An official ID for all New Yorkers ages 10 and up.",
+      "eligibilityText": "All New Yorkers ages 10 and up qualify.",
+      "applyUrl": "https://www.nyc.gov/site/idnyc/card/start-your-application.page",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P099en",
+      "name": "Jobs Plus",
+      "plainLanguageName": "Job assistance for public housing residents",
+      "category": "Work",
+      "agency": "NYC Housing Authority (NYCHA)",
+      "populationServed": [
+        "NYCHA residents",
+        "Youth (10+)"
+      ],
+      "summary": "Jobs Plus is an employment program that helps NYCHA residents find employment and increase their earnings.",
+      "eligibilityText": "NYCHA residents who are old enough to work and live in one of the 27 developments served can enroll in Jobs-Plus.",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P028en",
+      "programCode": "S2R028",
+      "name": "Learn & Earn",
+      "plainLanguageName": "College and job prep for juniors and seniors in high school",
+      "category": "Work",
+      "agency": "NYC Department of Youth & Community Development (DYCD)",
+      "populationServed": [
+        "Students"
+      ],
+      "summary": "Year-round program with college and job prep for high schoolers at risk of dropping out.",
+      "eligibilityText": "You may be eligible if you can answer yes to these questions:\n· Are you between 16 - 21 years old?\n· Are you an NYC high school junior or senior?\n· Do you have a social security number?\n· Can you legally work in the US?\n· Are you registered for selective service, if you're an eligible male?\n· Do you meet one of these requirements?\n· You or someone in your household gets cash assistance or SNAP (food stamps)\n· You are a homeless or runaway youth\n· You are a foster care youth or have aged out of the foster care system\n· You are involved in the justice system\n· You are pregnant or a parent\n· You have a disability. Learn & Earn will look at your own income (not your family's) to see if you are eligible.\n· Is your households income at or below the amount shown in this chart?\nHousehold size\nYearly income\n1\n$15,650\n2\n$21,150\n3\n$26,650\n4\n$32,150\n5\n$37,650\n6\n$43,150\n7\n$48,650\n8\n$54,150\nFor each additional person\nadd $5,500",
+      "requiredDocumentsText": "To apply for Learn & Earn, you will need to prove the following:\n· Your identity and date of birth\n· Where you live\n· Your family's income",
+      "applyUrl": "https://discoverdycd.dycdconnect.nyc/program-public",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P131en",
+      "programCode": "S2R043",
+      "name": "Lifeline",
+      "plainLanguageName": "Discount on your phone or internet service",
+      "category": "Cash & expenses",
+      "agency": "Federal Communications Commission (FCC)",
+      "populationServed": [],
+      "summary": "A monthly discount up to $9.25 on phone or internet service for eligible households.",
+      "eligibilityText": "You're eligible for Lifeline if you answer yes to either question:\n· Does someone in your household receive:\n· Supplemental Nutrition Assistance Program (SNAP)\n· Supplemental Security Income (SSI)\n· Medicaid\n· Federal Public Housing Assistance (FPHA)\n· Veterans Pension and Survivors Benefit\n· Does your household income meet these requirements?\nHousehold size\nMaximum yearly income\n1\n$21,128\n2\n$28,553\n3\n$35,978\n4\n$43,403\n5\n$50,828\n6\n$58,253\n7\n$65,678\n8\n$73,103\nFor each additional person:\n+$7,425",
+      "requiredDocumentsText": "You will need a social security number (SSN) to apply.\nYou will also need to give proof of income or proof of program participation.",
+      "applyUrl": "https://www.lifelinesupport.org/get-started/",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P064en",
+      "name": "Living for the Young Family Through Education",
+      "acronym": "LYFE",
+      "plainLanguageName": "Free early childhood education for children of student-parents",
+      "category": "Child Care",
+      "agency": "NYC Department of Education (DOE); District 79",
+      "populationServed": [
+        "Families with children",
+        "Pregnant & new parents",
+        "Students"
+      ],
+      "summary": "Student-parents can get free early childhood education for their children ages 6 weeks to 4 years.",
+      "eligibilityText": "You may be eligible for LYFE if you answer yes to the following questions:\n· Are you enrolled in or eligible to enroll inan NYC Department of Education school or program?\n· Is your child between 6 weeks and 4 years old, and not age-eligible for Pre-K for All?",
+      "requiredDocumentsText": "· Proof of your child's age\n· A current copy of your child's immunization records\n· A Child & Adolescent Health Examination Form for your child",
+      "applyUrl": "https://lyfenyc.org/wp-content/uploads/2022/04/Enrollment-Packet-2022-Updated.pdf",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P155en",
+      "programCode": "S2R038",
+      "name": "Medicaid",
+      "plainLanguageName": "Free health insurance for low-income residents",
+      "category": "Health",
+      "populationServed": [
+        "Families with children",
+        "People with disabilities",
+        "Pregnant & new parents",
+        "Older Adults"
+      ],
+      "summary": "Covers doctor and clinic visits, regular exams, immunizations, and other health needs.",
+      "eligibilityText": "You may qualify for Medicaid if you:\n· Live in New York State\n· Are a U.S. citizen or meet immigration status requirements\n· Meet income limits for your age group and household size\nCheck your income limit:\n· Children under age 1\n· Children ages 1-18\n· Ages 19-20 living with your parents\n· Pregnant people\n· Adults under age 65, caretakers, and parents\n· Adults ages 65 and older, people with a disability or visual impairment\nIf your income is too high for Medicaid, you could still qualify through the Medicaid Excess Income Program.",
+      "requiredDocumentsText": "You'll need to show proof of:\n· Identity and date of birth (a passport, driver's license, or birth certificate)\n· U.S. citizenship or immigration status\n· Your current home address (a lease, utility bills, or a government ID card with address)\n· Your income for the past four weeks (paystubs, signed and dated letter from your employer, benefits letters)\nYou may also need to provide:\n· Proof of resources such as bank statements (required if you're 65 or older or have a disability)\n· Current health insurance information, if you have it\n· Medical bills from the past three months, if you're applying for retroactive coverage",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P119en",
+      "name": "MOIA Immigration Legal Support Centers",
+      "plainLanguageName": "Free and safe legal help for immigrants",
+      "category": "Family Services",
+      "agency": "NYC Mayor's Office of Immigrant Affairs (MOIA)",
+      "populationServed": [
+        "All New Yorkers",
+        "regardless of immigration status"
+      ],
+      "summary": "Get free, comprehensive legal screenings to find out if you qualify for any immigration benefit.",
+      "eligibilityText": "If your annual household income is more than 200% of the Federal Poverty Level (FPL), you may not be eligible to receive services from certain City-funded legal service providers.\nHousehold size\nMonthly household income (200% of FPL, 2026)\n1\n$2,660\n2\n$3,607\n3\n$4,553\n4\n$5,500\n5\n$6,447\n6\n$7,393\n7\n$8,340\n8\n$9,287\nEach additional person\n+$947",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P162en",
+      "name": "MTA Reduced-Fare Program",
+      "plainLanguageName": "Reduced MTA fares for eligible riders",
+      "category": "Cash & expenses",
+      "agency": "Metropolitan Transportation Authority (MTA)",
+      "populationServed": [
+        "People with disabilities"
+      ],
+      "summary": "Reduced MTA fares are available for anyone 65+ or with a qualifying disability.",
+      "eligibilityText": "You qualify if any of the following apply:\n· Are 65 or older\n· Receive Medicare benefits for any reason other than age\n· Have a serious mental illness and receive Supplemental Security Income (SSI)\n· Have blindness\n· Have deafness or hearing loss\n· Have an ambulatory, cognitive, or other physical disability",
+      "requiredDocumentsText": "Use any one of these to apply:\n· Driver's license from any state\n· Passport from any country\n· IDNYC\n· Birth certificate (with a photo ID)\n· Medicare card (with a photo ID)",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P137en",
+      "name": "National Flood Insurance Program",
+      "acronym": "NFIP",
+      "plainLanguageName": "Flood insurance",
+      "category": "Housing",
+      "agency": "Federal Emergency Management Agency (FEMA)",
+      "populationServed": [
+        "All New Yorkers",
+        "regardless of immigration status",
+        "Homeowners"
+      ],
+      "summary": "Flood insurance covers damage to your home and belongings.",
+      "eligibilityText": "Anyone in NYC can buy flood insurance.",
+      "applyUrl": "https://www.floodsmart.gov/flood-insurance-provider",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P053en",
+      "name": "Newborn Home Visiting Program",
+      "acronym": "NHVP",
+      "plainLanguageName": "Home visits for first-time parents",
+      "category": "Family Services",
+      "agency": "NYC Department of Health & Mental Hygiene (DOHMH)",
+      "populationServed": [
+        "Children (0-13)",
+        "Families",
+        "Pregnant & new parents"
+      ],
+      "summary": "First-time parents can get support from a health professional to help with breastfeeding, health and safety tips, and connect to community resources.",
+      "eligibilityText": "To be eligible for this program, you should be a first-time parent who lives in one of these neighborhoods.\nYou may also be eligible if you are a parent with a baby less than 3 months old and who:\n· lives in a NYCHA development in one of these neighborhoods.\n· currently gets help from the Administration for Children's Services (ACS).\n· lives in a Department of Homeless Services (DHS) shelter.",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P035en",
+      "name": "NYC 988",
+      "plainLanguageName": "Talk, text, or chat for mental health help",
+      "category": "Health",
+      "agency": "NYC Department of Health and Mental Hygiene (DOHMH)",
+      "populationServed": [
+        "All New Yorkers",
+        "regardless of immigration status"
+      ],
+      "summary": "Free and private talk, text, or chat mental health services available any time for you or someone you care about.",
+      "eligibilityText": "NYC 988 doesn't ask about immigration status.",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P107en",
+      "name": "NYC Care",
+      "plainLanguageName": "No cost or low-cost healthcare",
+      "category": "Health",
+      "agency": "NYC Health + Hospitals (NYC H+H)",
+      "populationServed": [
+        "All New Yorkers",
+        "regardless of immigration status"
+      ],
+      "summary": "Comprehensive healthcare for all NYC residents, regardless of income or immigration status.",
+      "eligibilityText": "You qualify for NYC Care if you:\n· Live in NYC (any of the five boroughs)\n· Don't have health insurance from your employer\n· Don't qualify for any health insurance plan available in New York State\n· Can't afford health insurance based on government guidelines",
+      "requiredDocumentsText": "You will need proof of:\n· Identification\n· New York City residency\n· Household income\n· Household size\nPatients who have already been screened for insurance through the NYS of Health Marketplace can bring a printout of the results of the determination and will not need additional documentation.\nIf you are unable to provide the required documents, a counselor still may be able to help you enroll. Call 646-NYC-CARE (646-692-2273) for more information.",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P141en",
+      "name": "NYC Child Care Connect",
+      "acronym": "NYC CCC",
+      "plainLanguageName": "Find a licensed child care program",
+      "category": "Child Care",
+      "agency": "Department of Health and Mental Hygiene (DOHMH)",
+      "populationServed": [
+        "Families with children",
+        "Pregnant & new parents"
+      ],
+      "summary": "An online resource that helps you find and stay informed about a child care program in your community.",
+      "applyUrl": "https://a816-healthpsi.nyc.gov/ChildCare/search.action",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P034en",
+      "name": "NYC Family Justice Centers",
+      "acronym": "FJCs",
+      "plainLanguageName": "Help for survivors of domestic and gender-based violence",
+      "category": "Family Services",
+      "agency": "NYC Mayors Office to End Domestic and Gender-Based Violence (ENDGBV)",
+      "populationServed": [
+        "All New Yorkers",
+        "regardless of immigration status"
+      ],
+      "summary": "Counseling and services are available in all boroughs for survivors of domestic, and gender-based violence.",
+      "eligibilityText": "People of any age, income, sexual orientation, gender identity, immigration status, or language spoken are welcome at FJCs.",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P161en",
+      "programCode": "S2R059",
+      "name": "NYC Ferry Discount Program",
+      "plainLanguageName": "Discounted one-way tickets for NYC Ferry",
+      "category": "Cash & expenses",
+      "agency": "New York City Economic Development Corporation",
+      "populationServed": [
+        "All New Yorkers",
+        "regardless of immigration status",
+        "People with disabilities",
+        "Older Adults",
+        "Students"
+      ],
+      "summary": "For seniors 65 and older, people with disabilities, high school students, and Fair Fares NYC participants.",
+      "eligibilityText": "Get discounted one-way ferry tickets if you're:\n· 65 or older\n· A person with a disability\n· A NYC high school student\n· A Fair Fares NYC participant",
+      "applyUrl": "https://www.ferry.nyc/ticketing-info/",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P134en",
+      "programCode": "S2R045",
+      "name": "NYC Financial Empowerment Centers",
+      "plainLanguageName": "Free financial counseling",
+      "category": "Cash & expenses",
+      "agency": "NYC Department of Consumer and Worker Protection (DCWP)",
+      "populationServed": [
+        "All New Yorkers",
+        "regardless of immigration status"
+      ],
+      "summary": "Get help with managing your money and improving your financial health.",
+      "eligibilityText": "You qualify for free counseling if you're at least age 18 and live or work in NYC.",
+      "applyUrl": "https://a866-dcwpwb.nyc.gov/talkmoney/book-appointment",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P047en",
+      "programCode": "S2R039",
+      "name": "NYC Free Tax Prep",
+      "plainLanguageName": "Free tax prep services",
+      "category": "Cash & expenses",
+      "agency": "NYC Department of Consumer and Worker Protection (DCWP)",
+      "populationServed": [
+        "All New Yorkers",
+        "regardless of immigration status"
+      ],
+      "summary": "Free tax prep services are available at over 140 locations across NYC that can help you file in-person, online, or over the phone",
+      "eligibilityText": "For tax year 2025, youre eligible for NYC Free Tax Prep if you earned:\n· $97,000 or less in 2025 and have qualifying children or dependents\n· $68,000 or less in 2025 and do not have qualifying children or dependents",
+      "requiredDocumentsText": "You'll need specific documents to file your taxes, like W-2s, receipts, and ID.",
+      "applyUrl": "https://www.nyc.gov/site/dca/talk-money/file-your-taxes.page",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P147en",
+      "programCode": "S2R055",
+      "name": "NYC Housing Connect",
+      "plainLanguageName": "Affordable housing lotteries",
+      "category": "Housing",
+      "agency": "NYC Housing Preservation and Development (HPD); NYC Housing Development Corporation (HDC)",
+      "populationServed": [
+        "People with disabilities"
+      ],
+      "summary": "An online portal where you can apply to rent or buy an affordable unit or home.",
+      "eligibilityText": "Each lottery has different income requirements based on your household size. Check the requirements on\nNYC Housing Connect\nbefore you apply.\nReady to Rent\noffers free one-on-one financial counseling and help with applications. Some lotteries give priority to NYC residents who have a disability, are seniors, or live in the same neighborhood.",
+      "requiredDocumentsText": "If your lottery application gets selected, you may need to provide:\n· Proof of income (paystubs, W-2 forms, benefits statements)\n· Asset information (bank or investment statements)\n· Rent payment history or credit check\n· IDs and birth certificates for household members\nSee the full document list on NYC Housing Connect.",
+      "applyUrl": "https://housingconnect.nyc.gov/PublicWeb/",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P097en",
+      "name": "NYC Ladders for Leaders",
+      "plainLanguageName": "Internships for high school and college students",
+      "category": "Work",
+      "agency": "NYC Department of Youth & Community Development (DYCD)",
+      "populationServed": [
+        "Students",
+        "Youth (10+)",
+        "COVID-19 impacted"
+      ],
+      "summary": "High school and college students can participate in paid summer internships at top New York City companies, non-profits, and government agencies.",
+      "eligibilityText": "You may be eligible if you can answer yes to these questions.\n· Do you live in New York City?\n· Are you currently enrolled in high school or college?\n· Are you between 16 - 22 years old?\n· Do you have previous work experience (even as a volunteer)?\n· Do you have a minimum grade-point average (GPA) of 3.00?\n· If you are under 18 years old, do you have your working papers?",
+      "requiredDocumentsText": "You do not need to submit documents with your application. You will only need to submit documents if you are selected to participate in the program.\nYou will need to provide the following unexpired documents:\nProof of who you are\nOne of the following:\n· School ID\n· City, state, or government-issued ID, such as a NYS driver license, learner's permit, passport, or IDNYC\nProof of your age\nOne of the following:\n· Birth certificate\n· Benefit card\n· NYS Driver license/learner's permit\n· Non-citizen (alien) registration card\n· U.S. Passport\nProof of where you live\nOne of the following, dated in the last 6 months:\n· Home utility bill\n· Lease, mortgage, or deed\n· Cable bill (must have phone service listed)\n· Official mail from a Federal, State or City Agency\nProof of work eligibility\nYouth 16 and 17 years old will need to provide their working papers.\nIn addition, all youth will need to provide one of the following:\n· Report card (dated within the last 6 months )\n· Official school transcript\n· NYS Driver license/learner's permit\n· Voters registration card\n· U.S. military card/draft record\nProof of school status\nOne of the following:\n· Official high school transcript\n· Official college transcript\n· Unofficial college transcript with a copy of your college ID\nProof of citizenship status\nOne of the following:\n· Valid U.S. Passport\n· U.S. Birth Certificate\n· Alien registration card\n· I-94, I-551, I-797\n· Certificate of naturalization\n· Employment registration card\nProof of your family's income\nFor each income source of each income earner and dated in the last 6 months, any one document:\nIf supported by Public Assistance:\n· Current EBT Card (with parent/guardian name) AND a recent store receipt\n· Current Benefit Budget/SNAP Letter\n· Official letter from Social Services (Must include applicants name, Benefit #, and date)\nIf not supported by Public Assistance:\n· Two (2) consecutive pay stubs dated within the last six months (Must include payee name, and gross income)\n· 2021 W-2 form and one (1) pay stub dated within the last six months\n· Current Pension Award letter\n· Current SSA Award letter\n· Unemployment Benefit Document dated within the last six months\n· If self-employed, 2021 Tax Return including Schedule C or E (if receiving rental income)\nProof of social security number\n· Social Security Card\nProof of Selective Service registration (for males 18 and older)\nOne of the following:\n· Record of online registration (www.sss.gov)\n· Online receipt\nProof of disability status (if applicable)\nOne of the following:\n· Proof of Social Security Disability or Supplemental Security Income (SSI)\n· Statement from medical professional\n· Other official documentation for ACS, HRA, your school stating you have a disability",
+      "applyUrl": "https://application.nycsyep.com/",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P149en",
+      "name": "NYC Mitchell-Lama",
+      "plainLanguageName": "Affordable housing waiting lists",
+      "category": "Housing",
+      "agency": "NYC Housing Preservation and Development (HPD); NYS Housing and Community Renewal (HCR)",
+      "populationServed": [
+        "Veterans"
+      ],
+      "summary": "Rental and cooperative homeownership units for families with moderate and middle incomes.",
+      "eligibilityText": "Eligibility for Mitchell-Lama rental units is determined by:\n· The size of the unit\n· The number of people who will be living in the unit\n· Your total household income which cannot be more than the limits shown below. Different developments have different limits:\nHousehold Size\nFederally Assisted Rental\nFederally Assisted Cooperative\nNon-Federally Assisted\n1\n$90,720\n$141,750\n$141,750\n2\n$103,680\n$162,000\n$162,000\n3\n$116,640\n$182,250\n$182,250\n4\n$129,600\n$202,500\n$202,500\n5\n$140,000\n$218,750\n$218,750\n6\n$150,400\n$235,000\n$235,000\n7\n$160,720\n$251,125\n$251,125\n8\n$171,120\n$267,375\n$267,375",
+      "applyUrl": "https://a806-housingconnect.nyc.gov/nyclottery/lottery.html#ml-home",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P029en",
+      "programCode": "S2R029",
+      "name": "NYC Nurse-Family Partnership",
+      "acronym": "NYC NFP & NYC NFPx",
+      "plainLanguageName": "Personal nurses for pregnant people",
+      "category": "Family Services",
+      "agency": "NYC Department of Health & Mental Hygiene (DOHMH)",
+      "populationServed": [
+        "Pregnant & new parents"
+      ],
+      "summary": "Get your own personal nurse at no cost.",
+      "eligibilityText": "You're eligible if you can answer yes to these three questions:\n· Are you pregnant?\n· Do you live in New York City?\n· Are you eligible or think you may be eligible for Medicaid or WIC?\nThis program is open to all eligible parents, regardless of age, immigration status, or gender identity.",
+      "applyUrl": "https://www1.nyc.gov/assets/doh/downloads/pdf/ms/nfp-client-referral-form.pdf",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P145en",
+      "programCode": "S2R047",
+      "name": "NYC NY Connects",
+      "plainLanguageName": "Referrals for long term services and supports",
+      "category": "Family Services",
+      "agency": "NYC Department for the Aging (DFTA)",
+      "populationServed": [
+        "All New Yorkers",
+        "regardless of immigration status",
+        "People with disabilities",
+        "Older Adults"
+      ],
+      "summary": "Free service to help older adults and people with disabilities remain independent at home and in their community.",
+      "eligibilityText": "NY Connects is available to children and adults of all ages, regardless of a disability diagnosis, income level, or insurance.\nNY Connects also serves:\n· Caregivers of older adults and parents of children with a disability.\n· Professional service providers working with someone in need of long term services and supports.",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P083en",
+      "programCode": "S2R035",
+      "name": "NYCHA Public Housing",
+      "plainLanguageName": "Affordable public housing",
+      "category": "Housing",
+      "agency": "NYC Housing Authority (NYCHA)",
+      "populationServed": [],
+      "summary": "Affordable housing for low-and moderate-income New Yorkers.",
+      "eligibilityText": "To qualify for public housing, all of the following must be true:\n· At least one person in your household is a U.S. citizen or has legal immigration status such as permanent resident (Green Card), refugee, or asylum status.\n· You're 18 or older, or you're an emancipated minor.\n· If you're applying with a spouse or domestic partner, they're also 18 or older, or an emancipated minor.\n· If you're applying for senior public housing, everyone in your household is 62 or older.\n· Your household qualifies as a family under NYCHA's rules. This includes two or more people related by blood, marriage, domestic partnership, adoption, guardianship, or court-awarded custodyand single people also qualify.\n· Your household income is at or below the income limits.\nFamily size\nIncome in a year\n1\n$95,000\n2\n$108,600\n3\n$122,150\n4\n$135,700\n5\n$146,600\n6\n$157,450\n7\n$168,300\n8\n$179,150\n9\n$190,000\n10\n$200,850\n11\n$211,700\n12\n$222,550\n13\n$233,450\n14\n$244,300\n15\n$255,150",
+      "requiredDocumentsText": "You do not need to submit any documents to apply for public housing. If you get an interview, you will need to bring the following original documents with you.\n· Your marriage or domestic partner certificate (if applicable)\n· Birth certificates of everyone who will live with you\n· Social security cards of everyone who will live with you\n· Proof of your immigration status (if applicable)\n· Proof of where you currently live, such as a recent utility bill\n· Rent receipts for the last six months and your lease (if you have one)\n· Your last gas and electric bill\n· Proof of your income (if any), such as an award letter, pay stubs, or SNAP letter\n· Documents showing your assets, such as a bank statement",
+      "applyUrl": "https://selfserve.nycha.info/nycha/app/eservice/enu?SWECmd=GotoView&SWEView=NYCHA+OUI+Notice+Instruction+View",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P024en",
+      "programCode": "S2R024",
+      "name": "NYCHA Resident Economic Empowerment and Sustainability",
+      "acronym": "REES",
+      "plainLanguageName": "Jobs, training, and financial support for NYCHA residents",
+      "category": "Work",
+      "agency": "NYC Housing Authority (NYCHA)",
+      "populationServed": [
+        "NYCHA residents"
+      ],
+      "summary": "Job, finance, and business training programs for public housing residents.",
+      "eligibilityText": "Anyone living in NYCHA housing is eligible for REES.\nThe programs REES connects you to have different eligibility requirements. Check the eligibility for each program on the Opportunity NYCHA site.",
+      "requiredDocumentsText": "To apply, you'll need to show proof of who you are. This might include documents like:\n· driver's license\n· official photo ID",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P139en",
+      "name": "NYS Paid Family Leave",
+      "acronym": "PFL",
+      "plainLanguageName": "Paid time off to care for family",
+      "category": "Child Care",
+      "agency": "NYS Workers' Compensation Board (NYS WCB)",
+      "populationServed": [
+        "Families with children",
+        "Pregnant & new parents"
+      ],
+      "summary": "Up to 12 weeks of paid time off to care for a new child, sick family member, and other situations.",
+      "eligibilityText": "You may be able to take Paid Family Leave if you:\n· Are a resident of New York State.\n· Work for a private employer in New York State or for a public employer who has opted in.\n· Some workers aren't eligible for PFL Learn more about what kinds of workers are eligible.\n· If youre not sure if you're covered for PFL, speak to your employer.\n· Meet the time-worked requirements before taking Paid Family Leave:\n· Full-time employees who regularly work 20 or more hours/week can take PFL after working 26 consecutive weeks.\n· Part-time employees who regularly work less than 20 hours/week can take PFL after working 175 days. These days don't need to be consecutive.",
+      "requiredDocumentsText": "You'll need different documents depending on your situation. Check the links below for the documents that you'll need.\n· Bonding leave for:\n· the birth of a child\n· the adoption of a child\n· fostering a child\n· Family Care\n· Military Family Support\n· New Paid Leave for COVID-19\nIn general, you'll need to prove your identity, family relationship, address, and income.\nYou'll also need to provide proof of a qualifying event to file a PFL claim.",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P163en",
+      "name": "NYS Paid Prenatal Leave",
+      "plainLanguageName": "Paid time off for pregnancy-related health care appointments",
+      "category": "Work",
+      "populationServed": [],
+      "summary": "By law in New York State, you are entitled to 20 hours of prenatal leave every year.",
+      "eligibilityText": "See if you're eligible for Paid Prenatal Leave:\nEligible employees\n· Full- and part-time employees in the private sector\n· Employees of non-profit organizations\nNot eligible\n· Federal, state, or local government employees",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P021en",
+      "programCode": "S2R021",
+      "name": "NYS Unemployment Insurance",
+      "acronym": "UI",
+      "plainLanguageName": "Temporary income for eligible unemployed adults",
+      "category": "Cash & expenses",
+      "agency": "NYS Department of Labor (NYSDOL)",
+      "populationServed": [],
+      "summary": "Unemployment insurance gives you temporary income while you look for a new job after losing your old one.",
+      "eligibilityText": "To be eligible for Unemployment Insurance, you must:\n· Have lost your job through no fault of your own\n· Be actively seeking work and able to start a job immediately\n· Be authorized to work in the US (and have been authorized when you lost your job)\nYou'll also need to:\n· Keep a written record of your job search activities each week (you can use the JobZone work search tool)\n· Attend required appointments at your local Career Center\n· Meet minimum earnings requirements (see how much you need to have earned)",
+      "requiredDocumentsText": "What you'll need to file for Unemployment Insurance:\nYour personal information\n· Full name, phone number, and mailing address\n· Social Security Number\n· Driver's license, state ID, or employment authorization number (if you're not a US citizen)\n· Bank account number and routing number\nInformation about your past jobs (last 18 months)\n· Your employer's legal name and address\n· Your employer's Federal Employer Identification Number (FEIN) or New York State registration number (you can find this on your W-2 or employment record)\n· Your start and end dates\n· Your wage details\n· If you served in the military in the last 18 months, you'll also need your DD214",
+      "applyUrl": "https://unemployment.labor.ny.gov/en-US/login",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P037en",
+      "name": "Office of Child Support Services",
+      "acronym": "OCSS",
+      "plainLanguageName": "Child support services",
+      "category": "Family Services",
+      "agency": "NYC Human Resources Administration (HRA)",
+      "populationServed": [
+        "All New Yorkers",
+        "regardless of immigration status",
+        "Families with children"
+      ],
+      "summary": "Services and financial support for custodial and noncustodial parents, guardians, and caretakers",
+      "eligibilityText": "You qualify if you:\n· Are a parent or guardian of a child under 21, and\n· Are the child's primary caregiver\nNot sure? Apply anyway OCSS will review your situation.",
+      "requiredDocumentsText": "Bring the following documents to your interview\n· Completed application\n· Childs birth certificate\n· A recent photo of the other parent is helpful but not required",
+      "applyUrl": "https://childsupport.ny.gov/enroll",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P025en",
+      "programCode": "S2R025",
+      "name": "Older Adult Employment Program",
+      "plainLanguageName": "Job training and placement for older adults",
+      "category": "Work",
+      "agency": "NYC Department of the Aging",
+      "populationServed": [
+        "Older Adults"
+      ],
+      "summary": "Free program offering training and job placement help for older adults 55 and older.",
+      "eligibilityText": "To be eligible for the Older Adult Employment Program, you must:\n· Be 55 years or older\n· Live in the five boroughs\n· Be unemployed\n· Be willing to learn new skills\n· Commit to actively seeking employment\nYour households income must be at or below the amount shown in this chart.\nHousehold size\nYour income (125% or less than the federal poverty level)\n1\n$19,563\n2\n$26,438\n3\n$33,313\n4\n$40,188\n5\n$47,063\n6\n$53,938\n7\n$60,813\n8\n$67,688\nFor each additional person\nadd $6,875",
+      "applyUrl": "https://forms.office.com/pages/responsepage.aspx?id=x2_1MoFfIk6pWxXaZlE77y4l3kcMk4hBmUCtPjazFnVUQUI2RFBTOVo1U09FNTY1MTlCNFZOQllXQiQlQCN0PWcu",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P059en",
+      "name": "Outpatient Treatment Services",
+      "plainLanguageName": "Youth mental health care",
+      "category": "Health",
+      "agency": "NYC Department of Health & Mental Hygiene (DOHMH)",
+      "populationServed": [
+        "Children (0-13)",
+        "Immigrants",
+        "NYCHA residents",
+        "People with disabilities",
+        "Youth (10+)"
+      ],
+      "summary": "Help for young people with emotional, behavioral, and mental health challenges.",
+      "eligibilityText": "Clinic treatment is available for:\n· Children from birth to age 18 (not all clinics accept children under 5 years old)\n· Children with emotional, behavioral, or mental health challenges\nDay treatment programs are available for:\n· Children between the ages of 3 and 18 (there are two programs in NYC for children ages 3 - 5)\n· Children with mental health disorders that interfere with school or social functions in a major way\n· Children who have serious difficulties in a regular classroom",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P016en",
+      "programCode": "S2R016",
+      "name": "Pre-K",
+      "plainLanguageName": "Free Pre-K for four-year-olds",
+      "category": "Education",
+      "agency": "NYC Department of Education (DOE)",
+      "populationServed": [
+        "All New Yorkers",
+        "regardless of immigration status",
+        "Families with children"
+      ],
+      "summary": "Enroll your child in a free, full-day, high-quality Pre-K program.",
+      "eligibilityText": "All NYC children born in 2022 can enroll for the upcoming school year. This includes children with disabilities and new English speakers.\nChildren do not need to be toilet trained to attend pre-K.",
+      "requiredDocumentsText": "View the pre-registration checklist to learn more about the documents you need to pre-register your child and accept their Pre-K offer.",
+      "applyUrl": "https://www.myschools.nyc/",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P062en",
+      "name": "Primary and Preventive Health Care",
+      "plainLanguageName": "Health care for children",
+      "category": "Health",
+      "agency": "NYC Health + Hospitals (NYC H+H)",
+      "populationServed": [
+        "Children (0-13)",
+        "Students",
+        "Youth (10+)"
+      ],
+      "summary": "Children and youth can get health care and treat illnesses.",
+      "eligibilityText": "· All New York City youth are eligible for health care regardless of immigration status or whether they can pay\n· For primary care services, youth need to bring a parent or guardian for the first visit. They can get a form signed so they can come by themselves for future visits.",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P011en",
+      "programCode": "S2R011",
+      "name": "Qualified Health Plans",
+      "acronym": "QHP",
+      "plainLanguageName": "Private health insurance plans",
+      "category": "Health",
+      "agency": "NY State of Health",
+      "populationServed": [
+        "All New Yorkers",
+        "regardless of immigration status"
+      ],
+      "summary": "A Qualified Health Plan is health insurance with a fixed monthly payment.",
+      "eligibilityText": "You can enroll in a Qualified Health Plan if you:\n· Live in New York State\n· Are a U.S. citizen or legally living in the U.S.\n· Do not qualify for Medicaid, the Essential Plan, or Child Health Plus",
+      "applyUrl": "https://nystateofhealth.ny.gov/",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P144en",
+      "name": "Runaway And Homeless Youth Drop-In Centers",
+      "plainLanguageName": "Services and support for homeless youth",
+      "category": "Housing",
+      "agency": "NYC Department of Youth and Community Development (DYCD)",
+      "populationServed": [
+        "All New Yorkers",
+        "regardless of immigration status"
+      ],
+      "summary": "Emergency shelter and support services for young people ages 14 to 24 experiencing homelessness.",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P020en",
+      "programCode": "S2R020",
+      "name": "School Food",
+      "plainLanguageName": "Free school breakfast and lunch",
+      "category": "Food",
+      "agency": "NYC Department of Education (DOE)",
+      "populationServed": [
+        "Children (0-13)",
+        "Immigrants",
+        "Students",
+        "Youth (10+)"
+      ],
+      "summary": "NYC students can enjoy free breakfast and lunch every school day.",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P012en",
+      "programCode": "S2R012",
+      "name": "School Tax Relief Program",
+      "acronym": "STAR",
+      "plainLanguageName": "Lower your property taxes with the STAR credit",
+      "category": "Cash & expenses",
+      "agency": "NYS Department of Taxation (NYS DT); NYC Department of Finance (DOF)",
+      "populationServed": [
+        "Homeowners"
+      ],
+      "summary": "Eligible New York State homeowners can get a STAR credit payment each year to put toward your property taxes.",
+      "eligibilityText": "You're eligible for Basic STAR if you:\n· Own your home\n· Live in it as your primary residence\n· Have a combined household income of $500,000 or less\nYou're eligible for Enhanced STAR if you also:\n· Are age 65 or older\n· Have a combined household income of $107,300 or less for 2025 benefits or $110,750 or less for 2026 benefits\nNew York State uses your tax return from two years earlier to determine eligibility. For 2026 STAR, that's your 2024 return.\nSee additional eligibility details for married couples, surviving spouses, and other special cases.",
+      "requiredDocumentsText": "You'll need the following to register:\n· Names and Social Security numbers for all property owners and spouses\n· Your school district name\n· Property purchase date and seller names\n· Your tax returns from two years ago (i.e. 2023 for the 2025 STAR credit or 2024 for the 2026 STAR credit)\n· Most recent school tax bill (if you have one)\n· Address of any out-of-state residential property you own\n· Legal trust name (if applicable)",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P084en",
+      "name": "School-Age and Early Childhood Family and Community Engagement (FACE) Centers",
+      "plainLanguageName": "Support for young people with disabilities",
+      "agency": "NYS Department of Education (NYS DOE); INCLUDEnyc",
+      "populationServed": [
+        "All New Yorkers",
+        "regardless of immigration status",
+        "Families with children",
+        "People with disabilities"
+      ],
+      "summary": "Information and resources for young people with disabilities (age 0-21), their families, and their caregivers.",
+      "eligibilityText": "All NYC families who care for a child with disabilities are eligible to receive services for free. Trainings are open to everyone.",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P013en",
+      "programCode": "S2R013",
+      "name": "Section 8 / Housing Choice Voucher Program",
+      "acronym": "HCV",
+      "plainLanguageName": "Vouchers that pay part of your rent",
+      "category": "Housing",
+      "agency": "NYC Housing Authority (NYCHA)",
+      "populationServed": [],
+      "summary": "Section 8 helps lower-income families cover part of rent when renting from a private landlord.",
+      "eligibilityText": "Section 8 eligibility is based on household size and income.\nHousehold Size\nAnnual Income\n1\n$59,400\n2\n$67,850\n3\n$76,350\n4\n$84,800\n5\n$91,600\n6\n$98,400\n7\n$105,200\n8\n$111,950",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P014en",
+      "programCode": "S2R014",
+      "name": "Senior Citizen Homeowners' Exemption",
+      "acronym": "SCHE",
+      "plainLanguageName": "Property tax break for senior homeowners",
+      "category": "Cash & expenses",
+      "agency": "NYC Department of Finance (DOF)",
+      "populationServed": [
+        "Homeowners",
+        "Older Adults"
+      ],
+      "summary": "Lowered property taxes for senior homeowners who earn up to a certain income.",
+      "eligibilityText": "To be eligible for SCHE, you must meet these requirements:\n· Own a one-, two-, or three-family home, condo, or coop apartment.\n· All owners of the property are 65 or older. However, if you own the property with a spouse or sibling, only one of you need to be 65 or older.\n· All owners must live on the property as the primary residence.\n· The combined income for all owners must be less than or equal to $58,399.\n· You must own the property for at least 12 consecutive months before the date of filing for the exemption. This is not a requirement if you got the exemption on a property that you owned before.",
+      "requiredDocumentsText": "To apply for SCHE you will need to prove the following:\n· Your age: you need a copy of a government-issued ID\n· Your income: copies of federal tax returns and additional forms (schedules) for all owners. If any owners do not file a tax return, provide proof of yearly earnings.\n· Your deductions:\n· Copies of receipts for your paid medical bills not covered by insurance for your income documentation year, OR\n· Copy of your Schedule A\n· Depending on your application, you may need a trust agreement, will, or other legal documents.",
+      "applyUrl": "https://a836-pts-efile.nyc.gov/SmartFile/Filing/FilingType/Info/NYC_SCHE",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P015en",
+      "programCode": "S2R015",
+      "name": "Senior Citizen Rent Increase Exemption",
+      "acronym": "SCRIE",
+      "plainLanguageName": "Rent freeze for seniors",
+      "category": "Housing",
+      "agency": "NYC Department of Finance (DOF); NYC Housing Preservation and Development (HPD)",
+      "populationServed": [
+        "Older Adults"
+      ],
+      "summary": "A rent freeze program to help seniors 62 and older stay in their home.",
+      "eligibilityText": "To be eligible for SCRIE, you should be able to answer \"yes\" to all of these questions:\n· Are you 62 or older?\n· Is your name on the lease (or the share certificate if you live in a Mitchell-Lama development)?\n· Is your combined household income $50,000 or less in a year?\n· Do you spend more than one-third of your monthly income on rent?\n· Do you live in NYC in one of these types of housing?\n· a rent stabilized apartment\n· a rent controlled apartment\n· a rent regulated hotel or single room occupancy unit\n· a Mitchell-Lama development\n· a Limited Dividend Housing Company development\n· a Redevelopment Company development\n· a Housing Development Fund Company development",
+      "requiredDocumentsText": "To apply for SCRIE, you will need copies of documents that prove:\n· Who you are (and your age)\n· Where you live - You need to prove your rent which includes prior and current documents or leases.\n· Income - This includes your income and the income of all household members who lived in your apartment for the year before you submit your application.",
+      "applyUrl": "https://www.nyc.gov/site/rentfreeze/help/help-temporary-centers.page",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P154en",
+      "name": "Silver Corps",
+      "plainLanguageName": "Volunteering and skill-building for older adults",
+      "category": "Work",
+      "agency": "NYC Department for the Aging (NYC Aging)",
+      "populationServed": [
+        "Older Adults"
+      ],
+      "summary": "Volunteering for at least 15 hours a week in a nonprofit orgovernment agency.",
+      "eligibilityText": "You're eligible for Silver Corps if you:\n· are at least 55 years of age\n· are an NYC resident\n· are currently unemployed or underemployed\n· commit to volunteering a minimum of 15 hours per week in a nonprofit or government agency\n· are willing to participate in skills training and specialized training and/or credentialing programs\n· have income at or below these levels to qualify for a volunteer stipend and travel reimbursement:\nHousehold size\nYour income\n1\n$62,600\n2\n$84,600\n3\n$106,600\n4\n$128,600\n5\n$150,600\n6\n$172,600\n7\n$194,600\n8\n$216,600\nFor each additional person:\nAdd $22,000",
+      "applyUrl": "https://forms.office.com/pages/responsepage.aspx?id=x2_1MoFfIk6pWxXaZlE7700LHIA3cfpJrZeYbSHyN35UOFc4ME9ESUwxOEpaVUtWOVQyU1BFTDgwUyQlQCN0PWcu&route=shorturl",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P022en",
+      "programCode": "S2R022",
+      "name": "Special Supplemental Nutrition Program for Women, Infants, and Children",
+      "acronym": "WIC",
+      "plainLanguageName": "Food & nutrition support for pregnancy and kids under 5",
+      "category": "Food",
+      "agency": "NYS Department of Health (NYS DOH)",
+      "populationServed": [
+        "Families with children"
+      ],
+      "summary": "Monthly food benefits, personalized nutrition and breastfeeding support, health screenings, and referrals to other services for pregnant people and families with young children (ages 0-5).",
+      "eligibilityText": "You may be eligible if you can answer yes to these questions:\n1. Do you live in New York State?\n2. Are you:\n· Pregnant or recently pregnant\n· A new parent (up to 6 months after birth)\n· Breastfeeding or nursing (up to 1 year after birth)\n· Caring for a child under 5 (including dads, grandparents, foster parents, and other primary caregivers)\n3. Does someone in your household participate in one of these programs?\n· SNAP\n· TANF (cash assistance)\n· Medicaid\n· Head Start\n· Early Head Start\n· Essential Plan healthcare (Levels 1, 2, 3, and 4)\nOR\nIf no one is enrolled in one of those programs, is your income at or below what's shown on this chart?\nHousehold size\nAnnual\nMonthly\nWeekly\n1\n$29,526\n$2,461\n$568\n2\n$40,034\n$3,337\n$770\n3\n$50,542\n$4,212\n$972\n4\n$61,050\n$5,088\n$1,175\n5\n$71,558\n$5,964\n$1,377\n6\n$82,066\n$6,839\n$1,579\n7\n$92,574\n$7,715\n$1,781\n8\n$103,082\n$8,591\n$1,983\nFor each additional member:\n+$10,508\n+$876\n+$203",
+      "requiredDocumentsText": "Your WIC office will tell you what you need to bring to your appointment.\nExamples include:\n· Identification (ID)\n· Proof of where you live\n· Proof of income (like a pay stub or employment letter), unless you're already getting one of the benefits listed above\n· Medical forms from your provider (if needed - like if your child has special dietary needs)",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P125en",
+      "name": "STEM Matters NYC",
+      "plainLanguageName": "STEM Matters NYC Summer Enrichment Programs",
+      "category": "Enrichment",
+      "agency": "NYC Public Schools",
+      "populationServed": [
+        "Children (0-13)",
+        "NYCHA residents",
+        "Students",
+        "Youth (10+)"
+      ],
+      "summary": "STEM Matters NYC offers many exciting and hands-on STEM programs for K-12 students during spring break and summer.",
+      "eligibilityText": "Available to students entering grades 1 through 12 in NYC public and charter schools in September 2024.",
+      "applyUrl": "https://nycdoe.campintouch.com/ui/forms/application/camper/App",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P165",
+      "name": "Summer EBT",
+      "plainLanguageName": "Extra grocery money for families over summer break",
+      "category": "Food",
+      "agency": "NYS Office of Temporary and Disability Assistance (OTDA)",
+      "populationServed": [
+        "Families with children"
+      ],
+      "summary": "Eligible kids ages 6 to 16 get $120 for groceries when school's out",
+      "eligibilityText": "Most eligible kids between ages 6 to 16 are approved automatically. You do not need to apply if your child is enrolled in:\n· SNAP (food stamps)\n· Cash assistance\n· Medicaid\n· Free or reduced-price school meals\nIf you qualify automatically, youll get a letter in the mail. Not automatically approved? You can apply if both of the following are true:\n· Your child attends a school in the National School Lunch Program (NSLP)\n· Your household income is at or below the monthly limits\nHousehold size\nMaximum monthly income for 2026\n1\n$2,461\n2\n$3,337\n3\n$4,212\n4\n$5,088\n5\n$5,964\n6\n$6,839\n7\n$7,715\n8\n$8,591\nEach additional person\n+$876",
+      "applyUrl": "https://summerebt.ny.gov/en-US/Before-You-Begin/",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P023en",
+      "programCode": "S2R023",
+      "name": "Summer Meals",
+      "plainLanguageName": "Free summer meals for anyone 18 and under",
+      "category": "Food",
+      "agency": "NYC Department of Education | NYC Public Schools, Office of Food and Nutrition Services",
+      "populationServed": [
+        "All New Yorkers",
+        "regardless of immigration status",
+        "Families with children",
+        "Students"
+      ],
+      "summary": "Get free breakfast and lunch for kids and teens at locations across NYC this summer. No paperwork or income requirements needed.",
+      "eligibilityText": "Summer Meals are available to anyone age 18 or younger.",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P030en",
+      "programCode": "S2R030",
+      "name": "Summer Youth Employment Program",
+      "acronym": "SYEP",
+      "plainLanguageName": "Paid summer work experiences for ages 1424",
+      "category": "Work",
+      "agency": "NYC Department of Youth & Community Development (DYCD)",
+      "populationServed": [
+        "Students"
+      ],
+      "summary": "Up to six weeks of paid work experience for ages 14-24.",
+      "eligibilityText": "You're eligible if you:\n· Live in New York City\n· Are 14-24 years old",
+      "applyUrl": "https://application.nycsyep.com/",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P007en",
+      "programCode": "S2R007",
+      "name": "Supplemental Nutrition Assistance Program",
+      "acronym": "SNAP",
+      "plainLanguageName": "Money to buy food",
+      "category": "Food",
+      "agency": "NYC Human Resources Administration (HRA)",
+      "populationServed": [],
+      "summary": "SNAP benefits can help you feed your family with fresh and healthy groceries.",
+      "eligibilityText": "This program looks at several things to decide if you are eligible. They include:\n· how much money you earn\n· how much money you receive from benefits\n· how many people are in your household",
+      "requiredDocumentsText": "See the SNAP document guide to see the documents you'll need.",
+      "applyUrl": "https://a069-access.nyc.gov/ACCESSNYC/application.do",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P153en",
+      "name": "Text 2 Work",
+      "plainLanguageName": "Get job alerts via text",
+      "category": "Work",
+      "agency": "NYC Human Resources Administration (HRA)",
+      "populationServed": [
+        "All New Yorkers",
+        "regardless of immigration status"
+      ],
+      "summary": "Free job alerts in retail, construction, food service, and other industries",
+      "eligibilityText": "TXT-2-WORK is available to all New York City residents.",
+      "applyUrl": "https://www1.nyc.gov/site/businesslink/contact/txt-2-work.page",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P081en",
+      "name": "The Early Intervention Program",
+      "acronym": "EIP",
+      "plainLanguageName": "Help for infants and toddlers with disabilities",
+      "category": "Health",
+      "agency": "NYC Department of Health & Mental Hygiene (DOHMH)",
+      "populationServed": [
+        "People with disabilities",
+        "Pregnant & new parents"
+      ],
+      "summary": "Early Intervention is a voluntary program for infants and toddlers with disabilities and developmental delays with support for families.",
+      "eligibilityText": "To be eligible for EIP your child must:\n· Live in New York City.\n· Be under the age of three (up to two years and 11 months).\n· Be evaluated (program staff will help you choose an evaluating agency).",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P095en",
+      "programCode": "S2R036",
+      "name": "Train & Earn",
+      "plainLanguageName": "Job training and employment for low-income youth ages 16-24",
+      "category": "Work",
+      "agency": "NYC Department of Youth & Community Development (DYCD)",
+      "populationServed": [],
+      "summary": "Job training, employment services, and prep to help you pass your High School Equivalency (HSE) tests. Available for youth who are not working nor in school.",
+      "eligibilityText": "To be eligible for Train & Earn, you need to meet all of these criteria:\n· You live in NYC;\n· You're 16-24 years old;\n· You're registered for selective service, if you're an eligible male;\n· You're not working;\n· You're not attending school (and you haven't graduated high school or you don't have a high school equivalency diploma)\n· OR you have a high school diploma or equivalency but are an English language learner or need to improve basic literary skills;\n· You meet one of these requirements:\n· You or someone in your household gets cash assistance or SNAP (food stamps)\n· You are a homeless or runaway youth\n· You were in foster care or aged out of the foster care system\n· You are involved in the justice system\n· You have a disability\n· You are pregnant or a parent\n· You make less than the income limits in the chart below, and need more help to enter or finish an education program, or to get or hold a job.\nHousehold size\nYearly income\n1\n$15,650\n2\n$21,150\n3\n$26,650\n4\n$32,150\n5\n$37,650\n6\n$43,150\n7\n$48,650\n8\n$54,150\nFor each additional person\nadd $5,500",
+      "applyUrl": "https://discoverdycd.dycdconnect.nyc/program-public",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P103en",
+      "name": "Veterans Affairs Supported Housing",
+      "acronym": "HUD-VASH",
+      "plainLanguageName": "Supportive housing for homeless veterans",
+      "category": "Housing",
+      "agency": "US Department of Housing & Urban Development (HUD); US Department of Veterans Affairs (VA)",
+      "populationServed": [
+        "Veterans"
+      ],
+      "summary": "Help for homeless veterans and their families to find and stay in permanent housing.",
+      "eligibilityText": "You can qualify for HUD-VASH housing help if you:\n· Served in the active military for any amount of time, and\n· Do not have a dishonorable discharge or a discharge from a general court-martial",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P018en",
+      "programCode": "S2R018",
+      "name": "Veterans' Property Tax Exemption",
+      "plainLanguageName": "Property tax break for veterans",
+      "category": "Cash & expenses",
+      "agency": "NYC Department of Finance (DOF)",
+      "populationServed": [
+        "Veterans"
+      ],
+      "summary": "Lower property taxes for qualifying veterans who served in certain conflicts.",
+      "eligibilityText": "To be eligible for Veterans' Exemption, you should be able to answer yes to all of these questions.\n· Are you the current deeded owner, spouse, or surviving un-remarried widow/widower of the property owner?\n· Is the property your primary residence?\n· Are you a veteran who served in the US armed forces during one of the following conflicts?\n· Persian Gulf Conflict (includes the Afghanistan and Iraq Conflicts) - beginning August 2, 1990 to present\n· Vietnam War - November 1, 1955 to May 7, 1975\n· Korean War - June 27, 1950 - January 31, 1955\n· World War II - December 7, 1941 to December 31, 1946\n· World War I - April 6, 1917 to November 11, 1918",
+      "requiredDocumentsText": "To apply for Veteran's Exemption, you will need to prove the following:\n· Your Veteran status: A copy of your DD Form 214 ( DD-214) which is the Certificate of Release or Discharge from Active Duty form or separation papers for each veteran.\n· For each disabled veteran, a copy of your Veterans' Administration letter documenting the disability rating",
+      "applyUrl": "https://a836-pts-efile.nyc.gov/SmartFile/Filing/FilingType/Info/NYC_VET",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P121en",
+      "name": "We Speak NYC",
+      "acronym": "WSNYC",
+      "plainLanguageName": "English conversation and learning program",
+      "category": "Education",
+      "agency": "Mayor's Office of Immigrant Affairs (MOIA)",
+      "populationServed": [
+        "All New Yorkers",
+        "regardless of immigration status"
+      ],
+      "summary": "Free classes with materials for you to learn about City services and improve your English.",
+      "eligibilityText": "Anyone is eligible to sign up for an online class. Classes and materials are created for intermediate English language learners ages 16 and above.",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P026en",
+      "programCode": "S2R026",
+      "name": "Workforce1 Career Centers",
+      "acronym": "WF1CC",
+      "plainLanguageName": "Free job prep service",
+      "category": "Work",
+      "agency": "NYC Department of Small Business Services (SBS)",
+      "populationServed": [
+        "All New Yorkers",
+        "regardless of immigration status"
+      ],
+      "summary": "Service that connects and helps you prepare you for jobs in NYC.",
+      "eligibilityText": "You can get services from a Workforce1 Career Center if you:\n· live in New York City\n· are 18 or older\n· are legally authorized to work in the U.S.",
+      "requiredDocumentsText": "You will need an ID like a driver's license or IDNYC card.",
+      "applyUrl": "https://www1.nyc.gov/site/sbs/careers/find-a-job.page",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "id": "P098en",
+      "name": "Youth Action 50",
+      "acronym": "YA50",
+      "plainLanguageName": "Leadership opportunities for youth",
+      "category": "Enrichment",
+      "agency": "NYC Service",
+      "populationServed": [
+        "Students"
+      ],
+      "summary": "Youth Action 50 lets youth help their communities by shaping policy, practice, and advocacy for citywide change.",
+      "eligibilityText": "Youth are eligible to apply for YA50 if they are:\n· 14 - 21 years old\n· Enrolled in high school or an equivalency program",
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    }
+  ]
+}

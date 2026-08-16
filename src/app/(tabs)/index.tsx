@@ -1,16 +1,18 @@
 import { router } from 'expo-router';
 
 import { ApplicationCard, Button, EmptyStateCard, PrivacyNote, TabScreen } from '@/components';
-import { useStrings } from '@/i18n/use-strings';
+import { programById } from '@/data/catalogue';
+import { useLanguageSwitchLabel, useStrings } from '@/i18n/use-strings';
 import { useAppStore } from '@/state/app-store';
 
 /** Home — the status of everything already submitted. */
 export default function HomeScreen() {
   const strings = useStrings();
+  const switchLabel = useLanguageSwitchLabel();
   const { language, toggleLanguage, applications } = useAppStore();
 
   return (
-    <TabScreen title={strings.titles.home} language={language} onToggleLanguage={toggleLanguage}>
+    <TabScreen title={strings.titles.home} language={language} switchLabel={switchLabel} onToggleLanguage={toggleLanguage}>
       {applications.length === 0 ? (
         <EmptyStateCard
           title={strings.home.emptyTitle}
@@ -25,7 +27,7 @@ export default function HomeScreen() {
           {applications.map((application) => (
             <ApplicationCard
               key={application.reference}
-              name={strings.programs[application.programId].name}
+              name={programById(application.programId)?.name ?? application.programId}
               reference={application.reference}
               date={application.date}
               stageLabel={strings.stages[application.stage]}

@@ -124,6 +124,40 @@ const en = {
     remove: 'Remove',
   },
 
+  privacyScreen: {
+    title: 'Your data',
+    intro:
+      'Plain answers about what happens to what you upload. Everything below is generated from the code that actually runs, not written separately.',
+    readTitle: 'What we read',
+    readBody: 'These are the documents we can read, and what we take from each one.',
+    keepTitle: 'What we keep',
+    keepBody:
+      'Only these fields. The document itself is deleted as soon as we have read it \u2014 there is no copy of your passport or pay stub anywhere.',
+    neverTitle: 'What we never store',
+    neverBody:
+      'We read these to complete an application when a program requires it, then drop them. They are never saved.',
+    whereTitle: 'Where it goes',
+    whereBody:
+      'Encrypted while it travels and while it is stored. Used only to fill in applications you choose to make. Never sold, never used for advertising.',
+    immigrationTitle: 'Does this affect my immigration status?',
+    immigrationBody:
+      'Public charge rules apply only to a small group of people applying for a green card, and most benefits are not counted at all. Many people who avoid benefits out of fear were never affected by the rule. If you are unsure, speak to an immigration legal provider before applying \u2014 not to us.',
+    immigrationLink: 'Read the City guidance',
+    controlTitle: 'Your control',
+    controlBody:
+      'Remove any document and everything read from it goes with it. Reset the app and nothing is left.',
+    deleteEverything: 'Delete everything',
+  },
+  /** Spoken by screen readers. Untranslated here means a Spanish user hears English. */
+  a11y: {
+    dismiss: 'Dismiss',
+    close: 'Close',
+    switchTo: 'Switch to {language}',
+    english: 'English',
+    spanish: 'Espa\u00f1ol',
+    stageOf: 'Stage {n} of {total}: {label}',
+  },
+
   lock: {
     title: 'Unlock Enroll NYC',
     body: 'Your benefit information is behind your device lock.',
@@ -188,24 +222,30 @@ const en = {
     other: 'Other document',
   },
 
-  programs: {
-    fair_fares: {
-      name: 'Fair Fares NYC',
-      blurb: 'Half-price subway and bus fares for New Yorkers with low incomes.',
-    },
-    snap: {
-      name: 'SNAP food benefits',
-      blurb: 'Monthly money for groceries, loaded onto an EBT card.',
-    },
-    medicaid: {
-      name: 'Medicaid',
-      blurb: 'Free or low-cost health coverage for New Yorkers who qualify.',
-    },
+  /**
+   * Program names and descriptions come from NYC Open Data and are English-only at source, so
+   * they are not translated here. Everything the app itself says is.
+   */
+  catalogue: {
+    allPrograms: 'All programs',
+    notScreenedGroup: 'We could not check these',
+    notScreenedBody:
+      'The rules for these are published as text we cannot check automatically. Read them and decide for yourself.',
+    officialRules: 'Official eligibility rules',
+    whatYouWillNeed: 'What you will need',
+    applyOnOfficialSite: 'Apply on the official site',
+    sourceNote: 'From NYC Open Data, fetched {date}',
+    resultCount: '{count} programs',
+    filterAll: 'All',
   },
 
   reasons: {
     addDocument: 'Add: {document}',
-    incomeOverLimit: 'Income above the {program} limit ({limit})',
+    incomeOverLimit: 'Income above the limit for a household of {size} ({limit})',
+    belowMinAge: 'You need to be at least {limit}',
+    aboveMaxAge: 'This is for people up to {limit}',
+    notNycResident: 'This is for New York City residents',
+    needDob: 'Add your date of birth',
   },
 };
 
@@ -323,6 +363,39 @@ const es: Strings = {
     remove: 'Quitar',
   },
 
+  privacyScreen: {
+    title: 'Sus datos',
+    intro:
+      'Respuestas claras sobre qu\u00e9 pasa con lo que sube. Todo lo siguiente se genera del c\u00f3digo que realmente se ejecuta, no se escribe aparte.',
+    readTitle: 'Qu\u00e9 leemos',
+    readBody: 'Estos son los documentos que podemos leer y lo que tomamos de cada uno.',
+    keepTitle: 'Qu\u00e9 guardamos',
+    keepBody:
+      'Solo estos campos. El documento se elimina en cuanto lo leemos \u2014 no queda ninguna copia de su pasaporte ni de su talón de pago.',
+    neverTitle: 'Qu\u00e9 nunca guardamos',
+    neverBody:
+      'Leemos esto para completar una solicitud cuando un programa lo exige, y luego lo descartamos. Nunca se guarda.',
+    whereTitle: 'A d\u00f3nde va',
+    whereBody:
+      'Cifrado mientras viaja y mientras se almacena. Se usa solo para completar las solicitudes que usted elija. Nunca se vende ni se usa para publicidad.',
+    immigrationTitle: '\u00bfEsto afecta mi estatus migratorio?',
+    immigrationBody:
+      'Las reglas de carga p\u00fablica se aplican solo a un grupo peque\u00f1o de personas que solicitan la residencia permanente, y la mayor\u00eda de los beneficios no cuentan. Muchas personas que evitan los beneficios por miedo nunca estuvieron afectadas por la regla. Si tiene dudas, hable con un proveedor legal de inmigraci\u00f3n antes de solicitar \u2014 no con nosotros.',
+    immigrationLink: 'Leer la gu\u00eda de la Ciudad',
+    controlTitle: 'Su control',
+    controlBody:
+      'Quite cualquier documento y todo lo le\u00eddo de \u00e9l se va con \u00e9l. Reinicie la aplicaci\u00f3n y no queda nada.',
+    deleteEverything: 'Eliminar todo',
+  },
+  a11y: {
+    dismiss: 'Descartar',
+    close: 'Cerrar',
+    switchTo: 'Cambiar a {language}',
+    english: 'English',
+    spanish: 'Espa\u00f1ol',
+    stageOf: 'Etapa {n} de {total}: {label}',
+  },
+
   lock: {
     title: 'Desbloquear Enroll NYC',
     body: 'Su información de beneficios está protegida por el bloqueo de su dispositivo.',
@@ -384,24 +457,26 @@ const es: Strings = {
     other: 'Otro documento',
   },
 
-  programs: {
-    fair_fares: {
-      name: 'Fair Fares NYC',
-      blurb: 'Pasajes de metro y autobús a mitad de precio para neoyorquinos de bajos ingresos.',
-    },
-    snap: {
-      name: 'Beneficios SNAP',
-      blurb: 'Dinero mensual para comestibles, cargado en una tarjeta EBT.',
-    },
-    medicaid: {
-      name: 'Medicaid',
-      blurb: 'Cobertura médica gratuita o de bajo costo para quienes califican.',
-    },
+  catalogue: {
+    allPrograms: 'Todos los programas',
+    notScreenedGroup: 'No pudimos verificar estos',
+    notScreenedBody:
+      'Las reglas de estos programas se publican como texto que no podemos verificar automáticamente. Léalas y decida usted mismo.',
+    officialRules: 'Reglas oficiales de elegibilidad',
+    whatYouWillNeed: 'Lo que necesitará',
+    applyOnOfficialSite: 'Solicitar en el sitio oficial',
+    sourceNote: 'De NYC Open Data, obtenido el {date}',
+    resultCount: '{count} programas',
+    filterAll: 'Todos',
   },
 
   reasons: {
     addDocument: 'Agregar: {document}',
-    incomeOverLimit: 'Ingreso superior al límite de {program} ({limit})',
+    incomeOverLimit: 'Ingreso superior al límite para un hogar de {size} ({limit})',
+    belowMinAge: 'Debe tener al menos {limit} años',
+    aboveMaxAge: 'Esto es para personas de hasta {limit} años',
+    notNycResident: 'Esto es para residentes de la ciudad de Nueva York',
+    needDob: 'Agregue su fecha de nacimiento',
   },
 };
 

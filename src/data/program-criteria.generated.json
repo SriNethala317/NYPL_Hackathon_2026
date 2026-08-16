@@ -1,0 +1,1440 @@
+{
+  "derivedAt": "2026-08-16T07:08:02.100Z",
+  "method": "heuristic",
+  "count": 97,
+  "scorable": 46,
+  "programs": [
+    {
+      "programId": "P085en",
+      "programName": "3-K",
+      "scorable": false,
+      "method": "unmatched",
+      "criteria": {},
+      "sources": {},
+      "sourceUrl": "https://www.myschools.nyc/en/"
+    },
+    {
+      "programId": "P088en",
+      "programName": "Accelerated Study in Associate Programs",
+      "scorable": false,
+      "method": "unmatched",
+      "criteria": {},
+      "sources": {},
+      "sourceUrl": "http://www2.cuny.edu/admissions/"
+    },
+    {
+      "programId": "P042en",
+      "programName": "Access-A-Ride Paratransit Service",
+      "scorable": false,
+      "method": "unmatched",
+      "criteria": {},
+      "sources": {},
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "programId": "P041en",
+      "programName": "Adult Protective Services",
+      "scorable": true,
+      "method": "heuristic",
+      "criteria": {
+        "minAge": 18
+      },
+      "sources": {
+        "age": "· Are you 18 or older?"
+      },
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "programId": "P164",
+      "programName": "Affordable Broadband Act",
+      "scorable": false,
+      "method": "unmatched",
+      "criteria": {},
+      "sources": {},
+      "sourceUrl": "https://mapmybroadband.dps.ny.gov/"
+    },
+    {
+      "programId": "P046en",
+      "programName": "Beacon Programs",
+      "scorable": false,
+      "method": "unmatched",
+      "criteria": {},
+      "sources": {},
+      "sourceUrl": "discoverdycd.dycdconnect.nyc"
+    },
+    {
+      "programId": "P156en",
+      "programName": "Big Apple Connect",
+      "scorable": false,
+      "method": "unmatched",
+      "criteria": {},
+      "sources": {},
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "programId": "P101en",
+      "programName": "Career and Technical Education",
+      "scorable": false,
+      "method": "unmatched",
+      "criteria": {},
+      "sources": {},
+      "sourceUrl": "http://cte.nyc/web/"
+    },
+    {
+      "programId": "P010en",
+      "programName": "Cash Assistance",
+      "scorable": false,
+      "method": "unmatched",
+      "criteria": {
+        "requiredCategories": [
+          "identity",
+          "residence",
+          "income"
+        ]
+      },
+      "sources": {},
+      "sourceUrl": "https://a069-access.nyc.gov/ACCESSNYC/application.do"
+    },
+    {
+      "programId": "P142en",
+      "programName": "Center For NYC Neighborhoods",
+      "scorable": false,
+      "method": "unmatched",
+      "criteria": {},
+      "sources": {},
+      "sourceUrl": "https://cnycn.org/get-help/"
+    },
+    {
+      "programId": "P001en",
+      "programName": "Child and Dependent Care Tax Credit",
+      "scorable": false,
+      "method": "unmatched",
+      "criteria": {
+        "requiredCategories": [
+          "income"
+        ]
+      },
+      "sources": {},
+      "sourceUrl": "https://www.nyc.gov/site/dca/talk-money/file-your-taxes.page"
+    },
+    {
+      "programId": "P133en",
+      "programName": "Child Care Vouchers",
+      "scorable": false,
+      "method": "unmatched",
+      "criteria": {},
+      "sources": {},
+      "sourceUrl": "https://mycity.nyc.gov/s/childcarelanding?language=en_US&LanguageCode=en_US"
+    },
+    {
+      "programId": "P060en",
+      "programName": "Child Health Plus",
+      "scorable": false,
+      "method": "unmatched",
+      "criteria": {},
+      "sources": {},
+      "sourceUrl": "https://nystateofhealth.ny.gov/"
+    },
+    {
+      "programId": "P004en",
+      "programName": "Child Tax Credit",
+      "scorable": false,
+      "method": "unmatched",
+      "criteria": {
+        "requiredCategories": [
+          "income"
+        ]
+      },
+      "sources": {},
+      "sourceUrl": "https://www.nyc.gov/site/dca/talk-money/file-your-taxes.page"
+    },
+    {
+      "programId": "P054en",
+      "programName": "Children and Youth with Special Health Care Needs",
+      "scorable": true,
+      "method": "heuristic",
+      "criteria": {
+        "nycResident": true
+      },
+      "sources": {
+        "nycResident": "· Live in New York City"
+      },
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "programId": "P027en",
+      "programName": "Commodity Supplemental Food Program",
+      "scorable": true,
+      "method": "heuristic",
+      "criteria": {
+        "minAge": 60,
+        "annualIncomeByHouseholdSize": {
+          "1": 23940,
+          "2": 32460,
+          "3": 40980,
+          "4": 49500,
+          "5": 58020,
+          "6": 66540,
+          "7": 75060,
+          "8": 83580
+        },
+        "additionalPersonIncrement": 8520
+      },
+      "sources": {
+        "age": "· You're 60 or older",
+        "income": "Household income table published by the agency."
+      },
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "programId": "P039en",
+      "programName": "Community Food Connection",
+      "scorable": false,
+      "method": "unmatched",
+      "criteria": {},
+      "sources": {},
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "programId": "P009en",
+      "programName": "Comprehensive After School System of NYC",
+      "scorable": false,
+      "method": "unmatched",
+      "criteria": {
+        "requiredCategories": [
+          "identity"
+        ]
+      },
+      "sources": {},
+      "sourceUrl": "https://discoverdycd.dycdconnect.nyc/"
+    },
+    {
+      "programId": "P105en",
+      "programName": "Cooling Assistance Benefit",
+      "scorable": true,
+      "method": "heuristic",
+      "criteria": {
+        "minAge": 60,
+        "annualIncomeByHouseholdSize": {
+          "1": 3473,
+          "2": 4542,
+          "3": 5611,
+          "4": 6680,
+          "5": 7749,
+          "6": 8818,
+          "7": 9018,
+          "8": 9218,
+          "9": 9419,
+          "10": 9619,
+          "11": 9820,
+          "12": 10020,
+          "13": 10221
+        },
+        "additionalPersonIncrement": 687,
+        "requiredCategories": [
+          "identity",
+          "residence",
+          "income"
+        ]
+      },
+      "sources": {
+        "age": "· Have a documented medical condition worsened by extreme heat, be age 60 or older, or be under age 6",
+        "income": "Household income table published by the agency."
+      },
+      "sourceUrl": "https://a069-access.nyc.gov/accesshra/"
+    },
+    {
+      "programId": "P077en",
+      "programName": "Cornerstone Programs",
+      "scorable": false,
+      "method": "unmatched",
+      "criteria": {},
+      "sources": {},
+      "sourceUrl": "https://discoverdycd.dycdconnect.nyc"
+    },
+    {
+      "programId": "P128en",
+      "programName": "COVID-19 Funeral Assistance",
+      "scorable": false,
+      "method": "unmatched",
+      "criteria": {},
+      "sources": {},
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "programId": "P051en",
+      "programName": "CUNY Fatherhood Academy",
+      "scorable": true,
+      "method": "heuristic",
+      "criteria": {
+        "nycResident": true
+      },
+      "sources": {
+        "nycResident": "· Do you live in New York City?"
+      },
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "programId": "P089en",
+      "programName": "CUNY Start",
+      "scorable": false,
+      "method": "unmatched",
+      "criteria": {},
+      "sources": {},
+      "sourceUrl": "http://www2.cuny.edu/admissions/undergraduate/"
+    },
+    {
+      "programId": "P005en",
+      "programName": "Disability Rent Increase Exemption",
+      "scorable": true,
+      "method": "heuristic",
+      "criteria": {
+        "minAge": 18,
+        "requiredCategories": [
+          "identity",
+          "residence",
+          "income"
+        ]
+      },
+      "sources": {
+        "age": "· You're 18 years old or older"
+      },
+      "sourceUrl": "https://www.nyc.gov/assets/finance/jump/nyctap.html"
+    },
+    {
+      "programId": "P017en",
+      "programName": "Disabled Homeowners' Exemption",
+      "scorable": true,
+      "method": "heuristic",
+      "criteria": {
+        "annualIncomeCap": 58399,
+        "requiredCategories": [
+          "income"
+        ]
+      },
+      "sources": {
+        "income": "· The combined income for all owners must be less than or equal to $58,399."
+      },
+      "sourceUrl": "https://a836-pts-efile.nyc.gov/SmartFile/Filing/FilingType/Info/NYC_DHE"
+    },
+    {
+      "programId": "P006en",
+      "programName": "Earned Income Tax Credit",
+      "scorable": true,
+      "method": "heuristic",
+      "criteria": {
+        "annualIncomeCap": 11950,
+        "requiredCategories": [
+          "income"
+        ]
+      },
+      "sources": {
+        "income": "· Your investment income in 2025 must have been less than $11,950"
+      },
+      "sourceUrl": "https://www.nyc.gov/site/dca/talk-money/file-your-taxes.page"
+    },
+    {
+      "programId": "P143en",
+      "programName": "Emergency Assistance / One Shot Deal",
+      "scorable": false,
+      "method": "unmatched",
+      "criteria": {
+        "requiredCategories": [
+          "identity",
+          "residence",
+          "income"
+        ]
+      },
+      "sources": {},
+      "sourceUrl": "https://a069-access.nyc.gov/accesshra/"
+    },
+    {
+      "programId": "P160en",
+      "programName": "Essential Plan",
+      "scorable": true,
+      "method": "heuristic",
+      "criteria": {
+        "annualIncomeByHouseholdSize": {
+          "1": 31920,
+          "2": 43280,
+          "3": 54640,
+          "4": 66000,
+          "5": 77360,
+          "6": 88720,
+          "7": 100080,
+          "8": 111440
+        },
+        "additionalPersonIncrement": 11360,
+        "requiredCategories": [
+          "income"
+        ]
+      },
+      "sources": {
+        "income": "Household income table published by the agency."
+      },
+      "sourceUrl": "http://www.nystateofhealth.ny.gov/"
+    },
+    {
+      "programId": "P003en",
+      "programName": "Extended Day/Year Infant and Toddler Programs",
+      "scorable": true,
+      "method": "heuristic",
+      "criteria": {
+        "nycResident": true
+      },
+      "sources": {
+        "nycResident": "· Your family must live in New York City"
+      },
+      "sourceUrl": "https://mycity.nyc.gov/s/childcarelanding?language=en_US&LanguageCode=en_US"
+    },
+    {
+      "programId": "P120en",
+      "programName": "Fair Fares NYC",
+      "scorable": true,
+      "method": "heuristic",
+      "criteria": {
+        "nycResident": true,
+        "minAge": 18,
+        "maxAge": 64,
+        "annualIncomeByHouseholdSize": {
+          "1": 23475,
+          "2": 31725,
+          "3": 39975,
+          "4": 48225,
+          "5": 56475,
+          "6": 64725,
+          "7": 72975,
+          "8": 81225
+        },
+        "additionalPersonIncrement": 8250,
+        "requiredCategories": [
+          "identity",
+          "residence",
+          "income"
+        ]
+      },
+      "sources": {
+        "nycResident": "· Do you live in New York City?",
+        "age": "· Are you 18-64 years old?",
+        "income": "Household income table published by the agency."
+      },
+      "sourceUrl": "https://a069-access.nyc.gov/accesshra/fairfares"
+    },
+    {
+      "programId": "P073en",
+      "programName": "Family Assessment Program",
+      "scorable": false,
+      "method": "unmatched",
+      "criteria": {},
+      "sources": {},
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "programId": "P138en",
+      "programName": "Family Homelessness and Eviction Prevention Supplement",
+      "scorable": true,
+      "method": "heuristic",
+      "criteria": {
+        "maxAge": 17
+      },
+      "sources": {
+        "age": "· A child under 18 years of age"
+      },
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "programId": "P031en",
+      "programName": "Family Planning Benefit Program",
+      "scorable": true,
+      "method": "heuristic",
+      "criteria": {
+        "annualIncomeByHouseholdSize": {
+          "1": 2909,
+          "2": 3931,
+          "3": 4953,
+          "4": 5975,
+          "5": 6997,
+          "6": 8019,
+          "7": 9041,
+          "8": 10063
+        },
+        "additionalPersonIncrement": 1023,
+        "requiredCategories": [
+          "identity",
+          "residence",
+          "income",
+          "immigration"
+        ]
+      },
+      "sources": {
+        "income": "Household income table published by the agency."
+      },
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "programId": "P068en",
+      "programName": "Family Resource Centers",
+      "scorable": true,
+      "method": "heuristic",
+      "criteria": {
+        "minAge": 0,
+        "maxAge": 24
+      },
+      "sources": {
+        "age": "Parents or caregivers of a child 0 to 24 years old who is at risk of or currently experiences emotional, behavioral or mental health challenges."
+      },
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "programId": "P140en",
+      "programName": "Family Type Homes for Adults",
+      "scorable": false,
+      "method": "unmatched",
+      "criteria": {},
+      "sources": {},
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "programId": "P008en",
+      "programName": "Head Start / Early Head Start",
+      "scorable": false,
+      "method": "unmatched",
+      "criteria": {},
+      "sources": {},
+      "sourceUrl": "https://headstart.gov/how-apply"
+    },
+    {
+      "programId": "P040en",
+      "programName": "HIV/AIDS Services Administration",
+      "scorable": false,
+      "method": "unmatched",
+      "criteria": {},
+      "sources": {},
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "programId": "P082en",
+      "programName": "Home Care Services Program",
+      "scorable": false,
+      "method": "unmatched",
+      "criteria": {},
+      "sources": {},
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "programId": "P019en",
+      "programName": "Home Energy Assistance Program",
+      "scorable": true,
+      "method": "heuristic",
+      "criteria": {
+        "minAge": 60,
+        "annualIncomeByHouseholdSize": {
+          "1": 3322,
+          "2": 4345,
+          "3": 5367,
+          "4": 6390,
+          "5": 7412,
+          "6": 8434,
+          "7": 8626,
+          "8": 8818,
+          "9": 9010,
+          "10": 9201,
+          "11": 9393,
+          "12": 9585,
+          "13": 9952
+        },
+        "additionalPersonIncrement": 672,
+        "requiredCategories": [
+          "identity",
+          "residence",
+          "income"
+        ]
+      },
+      "sources": {
+        "age": "· the presence of a household member who is under age 6, age 60 or older or permanently disabled",
+        "income": "Household income table published by the agency."
+      },
+      "sourceUrl": "https://a069-access.nyc.gov/accesshra/"
+    },
+    {
+      "programId": "P122en",
+      "programName": "Homebase",
+      "scorable": true,
+      "method": "heuristic",
+      "criteria": {
+        "nycResident": true,
+        "requiredCategories": [
+          "residence",
+          "income"
+        ]
+      },
+      "sources": {
+        "nycResident": "· Live in one of the five boroughs of NYC"
+      },
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "programId": "P148en",
+      "programName": "HomeFirst Down Payment Assistance",
+      "scorable": true,
+      "method": "heuristic",
+      "criteria": {
+        "annualIncomeByHouseholdSize": {
+          "1": 136080,
+          "2": 155520,
+          "3": 174960,
+          "4": 194400,
+          "5": 210000,
+          "6": 225600,
+          "7": 241080,
+          "8": 256680
+        },
+        "requiredCategories": [
+          "income"
+        ]
+      },
+      "sources": {
+        "income": "Household income table published by the agency."
+      },
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "programId": "P146en",
+      "programName": "Homeless Intake Shelters & Drop-In Centers",
+      "scorable": false,
+      "method": "unmatched",
+      "criteria": {},
+      "sources": {},
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "programId": "P032en",
+      "programName": "IDNYC",
+      "scorable": true,
+      "method": "heuristic",
+      "criteria": {
+        "minAge": 10
+      },
+      "sources": {
+        "age": "All New Yorkers ages 10 and up qualify."
+      },
+      "sourceUrl": "https://www.nyc.gov/site/idnyc/card/start-your-application.page"
+    },
+    {
+      "programId": "P099en",
+      "programName": "Jobs Plus",
+      "scorable": false,
+      "method": "unmatched",
+      "criteria": {},
+      "sources": {},
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "programId": "P028en",
+      "programName": "Learn & Earn",
+      "scorable": true,
+      "method": "heuristic",
+      "criteria": {
+        "minAge": 16,
+        "maxAge": 21,
+        "annualIncomeByHouseholdSize": {
+          "1": 15650,
+          "2": 21150,
+          "3": 26650,
+          "4": 32150,
+          "5": 37650,
+          "6": 43150,
+          "7": 48650,
+          "8": 54150
+        },
+        "additionalPersonIncrement": 5500,
+        "requiredCategories": [
+          "identity",
+          "residence",
+          "income"
+        ]
+      },
+      "sources": {
+        "age": "· Are you between 16 - 21 years old?",
+        "income": "Household income table published by the agency."
+      },
+      "sourceUrl": "https://discoverdycd.dycdconnect.nyc/program-public"
+    },
+    {
+      "programId": "P131en",
+      "programName": "Lifeline",
+      "scorable": true,
+      "method": "heuristic",
+      "criteria": {
+        "annualIncomeByHouseholdSize": {
+          "1": 21128,
+          "2": 28553,
+          "3": 35978,
+          "4": 43403,
+          "5": 50828,
+          "6": 58253,
+          "7": 65678,
+          "8": 73103
+        },
+        "additionalPersonIncrement": 7425,
+        "requiredCategories": [
+          "income"
+        ]
+      },
+      "sources": {
+        "income": "Household income table published by the agency."
+      },
+      "sourceUrl": "https://www.lifelinesupport.org/get-started/"
+    },
+    {
+      "programId": "P064en",
+      "programName": "Living for the Young Family Through Education",
+      "scorable": false,
+      "method": "unmatched",
+      "criteria": {},
+      "sources": {},
+      "sourceUrl": "https://lyfenyc.org/wp-content/uploads/2022/04/Enrollment-Packet-2022-Updated.pdf"
+    },
+    {
+      "programId": "P155en",
+      "programName": "Medicaid",
+      "scorable": true,
+      "method": "heuristic",
+      "criteria": {
+        "minAge": 65,
+        "requiredCategories": [
+          "identity",
+          "residence",
+          "income",
+          "immigration"
+        ]
+      },
+      "sources": {
+        "age": "· Adults ages 65 and older, people with a disability or visual impairment"
+      },
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "programId": "P119en",
+      "programName": "MOIA Immigration Legal Support Centers",
+      "scorable": true,
+      "method": "heuristic",
+      "criteria": {
+        "annualIncomeByHouseholdSize": {
+          "1": 2660,
+          "2": 3607,
+          "3": 4553,
+          "4": 5500,
+          "5": 6447,
+          "6": 7393,
+          "7": 8340,
+          "8": 9287
+        },
+        "additionalPersonIncrement": 947
+      },
+      "sources": {
+        "income": "Household income table published by the agency."
+      },
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "programId": "P162en",
+      "programName": "MTA Reduced-Fare Program",
+      "scorable": true,
+      "method": "heuristic",
+      "criteria": {
+        "minAge": 65,
+        "requiredCategories": [
+          "identity"
+        ]
+      },
+      "sources": {
+        "age": "· Are 65 or older"
+      },
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "programId": "P137en",
+      "programName": "National Flood Insurance Program",
+      "scorable": false,
+      "method": "unmatched",
+      "criteria": {},
+      "sources": {},
+      "sourceUrl": "https://www.floodsmart.gov/flood-insurance-provider"
+    },
+    {
+      "programId": "P053en",
+      "programName": "Newborn Home Visiting Program",
+      "scorable": false,
+      "method": "unmatched",
+      "criteria": {},
+      "sources": {},
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "programId": "P035en",
+      "programName": "NYC 988",
+      "scorable": false,
+      "method": "unmatched",
+      "criteria": {},
+      "sources": {},
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "programId": "P107en",
+      "programName": "NYC Care",
+      "scorable": true,
+      "method": "heuristic",
+      "criteria": {
+        "nycResident": true,
+        "requiredCategories": [
+          "identity",
+          "residence",
+          "income"
+        ]
+      },
+      "sources": {
+        "nycResident": "· Live in NYC (any of the five boroughs)"
+      },
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "programId": "P141en",
+      "programName": "NYC Child Care Connect",
+      "scorable": false,
+      "method": "unmatched",
+      "criteria": {},
+      "sources": {},
+      "sourceUrl": "https://a816-healthpsi.nyc.gov/ChildCare/search.action"
+    },
+    {
+      "programId": "P034en",
+      "programName": "NYC Family Justice Centers",
+      "scorable": false,
+      "method": "unmatched",
+      "criteria": {},
+      "sources": {},
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "programId": "P161en",
+      "programName": "NYC Ferry Discount Program",
+      "scorable": true,
+      "method": "heuristic",
+      "criteria": {
+        "minAge": 65
+      },
+      "sources": {
+        "age": "· 65 or older"
+      },
+      "sourceUrl": "https://www.ferry.nyc/ticketing-info/"
+    },
+    {
+      "programId": "P134en",
+      "programName": "NYC Financial Empowerment Centers",
+      "scorable": true,
+      "method": "heuristic",
+      "criteria": {
+        "nycResident": true
+      },
+      "sources": {
+        "nycResident": "You qualify for free counseling if you're at least age 18 and live or work in NYC."
+      },
+      "sourceUrl": "https://a866-dcwpwb.nyc.gov/talkmoney/book-appointment"
+    },
+    {
+      "programId": "P047en",
+      "programName": "NYC Free Tax Prep",
+      "scorable": false,
+      "method": "unmatched",
+      "criteria": {
+        "requiredCategories": [
+          "income"
+        ]
+      },
+      "sources": {},
+      "sourceUrl": "https://www.nyc.gov/site/dca/talk-money/file-your-taxes.page"
+    },
+    {
+      "programId": "P147en",
+      "programName": "NYC Housing Connect",
+      "scorable": false,
+      "method": "unmatched",
+      "criteria": {
+        "requiredCategories": [
+          "income"
+        ]
+      },
+      "sources": {},
+      "sourceUrl": "https://housingconnect.nyc.gov/PublicWeb/"
+    },
+    {
+      "programId": "P097en",
+      "programName": "NYC Ladders for Leaders",
+      "scorable": true,
+      "method": "heuristic",
+      "criteria": {
+        "nycResident": true,
+        "minAge": 16,
+        "maxAge": 22,
+        "requiredCategories": [
+          "identity",
+          "residence",
+          "income"
+        ]
+      },
+      "sources": {
+        "nycResident": "· Do you live in New York City?",
+        "age": "· Are you between 16 - 22 years old?"
+      },
+      "sourceUrl": "https://application.nycsyep.com/"
+    },
+    {
+      "programId": "P149en",
+      "programName": "NYC Mitchell-Lama",
+      "scorable": true,
+      "method": "heuristic",
+      "criteria": {
+        "annualIncomeByHouseholdSize": {
+          "1": 90720,
+          "2": 103680,
+          "3": 116640,
+          "4": 129600,
+          "5": 140000,
+          "6": 150400,
+          "7": 160720,
+          "8": 171120
+        }
+      },
+      "sources": {
+        "income": "Household income table published by the agency."
+      },
+      "sourceUrl": "https://a806-housingconnect.nyc.gov/nyclottery/lottery.html#ml-home"
+    },
+    {
+      "programId": "P029en",
+      "programName": "NYC Nurse-Family Partnership",
+      "scorable": true,
+      "method": "heuristic",
+      "criteria": {
+        "nycResident": true
+      },
+      "sources": {
+        "nycResident": "· Do you live in New York City?"
+      },
+      "sourceUrl": "https://www1.nyc.gov/assets/doh/downloads/pdf/ms/nfp-client-referral-form.pdf"
+    },
+    {
+      "programId": "P145en",
+      "programName": "NYC NY Connects",
+      "scorable": false,
+      "method": "unmatched",
+      "criteria": {},
+      "sources": {},
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "programId": "P083en",
+      "programName": "NYCHA Public Housing",
+      "scorable": true,
+      "method": "heuristic",
+      "criteria": {
+        "minAge": 18,
+        "annualIncomeByHouseholdSize": {
+          "1": 95000,
+          "2": 108600,
+          "3": 122150,
+          "4": 135700,
+          "5": 146600,
+          "6": 157450,
+          "7": 168300,
+          "8": 179150,
+          "9": 190000,
+          "10": 200850,
+          "11": 211700,
+          "12": 222550,
+          "13": 233450,
+          "14": 244300,
+          "15": 255150
+        },
+        "requiredCategories": [
+          "residence",
+          "income",
+          "immigration"
+        ]
+      },
+      "sources": {
+        "age": "· You're 18 or older, or you're an emancipated minor.",
+        "income": "Household income table published by the agency."
+      },
+      "sourceUrl": "https://selfserve.nycha.info/nycha/app/eservice/enu?SWECmd=GotoView&SWEView=NYCHA+OUI+Notice+Instruction+View"
+    },
+    {
+      "programId": "P024en",
+      "programName": "NYCHA Resident Economic Empowerment and Sustainability",
+      "scorable": false,
+      "method": "unmatched",
+      "criteria": {
+        "requiredCategories": [
+          "identity"
+        ]
+      },
+      "sources": {},
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "programId": "P139en",
+      "programName": "NYS Paid Family Leave",
+      "scorable": false,
+      "method": "unmatched",
+      "criteria": {
+        "requiredCategories": [
+          "identity",
+          "income"
+        ]
+      },
+      "sources": {},
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "programId": "P163en",
+      "programName": "NYS Paid Prenatal Leave",
+      "scorable": false,
+      "method": "unmatched",
+      "criteria": {},
+      "sources": {},
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "programId": "P021en",
+      "programName": "NYS Unemployment Insurance",
+      "scorable": false,
+      "method": "unmatched",
+      "criteria": {
+        "requiredCategories": [
+          "identity",
+          "income"
+        ]
+      },
+      "sources": {},
+      "sourceUrl": "https://unemployment.labor.ny.gov/en-US/login"
+    },
+    {
+      "programId": "P037en",
+      "programName": "Office of Child Support Services",
+      "scorable": true,
+      "method": "heuristic",
+      "criteria": {
+        "maxAge": 20
+      },
+      "sources": {
+        "age": "· Are a parent or guardian of a child under 21, and"
+      },
+      "sourceUrl": "https://childsupport.ny.gov/enroll"
+    },
+    {
+      "programId": "P025en",
+      "programName": "Older Adult Employment Program",
+      "scorable": true,
+      "method": "heuristic",
+      "criteria": {
+        "nycResident": true,
+        "annualIncomeByHouseholdSize": {
+          "1": 19563,
+          "2": 26438,
+          "3": 33313,
+          "4": 40188,
+          "5": 47063,
+          "6": 53938,
+          "7": 60813,
+          "8": 67688
+        },
+        "additionalPersonIncrement": 6875
+      },
+      "sources": {
+        "nycResident": "· Live in the five boroughs",
+        "income": "Household income table published by the agency."
+      },
+      "sourceUrl": "https://forms.office.com/pages/responsepage.aspx?id=x2_1MoFfIk6pWxXaZlE77y4l3kcMk4hBmUCtPjazFnVUQUI2RFBTOVo1U09FNTY1MTlCNFZOQllXQiQlQCN0PWcu"
+    },
+    {
+      "programId": "P059en",
+      "programName": "Outpatient Treatment Services",
+      "scorable": true,
+      "method": "heuristic",
+      "criteria": {
+        "maxAge": 4
+      },
+      "sources": {
+        "age": "· Children from birth to age 18 (not all clinics accept children under 5 years old)"
+      },
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "programId": "P016en",
+      "programName": "Pre-K",
+      "scorable": false,
+      "method": "unmatched",
+      "criteria": {},
+      "sources": {},
+      "sourceUrl": "https://www.myschools.nyc/"
+    },
+    {
+      "programId": "P062en",
+      "programName": "Primary and Preventive Health Care",
+      "scorable": false,
+      "method": "unmatched",
+      "criteria": {},
+      "sources": {},
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "programId": "P011en",
+      "programName": "Qualified Health Plans",
+      "scorable": false,
+      "method": "unmatched",
+      "criteria": {},
+      "sources": {},
+      "sourceUrl": "https://nystateofhealth.ny.gov/"
+    },
+    {
+      "programId": "P144en",
+      "programName": "Runaway And Homeless Youth Drop-In Centers",
+      "scorable": false,
+      "method": "unmatched",
+      "criteria": {},
+      "sources": {},
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "programId": "P020en",
+      "programName": "School Food",
+      "scorable": false,
+      "method": "unmatched",
+      "criteria": {},
+      "sources": {},
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "programId": "P012en",
+      "programName": "School Tax Relief Program",
+      "scorable": true,
+      "method": "heuristic",
+      "criteria": {
+        "minAge": 65,
+        "requiredCategories": [
+          "income"
+        ]
+      },
+      "sources": {
+        "age": "· Are age 65 or older"
+      },
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "programId": "P084en",
+      "programName": "School-Age and Early Childhood Family and Community Engagement (FACE) Centers",
+      "scorable": false,
+      "method": "unmatched",
+      "criteria": {},
+      "sources": {},
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "programId": "P013en",
+      "programName": "Section 8 / Housing Choice Voucher Program",
+      "scorable": true,
+      "method": "heuristic",
+      "criteria": {
+        "annualIncomeByHouseholdSize": {
+          "1": 59400,
+          "2": 67850,
+          "3": 76350,
+          "4": 84800,
+          "5": 91600,
+          "6": 98400,
+          "7": 105200,
+          "8": 111950
+        }
+      },
+      "sources": {
+        "income": "Household income table published by the agency."
+      },
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "programId": "P014en",
+      "programName": "Senior Citizen Homeowners' Exemption",
+      "scorable": true,
+      "method": "heuristic",
+      "criteria": {
+        "minAge": 65,
+        "annualIncomeCap": 58399,
+        "requiredCategories": [
+          "identity",
+          "income"
+        ]
+      },
+      "sources": {
+        "age": "· All owners of the property are 65 or older. However, if you own the property with a spouse or sibling, only one of you need to be 65 or older.",
+        "income": "· The combined income for all owners must be less than or equal to $58,399."
+      },
+      "sourceUrl": "https://a836-pts-efile.nyc.gov/SmartFile/Filing/FilingType/Info/NYC_SCHE"
+    },
+    {
+      "programId": "P015en",
+      "programName": "Senior Citizen Rent Increase Exemption",
+      "scorable": true,
+      "method": "heuristic",
+      "criteria": {
+        "nycResident": true,
+        "minAge": 62,
+        "requiredCategories": [
+          "residence",
+          "income"
+        ]
+      },
+      "sources": {
+        "nycResident": "· Do you live in NYC in one of these types of housing?",
+        "age": "· Are you 62 or older?"
+      },
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "programId": "P154en",
+      "programName": "Silver Corps",
+      "scorable": true,
+      "method": "heuristic",
+      "criteria": {
+        "annualIncomeByHouseholdSize": {
+          "1": 62600,
+          "2": 84600,
+          "3": 106600,
+          "4": 128600,
+          "5": 150600,
+          "6": 172600,
+          "7": 194600,
+          "8": 216600
+        },
+        "additionalPersonIncrement": 22000
+      },
+      "sources": {
+        "income": "Household income table published by the agency."
+      },
+      "sourceUrl": "https://forms.office.com/pages/responsepage.aspx?id=x2_1MoFfIk6pWxXaZlE7700LHIA3cfpJrZeYbSHyN35UOFc4ME9ESUwxOEpaVUtWOVQyU1BFTDgwUyQlQCN0PWcu&route=shorturl"
+    },
+    {
+      "programId": "P022en",
+      "programName": "Special Supplemental Nutrition Program for Women, Infants, and Children",
+      "scorable": true,
+      "method": "heuristic",
+      "criteria": {
+        "maxAge": 4,
+        "annualIncomeByHouseholdSize": {
+          "1": 29526,
+          "2": 40034,
+          "3": 50542,
+          "4": 61050,
+          "5": 71558,
+          "6": 82066,
+          "7": 92574,
+          "8": 103082
+        },
+        "additionalPersonIncrement": 10508,
+        "requiredCategories": [
+          "identity",
+          "residence",
+          "income"
+        ]
+      },
+      "sources": {
+        "age": "· Caring for a child under 5 (including dads, grandparents, foster parents, and other primary caregivers)",
+        "income": "Household income table published by the agency."
+      },
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "programId": "P125en",
+      "programName": "STEM Matters NYC",
+      "scorable": false,
+      "method": "unmatched",
+      "criteria": {},
+      "sources": {},
+      "sourceUrl": "https://nycdoe.campintouch.com/ui/forms/application/camper/App"
+    },
+    {
+      "programId": "P165",
+      "programName": "Summer EBT",
+      "scorable": true,
+      "method": "heuristic",
+      "criteria": {
+        "annualIncomeByHouseholdSize": {
+          "1": 2461,
+          "2": 3337,
+          "3": 4212,
+          "4": 5088,
+          "5": 5964,
+          "6": 6839,
+          "7": 7715,
+          "8": 8591
+        },
+        "additionalPersonIncrement": 876
+      },
+      "sources": {
+        "income": "Household income table published by the agency."
+      },
+      "sourceUrl": "https://summerebt.ny.gov/en-US/Before-You-Begin/"
+    },
+    {
+      "programId": "P023en",
+      "programName": "Summer Meals",
+      "scorable": false,
+      "method": "unmatched",
+      "criteria": {},
+      "sources": {},
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "programId": "P030en",
+      "programName": "Summer Youth Employment Program",
+      "scorable": true,
+      "method": "heuristic",
+      "criteria": {
+        "nycResident": true,
+        "minAge": 14,
+        "maxAge": 24
+      },
+      "sources": {
+        "nycResident": "· Live in New York City",
+        "age": "· Are 14-24 years old"
+      },
+      "sourceUrl": "https://application.nycsyep.com/"
+    },
+    {
+      "programId": "P007en",
+      "programName": "Supplemental Nutrition Assistance Program",
+      "scorable": false,
+      "method": "unmatched",
+      "criteria": {},
+      "sources": {},
+      "sourceUrl": "https://a069-access.nyc.gov/ACCESSNYC/application.do"
+    },
+    {
+      "programId": "P153en",
+      "programName": "Text 2 Work",
+      "scorable": false,
+      "method": "unmatched",
+      "criteria": {},
+      "sources": {},
+      "sourceUrl": "https://www1.nyc.gov/site/businesslink/contact/txt-2-work.page"
+    },
+    {
+      "programId": "P081en",
+      "programName": "The Early Intervention Program",
+      "scorable": true,
+      "method": "heuristic",
+      "criteria": {
+        "nycResident": true
+      },
+      "sources": {
+        "nycResident": "· Live in New York City."
+      },
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "programId": "P095en",
+      "programName": "Train & Earn",
+      "scorable": true,
+      "method": "heuristic",
+      "criteria": {
+        "nycResident": true,
+        "minAge": 16,
+        "maxAge": 24,
+        "annualIncomeByHouseholdSize": {
+          "1": 15650,
+          "2": 21150,
+          "3": 26650,
+          "4": 32150,
+          "5": 37650,
+          "6": 43150,
+          "7": 48650,
+          "8": 54150
+        },
+        "additionalPersonIncrement": 5500
+      },
+      "sources": {
+        "nycResident": "· You live in NYC;",
+        "age": "· You're 16-24 years old;",
+        "income": "Household income table published by the agency."
+      },
+      "sourceUrl": "https://discoverdycd.dycdconnect.nyc/program-public"
+    },
+    {
+      "programId": "P103en",
+      "programName": "Veterans Affairs Supported Housing",
+      "scorable": false,
+      "method": "unmatched",
+      "criteria": {},
+      "sources": {},
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "programId": "P018en",
+      "programName": "Veterans' Property Tax Exemption",
+      "scorable": false,
+      "method": "unmatched",
+      "criteria": {
+        "requiredCategories": [
+          "residence"
+        ]
+      },
+      "sources": {},
+      "sourceUrl": "https://a836-pts-efile.nyc.gov/SmartFile/Filing/FilingType/Info/NYC_VET"
+    },
+    {
+      "programId": "P121en",
+      "programName": "We Speak NYC",
+      "scorable": true,
+      "method": "heuristic",
+      "criteria": {
+        "minAge": 16
+      },
+      "sources": {
+        "age": "Anyone is eligible to sign up for an online class. Classes and materials are created for intermediate English language learners ages 16 and above."
+      },
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    },
+    {
+      "programId": "P026en",
+      "programName": "Workforce1 Career Centers",
+      "scorable": true,
+      "method": "heuristic",
+      "criteria": {
+        "nycResident": true,
+        "minAge": 18,
+        "requiredCategories": [
+          "identity"
+        ]
+      },
+      "sources": {
+        "nycResident": "· live in New York City",
+        "age": "· are 18 or older"
+      },
+      "sourceUrl": "https://www1.nyc.gov/site/sbs/careers/find-a-job.page"
+    },
+    {
+      "programId": "P098en",
+      "programName": "Youth Action 50",
+      "scorable": true,
+      "method": "heuristic",
+      "criteria": {
+        "minAge": 14,
+        "maxAge": 21
+      },
+      "sources": {
+        "age": "· 14 - 21 years old"
+      },
+      "sourceUrl": "https://data.cityofnewyork.us/d/kvhd-5fmu"
+    }
+  ]
+}

@@ -11,6 +11,8 @@ export type AppHeaderProps = {
   /** "Your applications", "Programs for you", "Profile". */
   title: string;
   language: Language;
+  /** Localized announcement for the language toggle, e.g. "Switch to Español". */
+  switchLabel: string;
   onToggleLanguage?: () => void;
 };
 
@@ -21,14 +23,14 @@ export type AppHeaderProps = {
  * The spec's 60pt top padding is the status bar inset written literally; here it comes from
  * the real safe area instead, so it's correct on every device and on Android.
  */
-export function AppHeader({ title, language, onToggleLanguage }: AppHeaderProps) {
+export function AppHeader({ title, language, switchLabel, onToggleLanguage }: AppHeaderProps) {
   const insets = useSafeAreaInsets();
 
   return (
     <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
       <View style={styles.topRow}>
         <NycLockup variant="header" />
-        <LanguagePill language={language} onPress={onToggleLanguage} />
+        <LanguagePill language={language} switchLabel={switchLabel} onPress={onToggleLanguage} />
       </View>
       <Text variant="screenTitle" accessibilityRole="header">
         {title}

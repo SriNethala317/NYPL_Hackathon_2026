@@ -9,6 +9,8 @@ import { colors, layout } from '@/theme';
 export type TabScreenProps = {
   title: string;
   language: Language;
+  /** Localized announcement for the language toggle. */
+  switchLabel: string;
   onToggleLanguage?: () => void;
   children: ReactNode;
 };
@@ -20,10 +22,15 @@ export type TabScreenProps = {
  * floating glass bar. Content is width-capped and centred so it stays readable on tablets and
  * web, where the design's phone layout would otherwise stretch.
  */
-export function TabScreen({ title, language, onToggleLanguage, children }: TabScreenProps) {
+export function TabScreen({ title, language, switchLabel, onToggleLanguage, children }: TabScreenProps) {
   return (
     <View style={styles.root}>
-      <AppHeader title={title} language={language} onToggleLanguage={onToggleLanguage} />
+      <AppHeader
+        title={title}
+        language={language}
+        switchLabel={switchLabel}
+        onToggleLanguage={onToggleLanguage}
+      />
       <ScrollView
         style={styles.scroll}
         contentContainerStyle={styles.scrollContent}

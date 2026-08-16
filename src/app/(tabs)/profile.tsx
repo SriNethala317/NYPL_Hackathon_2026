@@ -17,12 +17,13 @@ import {
 } from '@/components';
 import { documentType, selectableDocumentTypes } from '@/data/document-types';
 import { fieldDef } from '@/data/profile-fields';
-import { fill, useStrings } from '@/i18n/use-strings';
+import { fill, useLanguageSwitchLabel, useStrings } from '@/i18n/use-strings';
 import { useAppStore, type UploadedDocument } from '@/state/app-store';
 import { colors, radius } from '@/theme';
 
 export default function ProfileScreen() {
   const strings = useStrings();
+  const switchLabel = useLanguageSwitchLabel();
   const store = useAppStore();
   const { language, toggleLanguage, documents, hasIdentityDocument, missingFields } = store;
 
@@ -32,7 +33,7 @@ export default function ProfileScreen() {
   );
 
   return (
-    <TabScreen title={strings.titles.profile} language={language} onToggleLanguage={toggleLanguage}>
+    <TabScreen title={strings.titles.profile} language={language} switchLabel={switchLabel} onToggleLanguage={toggleLanguage}>
       <IdentityCard
         name={store.values.fullName ?? '—'}
         initials={initialsOf(store.values.fullName) ?? '?'}
@@ -167,9 +168,7 @@ function AttentionCard({ document }: { document: UploadedDocument }) {
             shape="pill"
             surface={colors.offWhite}
             color={colors.navy}
-            onTouchEnd={() => store.setDocumentType(document.id, def.id)}
-            accessibilityRole="button"
-            accessibilityLabel={strings.documents[def.id]}
+            onPress={() => store.setDocumentType(document.id, def.id)}
           />
         ))}
       </View>

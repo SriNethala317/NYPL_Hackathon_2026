@@ -40,10 +40,12 @@ describe('translation completeness', () => {
     // shared brand strings legitimately match, so they are exempt.
     const allowedIdentical = new Set([
       // Proper nouns and brand names, which do not translate.
-      'programs.fair_fares.name',
-      'programs.medicaid.name',
       'documents.idnyc',
       'detail.facts.agency',
+      // Language names are written in their own language in both dictionaries, on purpose:
+      // someone looking for Spanish should see "Español" whichever language the app is in.
+      'a11y.english',
+      'a11y.spanish',
     ]);
 
     const enLeaves = new Map(leaves(en));

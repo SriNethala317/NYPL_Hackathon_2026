@@ -229,3 +229,10 @@ example
 # generated native folders
 /ios
 /android
+
+# Generated OCR test corpus — regenerate with `node scripts/make-ocr-corpus.mjs`.
+# Kept out of git because the PNGs are large and add nothing a reviewer can read.
+docs/ocr-corpus/
+
+# Tesseract language model, downloaded on first OCR run.
+eng.traineddata

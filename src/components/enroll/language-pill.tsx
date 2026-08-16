@@ -8,6 +8,11 @@ export type Language = 'en' | 'es';
 export type LanguagePillProps = Omit<PressableProps, 'style' | 'children'> & {
   /** The language currently active — this is what the pill displays. */
   language: Language;
+  /**
+   * What tapping does, already localized. Announced to screen readers, so building it here in
+   * English would mean a Spanish-speaking user hears English.
+   */
+  switchLabel: string;
 };
 
 /**
@@ -15,13 +20,13 @@ export type LanguagePillProps = Omit<PressableProps, 'style' | 'children'> & {
  * when tapped, so the accessible label has to say what tapping does rather than just naming
  * the state.
  */
-export function LanguagePill({ language, ...rest }: LanguagePillProps) {
-  const next = language === 'en' ? 'Español' : 'English';
-
+export function LanguagePill({ language, switchLabel, ...rest }: LanguagePillProps) {
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={`Switch to ${next}`}
+      accessibilityLabel={switchLabel}
+      // 34pt tall by design; hitSlop makes up the rest of the 44pt minimum.
+      hitSlop={5}
       style={({ pressed }) => [styles.pill, pressed && styles.pressed]}
       {...rest}>
       <View style={styles.globe} />
