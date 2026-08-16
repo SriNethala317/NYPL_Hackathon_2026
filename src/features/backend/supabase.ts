@@ -1,4 +1,10 @@
+// Must be imported before the client: supabase-js parses URLs, and React Native's URL
+// implementation is incomplete without this.
+import 'react-native-url-polyfill/auto';
+
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+
+import { sessionStorage } from './session-storage';
 
 /**
  * The Supabase connection, if one has been configured.
@@ -33,6 +39,11 @@ export function supabase(): SupabaseClient | null {
   if (!client) {
     client = createClient(url as string, anonKey as string, {
       auth: {
+        /*
+         * The session token is a bearer credential for somebody's benefits data, so it goes in
+         * the Keychain/Keystore rather than unencrypted AsyncStorage. See session-storage.ts.
+         */
+        storage: sessionStorage,
         // No URL session detection: this is a native app, not a browser redirect flow.
         detectSessionInUrl: false,
         persistSession: true,

@@ -36,9 +36,12 @@
       [
         "expo-font",
         {
-          "fonts": ["./assets/fonts/ArchivoBlack-Regular.ttf"]
+          "fonts": [
+            "./assets/fonts/ArchivoBlack-Regular.ttf"
+          ]
         }
-      ]
+      ],
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true,
