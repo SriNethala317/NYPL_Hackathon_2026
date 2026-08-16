@@ -125,6 +125,71 @@ function bestLabelGroup(line: string, cache: Map<string, keyof typeof LABELS | n
  * Handles both layouts this corpus produces: the value on the same line after a colon, and the
  * value on the line below the label — which is what a boxed form renders as.
  */
+/**
+ * A line that announces itself as some other field, and so cannot be the value of this one.
+ *
+ * Identity cards stack short labelled lines with no blank between them, so "the line after the
+ * label" is very often the next field rather than this field's value.
+ */
+const OTHER_LABEL = /^\s*(exp|expires?|expiry|iss|issued?|class|sex|eyes|hgt|hair|wgt|restrictions?|endorsements?|dd|lic|id)\b/i;
+
+/**
+ * The value printed beside a label on the same line.
+ *
+ * Wage documents use a colon — "EMPLOYEE NAME: MARIA GONZALEZ". Identity cards use a space —
+ * "DOB 03/14/1958". Handling only the first put a licence's expiry date into the date of birth,
+ * so both are handled: the colon form wins where present, otherwise the label words themselves
+ * are stripped off the front of the line.
+ */
+/** Groups whose value is a date or an amount, and so always contains at least one digit. */
+const NUMERIC_GROUPS = new Set<keyof typeof LABELS>(['dob', 'wages', 'grossPay']);
+
+function valueOnSameLine(line: string, group: keyof typeof LABELS): string {
+  const afterColon = line.split(/[:#]\s*/).slice(1).join(': ').trim();
+  if (afterColon) return afterColon;
+
+  // Longest spelling first, so "date of birth" is stripped before the shorter "birth date".
+  const spellings = [...LABELS[group]].sort((a, b) => b.length - a.length);
+
+  for (const spelling of spellings) {
+    // The label's words, separated by anything non-alphanumeric, anchored at the start.
+    const pattern = new RegExp(
+      `^\\s*${spelling.split(/\s+/).map(escapeRegExp).join('[^A-Za-z0-9]*')}[^A-Za-z0-9]*`,
+      'i',
+    );
+    if (!pattern.test(line)) continue;
+
+    /*
+     * The longest matching spelling is the answer, even when it leaves nothing behind.
+     *
+     * "EMPLOYER NAME" is matched in full by the spelling "employer name"; falling through to the
+     * shorter "employer" would strip only that and return "NAME" as the employer. An empty
+     * remainder means the line is a bare label and its value is on the line below, so stop here
+     * rather than letting a shorter spelling manufacture one.
+     */
+    const rest = line.replace(pattern, '').trim();
+    if (!rest) return '';
+
+    /*
+     * A date or an amount always carries a digit; a label never does.
+     *
+     * Two boxes side by side print "GROSS PAY NET PAY" on one line with their values on the next.
+     * Stripping the label leaves "NET PAY", which is the neighbouring label rather than this
+     * field's value — accepting it lost the pay stub's income entirely. Requiring a digit tells
+     * the two apart without having to enumerate every label a form might place alongside.
+     */
+    if (NUMERIC_GROUPS.has(group) && !/\d/.test(rest)) continue;
+
+    return rest;
+  }
+
+  return '';
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 function valueForLabel(
   lines: string[],
   group: keyof typeof LABELS,
@@ -133,15 +198,24 @@ function valueForLabel(
   for (let i = 0; i < lines.length; i++) {
     if (bestLabelGroup(lines[i], cache) !== group) continue;
 
-    const sameLine = lines[i].split(/:\s*/).slice(1).join(': ').trim();
+    const sameLine = valueOnSameLine(lines[i], group);
     if (sameLine && bestLabelGroup(sameLine, cache) !== group) {
       return { value: sameLine, confidence: 0.9 };
     }
 
-    // Skip blank lines the OCR inserted between a label and its value.
+    /*
+     * Only look down the page when the label line carried no value of its own.
+     *
+     * This is where a licence went wrong. "DOB 03/14/1958" separates label from value with a
+     * space, not a colon, so the colon-only split above found nothing, fell through here, and
+     * returned the following line — "EXP 03/14/2029". The applicant was recorded as born in 2029.
+     */
     for (let j = i + 1; j < Math.min(i + 3, lines.length); j++) {
       const next = lines[j];
-      if (next && bestLabelGroup(next, cache) !== group) return { value: next, confidence: 0.8 };
+      if (!next || bestLabelGroup(next, cache) === group) continue;
+      // A line that labels itself as something else is not this label's value.
+      if (OTHER_LABEL.test(next)) continue;
+      return { value: next, confidence: 0.8 };
     }
   }
   return null;
@@ -167,9 +241,31 @@ function amountWithin(value: string): string | null {
   return match ? match[0] : null;
 }
 
+/**
+ * Dates that are printed on a document but are not the holder's birthday.
+ *
+ * An identity card carries three or four dates and labels only some of them. Taking the first one
+ * found put a licence's EXPIRY date into `dob` — recording a real applicant as born in 2029, which
+ * then silently fails every age check in the eligibility engine and would have been printed onto a
+ * form they signed as true.
+ *
+ * A missing date of birth is a question the app can ask. A wrong one is not.
+ */
+const NOT_A_BIRTH_DATE = /\b(exp|expires?|expiry|iss|issued?|valid\s*(thru|until)|renew)/i;
+
+const DATE_PATTERN = /\b(0?[1-9]|1[0-2])[/-](0?[1-9]|[12]\d|3[01])[/-](19|20)\d{2}\b/;
+
 function firstDate(text: string): { value: string; confidence: number } | null {
-  const match = text.match(/\b(0?[1-9]|1[0-2])[/-](0?[1-9]|[12]\d|3[01])[/-](19|20)\d{2}\b/);
-  return match ? { value: match[0], confidence: 0.6 } : null;
+  for (const line of text.split('\n')) {
+    // Skip the whole line: on a licence "EXP 03/14/2029" puts the label and the date together,
+    // and several dates often share one line.
+    if (NOT_A_BIRTH_DATE.test(line)) continue;
+
+    const match = line.match(DATE_PATTERN);
+    if (match) return { value: match[0], confidence: 0.6 };
+  }
+
+  return null;
 }
 
 export function normalizeMoney(value: string): string {

@@ -181,23 +181,20 @@ describe('the transcript that comes back', () => {
     expect(fields.find((f) => f.key === 'fullName')?.value).toMatch(/MARIA REYES/i);
   });
 
-  it('is still fooled by a decoy amount above the real one — a matcher limit, not a model one', async () => {
+  it('reads the labelled figure, not a decoy printed above it', async () => {
     /*
-     * Pinned rather than hidden, because it is a live weakness and pretending otherwise is worse
-     * than naming it.
+     * This used to pin a live weakness; it now pins the fix.
      *
-     * The model does its job here: the instruction is transcribed verbatim and never acted on.
-     * What fails is downstream, in `field-matchers`. When a labelled value cannot be recovered
-     * (here "GROSS PAY 2310.00" sits on one line, and `valueForLabel` only reads a value from the
-     * *next* line or after a colon), income falls back to `firstAmount` — the first money-shaped
-     * token anywhere on the page. An attacker who prints "0.00" above the real figure wins that
-     * race.
+     * The model always did its job — the instruction is transcribed verbatim and never acted on.
+     * The failure was downstream in `field-matchers`: `valueForLabel` read a value only after a
+     * colon or from the *next* line, so "GROSS PAY 2310.00" on a single line matched nothing and
+     * income fell back to `firstAmount`, the first money-shaped token anywhere on the page. An
+     * attacker printing "0.00" above the real figure won that race.
      *
-     * It is not reachable through this provider today: Gemini transcribes a boxed form with the
-     * label and value on separate lines, which is the case the matcher handles, and the test
-     * above uses exactly that layout. Fixing it properly means teaching `valueForLabel` to read
-     * the remainder of a label's own line, which is a change to a separately tuned and measured
-     * file and belongs with the accuracy corpus, not here.
+     * `valueOnSameLine` now strips the label off its own line, so the labelled figure is found
+     * where it actually sits and the decoy is never reached. The same change is what stopped a
+     * driver's licence reporting "EXP 03/14/2029" as a date of birth — one root cause, two
+     * failures, and this one was only visible because it had been written down.
      */
     const page = [
       'ATLAS HOME CARE INC',
@@ -210,10 +207,9 @@ describe('the transcript that comes back', () => {
     if (!outcome.ok) return;
 
     const income = extractFields(outcome.text, 'pay_stub').find((f) => f.key === 'income');
-    expect(income?.value).toBe('0.00');
-    // The one mitigation that is in place: a fallback value is marked as one, so it lands well
-    // below the threshold at which a figure is used without the applicant confirming it.
-    expect(income?.confidence).toBeLessThan(0.5);
+    expect(income?.value).toBe('2310.00');
+    // Label-anchored, so it carries the high confidence of a real match rather than a fallback's.
+    expect(income?.confidence).toBeGreaterThan(0.5);
   });
 });
 
