@@ -2,15 +2,10 @@ import { NycBenefitsCatalogProvider } from '@/features/benefits-discovery/provid
 
 /** Manual/live check only; do not include in offline scenario runs. */
 export async function checkLiveNycCatalog() {
-  const programs =
-    await new NycBenefitsCatalogProvider().getPrograms([
-      'S2R007',
-      'S2R019',
-      'S2R013',
-    ]);
+  const programs = await new NycBenefitsCatalogProvider().getPrograms();
 
   if (
-    !programs.length ||
+    programs.length < 80 ||
     programs.some(
       (program) =>
         !program.programId ||
@@ -19,14 +14,14 @@ export async function checkLiveNycCatalog() {
     )
   ) {
     throw new Error(
-      'Live NYC catalog normalization failed.'
+      'Live NYC catalog normalization failed or returned too few English programs.'
     );
   }
 
   return {
     ok: true,
     count: programs.length,
-    programs: programs.map((program) => ({
+    programs: programs.slice(0, 5).map((program) => ({
       programId: program.programId,
       programName: program.programName,
       source: program.source.type,

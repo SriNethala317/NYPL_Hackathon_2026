@@ -6,8 +6,9 @@ function enabled(name: string, fallback = false): boolean {
 }
 
 export const FEATURE_FLAGS = {
-  liveBenefitsScreening: enabled('EXPO_PUBLIC_LIVE_BENEFITS_SCREENING'),
-  liveBenefitsCatalog: enabled('EXPO_PUBLIC_LIVE_BENEFITS_CATALOG'),
-  fixtureFallback: enabled('EXPO_PUBLIC_BENEFITS_FIXTURE_FALLBACK', true),
-  geminiEnhancement: enabled('EXPO_PUBLIC_GEMINI_ENABLED'),
+  liveBenefitsScreening: enabled('LIVE_BENEFITS_SCREENING'),
+  // The official catalog is the preferred broad-discovery source; fixtures remain a safe fallback.
+  liveBenefitsCatalog: enabled('LIVE_BENEFITS_CATALOG', true),
+  fixtureFallback: enabled('BENEFITS_FIXTURE_FALLBACK', true),
+  geminiEnhancement: enabled('GEMINI_ENABLED'),
 } as const;
