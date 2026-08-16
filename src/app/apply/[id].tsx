@@ -73,8 +73,9 @@ export default function ApplicationFormScreen() {
         <Button
           label={strings.form.reviewApplication}
           // Muted but still tappable — pressing it is how the applicant finds out what is
-          // missing, per the design.
+          // missing, per the design. The hint carries that to screen readers too.
           inactive={!canContinue}
+          accessibilityHint={canContinue ? undefined : strings.form.incomplete}
           onPress={() => {
             if (!canContinue) {
               // Reveal the red borders rather than failing silently.

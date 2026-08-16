@@ -49,8 +49,13 @@ export function Button({
   return (
     <Pressable
       accessibilityRole="button"
-      // Announced as disabled either way, so the state matches what is on screen.
-      accessibilityState={{ disabled: muted }}
+      /*
+       * Only a genuinely disabled button announces as disabled. An `inactive` one must not:
+       * assistive tech skips or discourages disabled controls, and pressing this one is
+       * precisely how the user finds out what is incomplete. Pair `inactive` with an
+       * `accessibilityHint` saying what is missing.
+       */
+      accessibilityState={{ disabled: isDisabled }}
       disabled={isDisabled}
       style={({ pressed }) => [
         styles.base,
