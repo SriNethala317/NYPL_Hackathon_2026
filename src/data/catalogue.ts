@@ -47,6 +47,16 @@ export type ProgramCriteria = {
   requiredCategories?: DocumentCategory[];
 };
 
+/** A renewal requirement, only present where the City states one. */
+export type ProgramRenewal = {
+  cadenceMonths: number;
+  /** 1-12, for programmes that renew on a fixed calendar date rather than an anniversary. */
+  deadlineMonth?: number;
+  deadlineDay?: number;
+  /** The City's sentence stating the requirement. */
+  sourceText?: string;
+};
+
 export type ProgramCriteriaRecord = {
   programId: string;
   programName: string;
@@ -57,6 +67,7 @@ export type ProgramCriteriaRecord = {
   scorable: boolean;
   method: 'heuristic' | 'llm' | 'unmatched';
   criteria: ProgramCriteria;
+  renewal?: ProgramRenewal;
   /** The City's own sentence behind each criterion, quotable in the UI. */
   sources: Partial<Record<'nycResident' | 'age' | 'income', string>>;
   sourceUrl?: string;

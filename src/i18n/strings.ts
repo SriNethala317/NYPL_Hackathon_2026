@@ -149,6 +149,23 @@ const en = {
     deleteEverything: 'Delete everything',
   },
   /** Spoken by screen readers. Untranslated here means a Spanish user hears English. */
+  /**
+   * Keeping benefits, not just getting them. People lose food and health coverage far more often
+   * at recertification than at application.
+   */
+  renewal: {
+    heading: 'Renewals',
+    overdue: 'Renewal was due {date}',
+    urgent: 'Renew within {days} days',
+    soon: 'Renew by {date}',
+    later: 'Renews {date}',
+    whyItMatters:
+      'Most people who lose benefits lose them at renewal, not when they apply. We will remind you before the deadline.',
+    documentsReady: 'Your documents are on file and ready to reuse',
+    documentsMissing: 'You will need to add documents again before renewing',
+    renewNow: 'Renew now',
+  },
+
   a11y: {
     dismiss: 'Dismiss',
     close: 'Close',
@@ -387,6 +404,19 @@ const es: Strings = {
       'Quite cualquier documento y todo lo le\u00eddo de \u00e9l se va con \u00e9l. Reinicie la aplicaci\u00f3n y no queda nada.',
     deleteEverything: 'Eliminar todo',
   },
+  renewal: {
+    heading: 'Renovaciones',
+    overdue: 'La renovaci\u00f3n venci\u00f3 el {date}',
+    urgent: 'Renueve dentro de {days} d\u00edas',
+    soon: 'Renueve antes del {date}',
+    later: 'Se renueva el {date}',
+    whyItMatters:
+      'La mayor\u00eda de las personas pierden sus beneficios en la renovaci\u00f3n, no al solicitar. Le avisaremos antes de la fecha l\u00edmite.',
+    documentsReady: 'Sus documentos est\u00e1n archivados y listos para reutilizar',
+    documentsMissing: 'Deber\u00e1 agregar documentos otra vez antes de renovar',
+    renewNow: 'Renovar ahora',
+  },
+
   a11y: {
     dismiss: 'Descartar',
     close: 'Cerrar',

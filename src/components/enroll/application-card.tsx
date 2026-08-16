@@ -19,6 +19,8 @@ export type ApplicationCardProps = {
   stage: number;
   /** One-line status note under the rail. */
   note?: string;
+  /** Localized progress announcement for screen readers. */
+  announcement?: string;
 };
 
 /**
@@ -35,6 +37,7 @@ export function ApplicationCard({
   stageLabels,
   stage,
   note,
+  announcement,
 }: ApplicationCardProps) {
   return (
     <Card size="cardLg" style={styles.card}>
@@ -48,7 +51,7 @@ export function ApplicationCard({
         <Badge label={stageLabel} surface={colors.navyTint} color={colors.navy} />
       </View>
 
-      <StageTracker labels={stageLabels} stage={stage} />
+      <StageTracker labels={stageLabels} stage={stage} announcement={announcement} />
 
       {note ? (
         <View style={styles.footer}>

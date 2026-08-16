@@ -106,6 +106,44 @@ function deriveSingleIncomeCap(text) {
   return { annualIncomeCap: annual, statedAs: amount, sourceText: snippet(text, match[0]) };
 }
 
+const MONTHS = ['january','february','march','april','may','june','july','august','september','october','november','december'];
+
+/**
+ * When a programme has to be renewed, read from the City's own wording.
+ *
+ * This matters more than it looks. Reporting on NY benefits finds that two of the commonest
+ * reasons people lose food and health coverage have nothing to do with eligibility — a
+ * recertification notice lost in the mail, or a portal that fails mid-upload. Getting somebody
+ * enrolled and then letting them fall off solves half the problem.
+ *
+ * Only cadences the text actually states are returned. A programme with no renewal language gets
+ * nothing rather than an assumed twelve months, because a made-up deadline is worse than none.
+ */
+function deriveRenewal(text) {
+  if (!text) return null;
+
+  const everyN = text.match(/\b(?:renew|recertif\w*|recert)\w*[^.\n]{0,40}?every\s+(\d{1,2})\s+months?/i);
+  if (everyN) {
+    return { cadenceMonths: Number(everyN[1]), sourceText: snippet(text, everyN[0]) };
+  }
+
+  const annual = text.match(/\b(?:renew|recertif\w*|reapply|re-apply)\w*[^.\n]{0,60}?\b(?:each year|every year|annually|yearly)\b/i);
+  const annualAlt = text.match(/\b(?:each year|every year|annually)\b[^.\n]{0,40}?\b(?:renew|recertif\w*|reapply)/i);
+  const hit = annual ?? annualAlt;
+  if (!hit) return null;
+
+  // "Renew every year by March 15" -- a fixed calendar deadline, not a rolling anniversary.
+  const byDate = text.match(/\bby\s+(January|February|March|April|May|June|July|August|September|October|November|December)\s+(\d{1,2})\b/i);
+
+  return {
+    cadenceMonths: 12,
+    ...(byDate
+      ? { deadlineMonth: MONTHS.indexOf(byDate[1].toLowerCase()) + 1, deadlineDay: Number(byDate[2]) }
+      : {}),
+    sourceText: snippet(text, hit[0]),
+  };
+}
+
 /** Which categories of proof the program asks for, mapped onto our document registry. */
 function deriveDocumentCategories(documentsText) {
   if (!documentsText) return [];
@@ -136,6 +174,17 @@ const derived = catalogue.programs.map((program) => {
   const table = deriveIncomeTable(text);
   const cap = table ? null : deriveSingleIncomeCap(text);
   const documentCategories = deriveDocumentCategories(program.requiredDocumentsText);
+  // Renewal language lives across several prose fields, not just the eligibility block.
+  const renewalText = [
+    program.headsUp,
+    program.description,
+    program.howToApply?.summary,
+    program.howToApply?.online,
+    text,
+  ]
+    .filter(Boolean)
+    .join('\n');
+  const renewal = deriveRenewal(renewalText);
 
   const criteria = {};
   const sources = {};
@@ -178,6 +227,9 @@ const derived = catalogue.programs.map((program) => {
     scorable,
     method: scorable ? 'heuristic' : 'unmatched',
     criteria,
+    // Present only where the City states a cadence. Absence means "we do not know", never
+    // "no renewal needed".
+    renewal: renewal ?? undefined,
     // Only the quoted lines, not the whole eligibility text -- that already ships in
     // programs.runtime.json and duplicating it here would double the bundle cost for nothing.
     sources,
@@ -192,6 +244,7 @@ if (useLlm) {
 
 const scorable = derived.filter((d) => d.scorable).length;
 const withDocs = derived.filter((d) => d.criteria.requiredCategories?.length).length;
+const withRenewal = derived.filter((d) => d.renewal).length;
 
 await writeFile(
   OUT,
@@ -205,5 +258,6 @@ await writeFile(
 console.log(`Derived criteria for ${derived.length} programs`);
 console.log(`  scorable                : ${scorable}`);
 console.log(`  with document categories: ${withDocs}`);
+console.log(`  with a stated renewal   : ${withRenewal}`);
 console.log(`  unmatched (browse only) : ${derived.length - scorable}`);
 console.log(`  written to ${OUT}`);

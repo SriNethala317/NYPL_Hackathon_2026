@@ -1,5 +1,5 @@
 {
-  "derivedAt": "2026-08-16T07:08:02.100Z",
+  "derivedAt": "2026-08-16T12:03:04.940Z",
   "method": "heuristic",
   "count": 97,
   "scorable": 46,
@@ -296,6 +296,10 @@
           "income"
         ]
       },
+      "renewal": {
+        "cadenceMonths": 12,
+        "sourceText": "· Renew your DRIE enrollment each year to keep your rent frozen"
+      },
       "sources": {
         "age": "· You're 18 years old or older"
       },
@@ -311,6 +315,12 @@
         "requiredCategories": [
           "income"
         ]
+      },
+      "renewal": {
+        "cadenceMonths": 12,
+        "deadlineMonth": 3,
+        "deadlineDay": 15,
+        "sourceText": "· Renew every year by March 15. The Department of Finance will send you a renewal application when it is time to renew. If you do not renew, your property taxes could increase significantly."
       },
       "sources": {
         "income": "· The combined income for all owners must be less than or equal to $58,399."
@@ -1316,6 +1326,10 @@
       "scorable": false,
       "method": "unmatched",
       "criteria": {},
+      "renewal": {
+        "cadenceMonths": 12,
+        "sourceText": "· You will need to recertify for SNAP once every year. The SNAP office will mail you a recertification packet for you to complete and mail back to HRA. You can also recertify online on ACCESS HRA. Once you submit your recertification, call 718-SNAP-Now (718-762-7669) for an interview."
+      },
       "sources": {},
       "sourceUrl": "https://a069-access.nyc.gov/ACCESSNYC/application.do"
     },

@@ -23,6 +23,7 @@ export { LanguagePill, type Language, type LanguagePillProps } from './language-
 export { NycLockup, type NycLockupProps, type NycLockupVariant } from './nyc-lockup';
 export { PrivacyNote, type PrivacyNoteProps } from './privacy-note';
 export { ProgramRow, type ProgramRowProps } from './program-row';
+export { RenewalCard, type RenewalCardProps } from './renewal-card';
 export { ScanningIndicator, type ScanningIndicatorProps } from './scanning-indicator';
 export { SplashPanel, type SplashPanelProps } from './splash-panel';
 export { StageTracker, type StageTrackerProps } from './stage-tracker';
