@@ -1,0 +1,6 @@
+node_modules/
+.env
+results/raw/
+results/*.json
+results/report.md
+fixtures/
