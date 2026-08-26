@@ -127,6 +127,25 @@ async function loadTrack(
   }
 }
 
+/**
+ * Collapses a provider error to one readable line.
+ *
+ * A four-model cascade failing on quota produces four near-identical 300-character JSON blobs,
+ * which is four times as much text and no more information than one sentence.
+ */
+function summarise(warning: string): string {
+  const flat = warning.replace(/\s+/g, ' ');
+  const status = flat.match(/returned (\d{3})/)?.[1];
+  const message = flat.match(/"message":\s*"([^"]{0,120})/)?.[1];
+  if (status && message) return `HTTP ${status}: ${message.trim()}`;
+  return flat.length > 160 ? `${flat.slice(0, 160)}…` : flat;
+}
+
+/** Whether a failure means "out of quota" rather than "went too fast" or "one bad request". */
+function isExhausted(warnings: readonly string[]): boolean {
+  return warnings.some((w) => /429/.test(w) && /quota|billing/i.test(w));
+}
+
 type Fixture = { name: string; image: string; truth: W2Fields };
 
 /**
@@ -205,9 +224,26 @@ async function main(): Promise<void> {
 
   const rawDir = join(options.out, 'raw');
 
+  /*
+   * An engine that has run out of quota is done for this run.
+   *
+   * Without this, a Gemini daily cap hit on fixture five means twelve more fixtures each try four
+   * models and fail four times — 48 pointless calls, several minutes of waiting, and a wall of
+   * identical errors to read through. The quota does not come back within a run, so the only thing
+   * continuing buys is a longer way to find out.
+   */
+  const exhausted = new Map<string, string>();
+
   for (const fixture of fixtures) {
     for (const { track, extractor } of extractors) {
       const label = `${extractor.name} on ${fixture.name}`;
+
+      const already = exhausted.get(extractor.name);
+      if (already !== undefined) {
+        skipped.push({ engine: extractor.name, reason: `${fixture.name}: ${already}` });
+        continue;
+      }
+
       try {
         const run = await runOrReplay(
           { rawDir, fixture: fixture.name, engine: extractor.name, mode: options.mode },
@@ -231,7 +267,12 @@ async function main(): Promise<void> {
         console.log(`  ${state}  ${label}`);
         if (run.result.failed === true) {
           // Not cached, so the next run retries it. Say so, or a red line looks permanent.
-          console.log(`          ${run.result.warnings[0] ?? 'no detail'} (will retry next run)`);
+          const detail = summarise(run.result.warnings[0] ?? 'no detail');
+          console.log(`          ${detail} — not cached, will retry next run`);
+          if (isExhausted(run.result.warnings)) {
+            exhausted.set(extractor.name, 'skipped: engine out of quota for this run');
+            console.log(`          quota exhausted; skipping ${extractor.name} for the rest of this run`);
+          }
         }
       } catch (error) {
         // An engine that throws is a bug in that engine, not a reason to lose the whole run.
