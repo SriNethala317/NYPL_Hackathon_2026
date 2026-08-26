@@ -450,13 +450,90 @@ ${stateRows(p.state_items)}`;
 
 /* ---------------------------------------------------------------- variants */
 
+/**
+ * Capture degradation, applied to the rendered page with ImageMatick rather than CSS.
+ *
+ * The first version of this file used CSS filters, and the corpus it produced had no
+ * discriminating power whatsoever: Gemini scored 100% on every field of every fixture including
+ * the ones labelled "blur" and "glare". Looking at the images explained why — `filter: blur(1.3px)`
+ * on a 1000px render leaves every digit perfectly legible. The corpus was measuring nothing.
+ *
+ * A CSS filter is the wrong tool because it models the wrong thing. A phone photograph of a piece
+ * of paper is not a blurred screenshot; it is an off-axis projection of a slightly non-flat surface
+ * under uneven light, sampled by a noisy sensor and then thrown through a lossy codec. Those
+ * degradations compound, and it is the compounding that defeats OCR. ImageMagick can express all of
+ * it; CSS can express none of it.
+ *
+ * Each entry is the argument list applied to the clean render. `%w`/`%h` are substituted with the
+ * page's real dimensions so the perspective corners scale with the layout.
+ */
+/**
+ * Capture degradation, applied to the rendered page with ImageMagick rather than CSS.
+ *
+ * The first version of this file used CSS filters, and the corpus it produced had no
+ * discriminating power whatsoever: Gemini scored 100% on every field of every fixture, including
+ * the ones labelled "blur" and "glare". Looking at the images explained it — `filter: blur(1.3px)`
+ * on a 1000px render leaves every digit perfectly legible. The corpus was measuring nothing.
+ *
+ * A CSS filter is the wrong tool because it models the wrong thing. A phone photograph of a piece
+ * of paper is not a blurred screenshot; it is an off-axis projection of a slightly non-flat surface
+ * under uneven light, sampled by a noisy sensor and then put through a lossy codec. Those
+ * degradations compound, and the compounding is what defeats an extractor. ImageMagick can express
+ * all of it and CSS can express none of it.
+ *
+ * Geometry is computed here rather than with ImageMagick's `%{...}` arithmetic, which this build
+ * refuses to interpolate inside `-distort` arguments.
+ */
 const VARIANTS = {
-  clean: '',
-  blur: 'body{filter:blur(1.3px)}',
-  skew: 'body{transform:rotate(-2.1deg) scale(.94);transform-origin:center}',
-  glare:
-    'body{position:relative}body::after{content:"";position:fixed;inset:0;background:radial-gradient(circle at 62% 26%,rgba(255,255,255,.94) 0,rgba(255,255,255,.55) 20%,transparent 46%);pointer-events:none}',
-  lowlight: 'body{filter:brightness(.6) contrast(.83)}',
+  // The control: a flatbed scan, the best input this app will ever get.
+  clean: () => [],
+
+  // Defocus. The app's own OCR measurements found this to be the accuracy cliff.
+  blur: () => ['-blur', '0x2.2', '-quality', '75'],
+
+  // Held at an angle. Perspective rather than rotation, because a phone is not a scanner on a
+  // swivel — the far edge of the page really is further away and really is smaller.
+  skew: (w, h) => [
+    '-background', '#c9c6bd',
+    '-distort', 'Perspective',
+    `0,0 30,16  ${w},0 ${w - 11},38  ${w},${h} ${w - 35},${h - 13}  0,${h} 14,${h - 30}`,
+    '-blur', '0x1.1',
+    '-quality', '70',
+  ],
+
+  // A window or ceiling light reflecting off the paper, washing out one corner.
+  glare: (w, h) => [
+    '(', '+clone', '-fill', 'black', '-colorize', '100',
+    '-fill', 'white', '-draw',
+    `circle ${Math.round(w * 0.62)},${Math.round(h * 0.24)} ${Math.round(w * 0.62)},${Math.round(h * 0.02)}`,
+    '-blur', '0x90', ')',
+    '-compose', 'screen', '-composite',
+    '-quality', '70',
+  ],
+
+  // A dim room. The killer is sensor noise, not the darkness itself.
+  lowlight: () => [
+    '-brightness-contrast', '-32x-18',
+    '-attenuate', '0.7', '+noise', 'Gaussian',
+    '-quality', '60',
+  ],
+
+  /**
+   * The realistic worst case, and the one that matters most.
+   *
+   * Everything at once: off-axis, out of focus, noisy, unevenly lit, then compressed the way a
+   * messaging app compresses it. This is closest to what somebody standing in a benefits office
+   * actually sends, and it is the fixture most likely to separate the two tracks.
+   */
+  phone: (w, h) => [
+    '-background', '#c9c6bd',
+    '-distort', 'Perspective',
+    `0,0 26,14  ${w},0 ${w - 9},34  ${w},${h} ${w - 31},${h - 11}  0,${h} 12,${h - 26}`,
+    '-blur', '0x1.6',
+    '-attenuate', '0.45', '+noise', 'Gaussian',
+    '-brightness-contrast', '-12x-8',
+    '-quality', '32',
+  ],
 };
 
 /* ---------------------------------------------------------------- fixtures */
@@ -473,14 +550,14 @@ const FIXTURES = [
     id: 'irs-redink',
     person: 'maria',
     layout: irsRedInk,
-    variants: ['clean', 'blur', 'skew', 'glare', 'lowlight'],
+    variants: ['clean', 'blur', 'skew', 'glare', 'lowlight', 'phone'],
     size: '1000,800',
   },
   {
     id: 'laser-4up',
     person: 'daniel',
     layout: laser4Up,
-    variants: ['clean', 'skew'],
+    variants: ['clean', 'skew', 'phone'],
     size: '1000,620',
     // Box 14 is the one thing this condensed sheet genuinely has no room for.
     omits: ['box14_other'],
@@ -489,14 +566,14 @@ const FIXTURES = [
     id: 'adp',
     person: 'priya',
     layout: (p) => payrollProvider(p, 'ADP', '#C8102E'),
-    variants: ['clean', 'blur', 'glare'],
+    variants: ['clean', 'blur', 'glare', 'phone'],
     size: '1000,470',
   },
   {
     id: 'gusto',
     person: 'tomas',
     layout: (p) => payrollProvider(p, 'gusto', '#F45D48'),
-    variants: ['clean', 'lowlight'],
+    variants: ['clean', 'lowlight', 'phone'],
     size: '1000,470',
   },
   {
@@ -526,28 +603,39 @@ async function main() {
     const body = fixture.layout(person);
     const truth = truthFor(person, fixture.omits ?? [], fixture.truthOverrides ?? {});
 
+    // Chrome runs once per layout; the variants are derived from that one render. Cheaper, and it
+    // guarantees every variant of a fixture is a degradation of the same pixels rather than a
+    // separate render that might differ in some way nobody noticed.
+    const htmlPath = join(OUT, `${fixture.id}.html`);
+    const cleanPath = join(OUT, `${fixture.id}.clean.png`);
+
+    await writeFile(htmlPath, PAGE(body, fixture.css ?? ''), 'utf8');
+    await run(CHROME, [
+      '--headless',
+      '--disable-gpu',
+      '--no-sandbox',
+      '--hide-scrollbars',
+      `--window-size=${fixture.size ?? '1000,900'}`,
+      '--virtual-time-budget=3000',
+      `--screenshot=${cleanPath}`,
+      `file://${htmlPath}`,
+    ]);
+
     for (const variant of fixture.variants) {
       const name = `w2-${fixture.id}-${variant}`;
-      const css = `${VARIANTS[variant]}${fixture.css ?? ''}`;
-      const htmlPath = join(OUT, `${name}.html`);
-      const pngPath = join(OUT, `${name}.png`);
+      // Clean stays a PNG; every degraded variant becomes a JPEG, because a lossy codec is part of
+      // what the degradation is modelling.
+      const outPath = join(OUT, `${name}.${variant === 'clean' ? 'png' : 'jpg'}`);
 
-      await writeFile(htmlPath, PAGE(body, css), 'utf8');
-      await run(CHROME, [
-        '--headless',
-        '--disable-gpu',
-        '--no-sandbox',
-        '--hide-scrollbars',
-        `--window-size=${fixture.size ?? '1000,900'}`,
-        '--virtual-time-budget=3000',
-        `--screenshot=${pngPath}`,
-        `file://${htmlPath}`,
-      ]);
-
+      const [w, h] = (fixture.size ?? '1000,900').split(',').map(Number);
+      await run('magick', [cleanPath, ...VARIANTS[variant](w, h), outPath]);
       await writeFile(join(OUT, `${name}.truth.json`), `${JSON.stringify(truth, null, 2)}\n`, 'utf8');
+
       count += 1;
-      console.log(`  ${name}`);
+      console.log(`  ${name.padEnd(26)} ${variant === 'clean' ? '(control)' : ''}`);
     }
+
+    await rm(cleanPath, { force: true });
   }
 
   console.log(`\n${count} fixtures in ${OUT}`);
