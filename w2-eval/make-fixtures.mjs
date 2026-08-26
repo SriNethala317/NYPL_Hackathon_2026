@@ -203,9 +203,19 @@ const PEOPLE = {
   },
 };
 
-/** Fills the schema's absent fields so a truth file always parses. */
-function truthFor(person, overrides = {}) {
-  return {
+/**
+ * Fills the schema's absent fields so a truth file always parses, then blanks anything the chosen
+ * layout does not actually print.
+ *
+ * `omits` is the important half and it was learned the hard way. The first version of this file
+ * built truth from the person alone, so the 4-up fixture claimed a control number and a ticked
+ * Box 13 retirement plan that its layout never renders. Gemini correctly returned null for both and
+ * was scored as having missed them — the corpus was penalising an engine for being right, and
+ * rewarding one that guessed. Ground truth describes the image on the page, never the employee
+ * behind it.
+ */
+function truthFor(person, omits = [], overrides = {}) {
+  const truth = {
     employee_ssn: null,
     employer_ein: null,
     employer_name: null,
@@ -234,6 +244,9 @@ function truthFor(person, overrides = {}) {
     ...person,
     ...overrides,
   };
+
+  for (const field of omits) truth[field] = Array.isArray(truth[field]) ? [] : null;
+  return truth;
 }
 
 /* ----------------------------------------------------------------- layouts */
@@ -356,7 +369,11 @@ function laser4Up(p) {
     <div><span>5 Medicare wages and tips</span><b>${money(p.box5_medicare_wages)}</b></div>
     <div><span>6 Medicare tax withheld</span><b>${money(p.box6_medicare_tax)}</b></div>
   </div>
+  <div class="mini"><span>d Control no.</span><b>${p.control_number ?? ''}</b></div>
   <div class="mini"><span>12</span><b>${p.box12.map((e) => `${e.code} ${e.amount}`).join('  ') || ''}</b></div>
+  <div class="mini"><span>13</span><b><span class="cb">${p.box13_statutory_employee ? 'X' : ''}</span>Stat
+    <span class="cb">${p.box13_retirement_plan ? 'X' : ''}</span>Ret. plan
+    <span class="cb">${p.box13_third_party_sick ? 'X' : ''}</span>Sick pay</b></div>
   <table class="st">${stateRows(p.state_items, false)}</table>
 </div>`;
 
@@ -419,7 +436,11 @@ body{font-size:11px}
     <div style="font-size:9px;font-weight:700;margin-bottom:3px">12 Codes</div>
     ${p.box12.length ? box12Rows(p.box12) : '<div style="font-size:10px;color:#889">None reported</div>'}
     <div style="font-size:9px;font-weight:700;margin:7px 0 3px">13</div>
-    <div style="font-size:10px"><span class="cb">${p.box13_retirement_plan ? 'X' : ''}</span>Retirement plan</div>
+    <div style="font-size:10px">
+      <span class="cb">${p.box13_statutory_employee ? 'X' : ''}</span>Statutory employee<br>
+      <span class="cb">${p.box13_retirement_plan ? 'X' : ''}</span>Retirement plan<br>
+      <span class="cb">${p.box13_third_party_sick ? 'X' : ''}</span>Third-party sick pay
+    </div>
     <div style="font-size:9px;font-weight:700;margin:7px 0 3px">14 Other</div>
     <div style="font-size:10px">${p.box14_other.map((e) => `${e.label} ${e.amount}`).join('<br>') || '—'}</div>
   </div>
@@ -455,20 +476,28 @@ const FIXTURES = [
     variants: ['clean', 'blur', 'skew', 'glare', 'lowlight'],
     size: '1000,800',
   },
-  { id: 'laser-4up', person: 'daniel', layout: laser4Up, variants: ['clean', 'skew'], size: '1000,540' },
+  {
+    id: 'laser-4up',
+    person: 'daniel',
+    layout: laser4Up,
+    variants: ['clean', 'skew'],
+    size: '1000,620',
+    // Box 14 is the one thing this condensed sheet genuinely has no room for.
+    omits: ['box14_other'],
+  },
   {
     id: 'adp',
     person: 'priya',
     layout: (p) => payrollProvider(p, 'ADP', '#C8102E'),
     variants: ['clean', 'blur', 'glare'],
-    size: '1000,420',
+    size: '1000,470',
   },
   {
     id: 'gusto',
     person: 'tomas',
     layout: (p) => payrollProvider(p, 'gusto', '#F45D48'),
     variants: ['clean', 'lowlight'],
-    size: '1000,420',
+    size: '1000,470',
   },
   {
     id: 'crop',
@@ -478,7 +507,8 @@ const FIXTURES = [
     // Cuts the page below box 14. Boxes 15-20 are absent from the image and from the truth, so
     // this is the fixture that scores an engine on abstaining rather than on reading.
     size: '1000,660',
-    truthOverrides: { state_items: [] },
+    // The page is cut below box 14, so boxes 15-20 are genuinely absent from the image.
+    omits: ['state_items'],
   },
 ];
 
@@ -494,7 +524,7 @@ async function main() {
   for (const fixture of FIXTURES) {
     const person = PEOPLE[fixture.person];
     const body = fixture.layout(person);
-    const truth = truthFor(person, fixture.truthOverrides ?? {});
+    const truth = truthFor(person, fixture.omits ?? [], fixture.truthOverrides ?? {});
 
     for (const variant of fixture.variants) {
       const name = `w2-${fixture.id}-${variant}`;

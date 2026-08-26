@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import type { Extractor, ExtractionResult } from '../core/extractor.ts';
 import { emptyFields, W2Fields } from '../core/schema.ts';
 import { runOrReplay } from './cache.ts';
+import { describeKeys, loadEnv } from './env.ts';
 import { renderReport, type EngineRun } from './report.ts';
 import { scoreExtraction } from './score.ts';
 
@@ -37,6 +38,7 @@ type Options = {
   vlm?: string;
   ocr?: string;
   resolutions?: string[];
+  selfConsistency: boolean;
   mode: Mode;
 };
 
@@ -63,6 +65,7 @@ function parseArgs(argv: readonly string[]): Options {
     vlm: get('--vlm'),
     ocr: get('--ocr'),
     resolutions: list('--resolution').length > 0 ? list('--resolution') : undefined,
+    selfConsistency: argv.includes('--self-consistency'),
     mode: argv.includes('--no-cache') ? 'no-cache' : argv.includes('--replay') ? 'replay' : 'normal',
   };
 }
@@ -163,7 +166,15 @@ async function loadFixtures(dir: string): Promise<{ fixtures: Fixture[]; problem
 }
 
 async function main(): Promise<void> {
+  await loadEnv();
+
   const options = parseArgs(process.argv.slice(2));
+
+  // Printed before a single fixture is touched: finding out a key is missing after twenty minutes
+  // of API calls is a bad way to find out.
+  console.log('Configuration:');
+  for (const line of describeKeys()) console.log(line);
+  console.log('');
   const runs: EngineRun[] = [];
   const skipped: { engine: string; reason: string }[] = [];
 
