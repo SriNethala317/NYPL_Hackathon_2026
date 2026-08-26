@@ -28,7 +28,7 @@ If the QR code shows `127.0.0.1`, your phone cannot reach it — use `npm start 
 |---|---|
 | `npm start` | Expo dev server |
 | `npm run ios` / `android` / `web` | Open a platform directly |
-| `npm test` | Jest — 213 tests |
+| `npm test` | Jest — 306 tests across 22 suites |
 | `npm run lint` | ESLint via `expo lint` |
 | `npx tsc --noEmit` | Typecheck (strict) |
 | `npx expo export --platform web` | Static-renders every route; a render crash fails the build |
@@ -81,9 +81,21 @@ Run it: `npx jest ocr-accuracy`. The corpus (`docs/ocr-corpus/`, built by
 the exact data this app exists to protect.
 
 Blur is the cliff, and it is the argument for a vision model: one call classifies, reads and
-cleans, where OCR plus regex cannot. That path is wired and waits on a key (see below). Without
-one, extraction runs on Tesseract at the accuracy above, with low-confidence values flagged and
-forced through user confirmation.
+cleans, where OCR plus regex cannot. Gemini vision is wired and switches on the moment a key is
+set (see below).
+
+Which reader runs is decided by the platform rather than by preference — `ocr-provider.ts` takes
+the first that can actually run:
+
+| Platform | Reader | Does the image leave the device? |
+|---|---|---|
+| Web | tesseract.js, inside the browser | No |
+| Phone, Gemini key set | Gemini vision | Yes — the privacy screen names Google |
+| Phone, no key | none, and it says so | No |
+
+The phone has no free option, because **tesseract.js cannot run in Expo Go** — both of its workers
+need APIs Hermes does not provide. Without a key the upload flow admits it and falls through to
+typing the details in, rather than appearing to read and returning nothing.
 
 The corpus includes a document containing *"IGNORE ALL PREVIOUS INSTRUCTIONS"*. A test asserts the
 real value survives — document text is data, never instructions.
@@ -100,7 +112,8 @@ node scripts/inspect-form.mjs <pdf-url>   # dump a form's real field names
 Mappings in `templates.ts` are written against those names, never guessed — a wrong field name
 produces a PDF that looks filled and silently is not. A test asserts every mapped field still
 exists on the real PDF, so an agency reissuing a form fails the build instead of quietly
-submitting half-empty applications.
+submitting half-empty applications. Three forms are mapped this way: **DRIE**, **SCRIE** and
+**IDNYC**.
 
 **What it will not do is submit for you.** There is no public API for filing a NYC benefits
 application; ACCESS HRA is client-facing only. The only way to automate it would be to hold
@@ -145,8 +158,9 @@ audience the data story *is* the product.
 - **The `/privacy` screen is generated from those registries**, so the lists cannot drift into
   being untrue. `privacy-facts.test.ts` fails the build if a sensitive field is added without
   being disclosed.
-- **The copy describes what the code does today, in the present tense.** There is no upload, no
-  storage and no encryption in this version, and the screen says so rather than promising them.
+- **The copy describes what the code does today, in the present tense** — and changes with the
+  build. Configure Gemini and the screen stops saying the image never leaves your phone and starts
+  naming Google, because `documentDestination()` reads the provider that will actually run.
 
 Full reasoning and the NY-specific precedents: `docs/architecture-review.md`.
 Pipeline design: `docs/upload-pipeline.md`.
@@ -156,7 +170,7 @@ Pipeline design: `docs/upload-pipeline.md`.
 Nothing is required to run the app. Each of these upgrades a path that already works:
 
 ```bash
-EXPO_PUBLIC_GEMINI_API_KEY=   # free tier; enables vision extraction and programme explanations
+EXPO_PUBLIC_GEMINI_API_KEY=   # free tier; the only way a phone can read a document at all
 EXPO_PUBLIC_SUPABASE_URL=     # persistence; until set, state is in-memory and lost on restart
 EXPO_PUBLIC_SUPABASE_ANON_KEY=
 ```
@@ -173,25 +187,48 @@ src/
   components/ui/      primitives (Text, Button, Card, Sheet, Icon, …)
   components/enroll/  domain components (ProgramRow, StageTracker, TabScreen, DetailScreen, …)
   data/           catalogue, eligibility, document registry, reconciliation, privacy facts
-  features/       extraction (OCR + field matchers), forms (PDF fill + delivery)
-  state/          one reducer, all app state
+  features/       extraction (OCR + field matchers), forms (PDF fill + delivery),
+                  backend (Supabase auth, profile repository)
+  state/          one reducer, all app state; persistence.ts syncs it
   i18n/           en/es dictionaries; every user-visible string lives here
   theme/          design tokens — one fixed light palette, no dark mode
 ```
 
 ## What works, and what does not
 
-**Works:** filling the real DRIE government PDF from your profile and sharing it · all 97
-programmes browsable and 46 screened against real criteria · document upload
-with classification, extraction and reconciliation · conflict handling when two documents disagree
-· renewal reminders quoting the agency's own deadline · the full apply → review → submit flow ·
-EN/ES · device lock · privacy screen.
+**Works:** filling the real DRIE, SCRIE and IDNYC government PDFs from your profile and sharing
+them · all 97 programmes browsable and 49 screened against real criteria · document upload from
+the camera or the photo library, classified, read and reconciled through the live extraction
+chain · conflict handling when two documents disagree · renewal reminders quoting the agency's own
+deadline · the full apply → review → submit flow · EN/ES · device lock · privacy screen.
 
-**Mocked:** `store.upload()` still returns fixture values rather than calling the extraction
-chain — the chain itself is real and tested, but is not wired to the camera yet. There is no
-persistence and no accounts; everything resets on restart.
+**Depends on what you configure.** Both keys are optional and both change what the app honestly
+is:
 
-**Known gaps:** programme names and descriptions are English-only at source, so they do not
-translate. NYC Local Law 30 expects the top ten citywide languages — two is hackathon scope, not a
-finished position. The `/privacy` screen's "delete everything" clears in-memory state only,
-because there is nowhere else for it to live yet.
+- `EXPO_PUBLIC_SUPABASE_*` — documents, extracted fields and applications are saved and pulled
+  back on the next launch. Without it, state lives in memory for the session and is gone on
+  restart. Saving is fire-and-forget by design: a failed write costs you the convenience next
+  time, never the form you came to print.
+- `EXPO_PUBLIC_GEMINI_API_KEY` — a phone can read a document. Without it only the web build can,
+  and the phone asks you to type the details in instead.
+
+**Simulated:** "Load sample" and the demo buttons fabricate an applicant so the failure states can
+be shown without a camera. Those documents are namespaced `sample-` and the first real upload
+clears them, so an invented passport cannot outrank a real driver's licence.
+
+**Known gaps:**
+
+- **The privacy screen has not caught up with persistence, and it is the gap that matters.**
+  Adding Supabase gave the app somewhere to keep data and the `/privacy` screen was never told.
+  Two consequences, both of which make a stated promise untrue when a project is configured:
+  "Delete everything" runs `purgeGeneratedForms()` and `store.reset()` — disk and memory — while
+  `eraseEverything()`, which deletes the rows *and* signs out of the Keychain session so a
+  reinstall is not handed back the same account, sits written and uncalled in
+  `src/state/persistence.ts`; and "Where it goes" still reads "held only while the app is open and
+  gone when you close it", because that copy branches on `documentDestination()` and never asks
+  `persistenceAvailable()`. Fix both together, or the screen keeps disclosing the wrong app.
+- Three of 97 programmes have a mapped fillable form. The dataset publishes a PDF link for 10
+  (several already dead, some flat scans); every other programme links out to the agency's own
+  apply page.
+- Programme names and descriptions are English-only at source, so they do not translate. NYC Local
+  Law 30 expects the top ten citywide languages — two is hackathon scope, not a finished position.
