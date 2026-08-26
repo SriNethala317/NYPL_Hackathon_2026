@@ -49,7 +49,16 @@ export async function readCached(
 }
 
 /**
- * Writes one run to the cache.
+ * Writes one run to the cache, unless the engine never got an answer.
+ *
+ * Not caching failures is the whole point of the `failed` flag. A quota error, a 503, a key that
+ * was not exported — cache one of those and that fixture is a permanent zero: every later run
+ * replays the failure without retrying, and the report shows an engine scoring badly for a reason
+ * that was fixed an hour ago. This was not hypothetical. Three fixtures hit a Gemini quota cap,
+ * were cached as all-nulls, and then replayed as all-nulls through two subsequent runs after the
+ * underlying problem was resolved.
+ *
+ * "Read the page and legitimately found nothing" is a different thing and is cached normally.
  *
  * `redactForOutput` runs here rather than in each engine, because a boundary every track has to
  * remember to honour is not a boundary. This is the only place an `ExtractionResult` reaches
@@ -60,12 +69,15 @@ export async function writeCached(
   fixture: string,
   engine: string,
   result: ExtractionResult,
-): Promise<void> {
+): Promise<boolean> {
+  if (result.failed === true) return false;
+
   const path = pathFor(rawDir, fixture, engine);
   await mkdir(dirname(path), { recursive: true });
 
   const safe: ExtractionResult = { ...result, fields: redactForOutput(result.fields) };
   await writeFile(path, `${JSON.stringify(safe, null, 2)}\n`, 'utf8');
+  return true;
 }
 
 /**

@@ -227,7 +227,12 @@ async function main(): Promise<void> {
           result: run.result,
           fromCache: run.fromCache === true,
         });
-        console.log(`  ${run.fromCache ? 'cached' : 'ran   '}  ${label}`);
+        const state = run.result.failed === true ? 'FAILED' : run.fromCache ? 'cached' : 'ran   ';
+        console.log(`  ${state}  ${label}`);
+        if (run.result.failed === true) {
+          // Not cached, so the next run retries it. Say so, or a red line looks permanent.
+          console.log(`          ${run.result.warnings[0] ?? 'no detail'} (will retry next run)`);
+        }
       } catch (error) {
         // An engine that throws is a bug in that engine, not a reason to lose the whole run.
         skipped.push({ engine: extractor.name, reason: `${fixture.name}: threw — ${String(error)}` });
