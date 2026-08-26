@@ -39,6 +39,18 @@ export interface ExtractionResult {
 
   /** Validator failures, retries, truncation, rate limits. Everything that went sideways. */
   warnings: string[];
+
+  /**
+   * True when the engine never got an answer at all — the API refused, the key was missing, the
+   * JSON would not parse twice running.
+   *
+   * Distinct from "read the page and found nothing", which is a legitimate result worth caching
+   * and scoring. This flag exists so the cache can refuse to remember a transient failure: a
+   * quota error cached once is a permanent zero for that fixture, and the run after it silently
+   * replays the failure instead of retrying. Optional, so an engine that never fails need not
+   * think about it.
+   */
+  failed?: boolean;
 }
 
 export interface Extractor {

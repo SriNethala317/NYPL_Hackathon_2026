@@ -103,6 +103,39 @@ test('changing the engine config produces a new cache entry, not a stale hit', a
   });
 });
 
+test('a failed run is never cached, so the next run retries it', async () => {
+  await inTempDir(async (dir) => {
+    // Measured, not imagined: three fixtures hit a Gemini quota cap, were cached as all-nulls, and
+    // replayed as all-nulls through two later runs after the quota had recovered.
+    const failure = { ...resultWith({}), failed: true, warnings: ['429 quota exceeded'] };
+
+    const wrote = await writeCached(dir, 'f', 'e', failure);
+    assert.equal(wrote, false);
+    assert.equal(await readCached(dir, 'f', 'e'), null);
+
+    let calls = 0;
+    await runOrReplay({ rawDir: dir, fixture: 'f', engine: 'e', mode: 'normal' }, async () => {
+      calls += 1;
+      return failure;
+    });
+    await runOrReplay({ rawDir: dir, fixture: 'f', engine: 'e', mode: 'normal' }, async () => {
+      calls += 1;
+      return resultWith({ box1_wages: '27720.00' });
+    });
+
+    assert.equal(calls, 2, 'the second run must retry rather than replay the failure');
+    assert.equal((await readCached(dir, 'f', 'e'))?.fields.box1_wages, '27720.00');
+  });
+});
+
+test('an engine that read the page and found nothing is still cached', async () => {
+  await inTempDir(async (dir) => {
+    // A legitimate all-nulls read is a result, not a failure, and re-calling for it wastes quota.
+    assert.equal(await writeCached(dir, 'f', 'e', resultWith({})), true);
+    assert.notEqual(await readCached(dir, 'f', 'e'), null);
+  });
+});
+
 test('a cache miss is a normal state, not a failure', async () => {
   await inTempDir(async (dir) => {
     assert.equal(await readCached(dir, 'never-written', 'nobody'), null);
