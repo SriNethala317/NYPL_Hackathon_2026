@@ -126,7 +126,12 @@ function createExtractor(provider: VlmProvider, resolution: Resolution, selfCons
   };
 }
 
-/** All-nulls plus an explanation. Never throws; the runner needs a result either way. */
+/**
+ * All-nulls plus an explanation. Never throws; the runner needs a result either way.
+ *
+ * `failed: true` is what keeps this out of the cache. Without it a quota error becomes a permanent
+ * zero for that fixture — see `harness/cache.ts`.
+ */
 function failed(engine: string, started: number, warnings: string[]): ExtractionResult {
   return {
     fields: emptyFields(),
@@ -136,6 +141,7 @@ function failed(engine: string, started: number, warnings: string[]): Extraction
     engine,
     raw: null,
     warnings,
+    failed: true,
   };
 }
 
