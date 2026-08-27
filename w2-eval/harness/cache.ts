@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 
 import { redactForOutput } from '../core/schema.ts';
@@ -86,6 +86,45 @@ export async function writeCached(
  * `--no-cache` forces a fresh call; `--replay` refuses to call out at all and scores only what is
  * already on disk, which is what you want when iterating on the scorer.
  */
+/**
+ * Every run on disk, as (fixture, engine, result).
+ *
+ * Reads the files rather than recomputing keys, because the directory name is the *sanitised*
+ * engine string — `track-b_gemini_x` for an engine actually called `track-b:gemini:x` — and
+ * hashing the sanitised form finds nothing. Each file carries its own engine name; that is the
+ * authoritative one.
+ */
+export async function allCached(
+  rawDir: string,
+): Promise<{ fixture: string; engine: string; result: ExtractionResult }[]> {
+  const out: { fixture: string; engine: string; result: ExtractionResult }[] = [];
+  let dirs: string[];
+  try {
+    dirs = await readdir(rawDir);
+  } catch {
+    return out;
+  }
+
+  for (const dir of dirs) {
+    let files: string[];
+    try {
+      files = await readdir(join(rawDir, dir));
+    } catch {
+      continue; // A file rather than an engine directory.
+    }
+    for (const file of files) {
+      try {
+        const result = JSON.parse(await readFile(join(rawDir, dir, file), 'utf8')) as ExtractionResult;
+        out.push({ fixture: file.split('.')[0]!, engine: result.engine ?? dir, result });
+      } catch {
+        // A corrupt cache entry is not worth failing a whole re-score over.
+      }
+    }
+  }
+
+  return out;
+}
+
 export async function runOrReplay(
   options: {
     rawDir: string;

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { emptyFields, W2Fields } from '../core/schema.ts';
+import { annualIncomeFrom, emptyFields, W2Fields } from '../core/schema.ts';
 import { accuracy, byTier, calibration, composite, scoreExtraction, tally } from './score.ts';
 
 /**
@@ -179,6 +179,50 @@ test('Box 5 is tier one, alongside the other figures a screener depends on', () 
   assert.ok(critical.includes('box5_medicare_wages'));
   assert.ok(critical.includes('box1_wages'));
   assert.ok(critical.includes('tax_year'));
+});
+
+test('screener scope measures only what the app can consume', () => {
+  // Gemini scored 92% over the whole schema and 100% here; qwen 47% and 82%. The difference lives
+  // entirely in fields nothing downstream reads, so ranking on the full schema ranks the wrong
+  // thing. This asserts the scope actually narrows to those fields and no others.
+  const scores = scoreExtraction(truth(), truth(), confident(), 'screener');
+  assert.deepEqual(
+    scores.map((s) => s.field).sort(),
+    ['box1_wages', 'box5_medicare_wages', 'employee_address', 'employee_name', 'tax_year'],
+  );
+
+  // An engine that fumbles box 14 and nails box 5 is not penalised by this scope.
+  const noisy = truth({ box14_other: [{ label: 'INVENTED', amount: '1.00' }] });
+  assert.equal(tally(scoreExtraction(noisy, truth(), confident(), 'screener')).hallucinated, 0);
+  assert.ok(tally(scoreExtraction(noisy, truth(), confident(), 'all')).hallucinated > 0);
+});
+
+test('the income figure is Box 5, falling back to Box 1', () => {
+  assert.equal(annualIncomeFrom(truth()), '29000.00');
+
+  // Box 1 understates gross by the amount of any pre-tax deferral, so it is the fallback and not
+  // the first choice -- but it beats returning nothing.
+  assert.equal(annualIncomeFrom(truth({ box5_medicare_wages: null })), '27720.00');
+  assert.equal(annualIncomeFrom(truth({ box5_medicare_wages: null, box1_wages: null })), null);
+});
+
+test('a W-2 income figure is annual, and the app stores monthly', () => {
+  /*
+   * The trap this guards. `income` is documented as gross MONTHLY
+   * (src/data/profile-fields.ts:85) and is multiplied by 12 at the eligibility boundary
+   * (src/data/eligibility.ts:75-82). Box 5 is ANNUAL. Writing it through unconverted turns
+   * $29,000 into $348,000 of assessed income -- over every cap, hiding every programme, and
+   * invisible to anyone downstream.
+   */
+  const annual = Number(annualIncomeFrom(truth()));
+  assert.equal(annual, 29000);
+
+  const monthly = annual / 12;
+  assert.equal(Math.round(monthly * 12), annual, 'the round trip must return the annual figure');
+
+  const unconverted = annual * 12;
+  assert.equal(unconverted, 348_000);
+  assert.notEqual(unconverted, annual);
 });
 
 test('calibration separates a confident wrong answer from a hesitant one', () => {

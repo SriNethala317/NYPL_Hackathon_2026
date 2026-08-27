@@ -29,6 +29,7 @@ export type WarningCode =
   | 'ss-tax-mismatch'
   | 'medicare-tax-mismatch'
   | 'ss-wage-base-exceeded'
+  | 'ss-tax-ceiling-exceeded'
   | 'ss-wages-below-box1'
   | 'medicare-wages-below-box1'
   | 'bad-amount-format'
@@ -42,6 +43,23 @@ export const TOLERANCE = 0.02;
 
 export const SS_RATE = 0.062;
 export const MEDICARE_RATE = 0.0145;
+
+/**
+ * Additional Medicare Tax: 0.9% on wages above the threshold, employee-side only.
+ *
+ * Without this the Box 5/Box 6 check fires on every high earner — a correctly-read W-2 above the
+ * threshold does not satisfy `box6 = box5 × 1.45%`, it satisfies `1.45% + 0.9% on the excess`.
+ * Treating that as a misread would flag exactly the households whose income figure matters most.
+ */
+export const ADDITIONAL_MEDICARE_RATE = 0.009;
+export const ADDITIONAL_MEDICARE_THRESHOLD = 200_000;
+
+/** Expected Medicare withholding for a given Medicare wage figure. */
+export function expectedMedicareTax(wages: number): number {
+  const base = wages * MEDICARE_RATE;
+  const excess = Math.max(0, wages - ADDITIONAL_MEDICARE_THRESHOLD);
+  return base + excess * ADDITIONAL_MEDICARE_RATE;
+}
 
 /**
  * The Social Security wage base, per year.
@@ -152,14 +170,16 @@ function checkPayrollArithmetic(fields: W2Fields, warnings: Warning[]): void {
     {
       wages: 'box3_ss_wages',
       tax: 'box4_ss_tax',
-      rate: SS_RATE,
+      expected: (w: number) => w * SS_RATE,
+      describe: '6.2%',
       code: 'ss-tax-mismatch' as const,
       label: 'Social Security',
     },
     {
       wages: 'box5_medicare_wages',
       tax: 'box6_medicare_tax',
-      rate: MEDICARE_RATE,
+      expected: expectedMedicareTax,
+      describe: '1.45% (plus 0.9% above 200,000)',
       code: 'medicare-tax-mismatch' as const,
       label: 'Medicare',
     },
@@ -170,13 +190,13 @@ function checkPayrollArithmetic(fields: W2Fields, warnings: Warning[]): void {
     const tax = amountValue(fields[pair.tax as keyof W2Fields] as string | null);
     if (wages === null || tax === null) continue;
 
-    const expected = wages * pair.rate;
+    const expected = pair.expected(wages);
     if (Math.abs(expected - tax) > TOLERANCE) {
       warnings.push({
         field: pair.tax,
         code: pair.code,
         message:
-          `${pair.label} tax is ${tax.toFixed(2)} but ${pair.rate * 100}% of ` +
+          `${pair.label} tax is ${tax.toFixed(2)} but ${pair.describe} of ` +
           `${wages.toFixed(2)} is ${expected.toFixed(2)}.`,
       });
     }
@@ -207,11 +227,32 @@ function checkWageBase(fields: W2Fields, warnings: Warning[]): void {
   }
 
   const cap = SS_WAGE_BASE[year];
-  if (cap !== undefined && ssWages > cap) {
+  if (cap === undefined) return;
+
+  if (ssWages > cap) {
     warnings.push({
       field: 'box3_ss_wages',
       code: 'ss-wage-base-exceeded',
       message: `box3_ss_wages is ${ssWages.toFixed(2)}, above the ${year} wage base of ${cap}.`,
+    });
+  }
+
+  /*
+   * Box 4 has a hard ceiling that follows from the wage base: 6.2% of the cap and not a cent more.
+   * For 2025 that is 10,918.20.
+   *
+   * This catches a misread that the 6.2% check alone can miss — if Box 3 and Box 4 are BOTH read
+   * with the same extra digit, their ratio still holds and only the absolute magnitude betrays it.
+   */
+  const taxCeiling = cap * SS_RATE;
+  const ssTax = amountValue(fields.box4_ss_tax);
+  if (ssTax !== null && ssTax > taxCeiling + TOLERANCE) {
+    warnings.push({
+      field: 'box4_ss_tax',
+      code: 'ss-tax-ceiling-exceeded',
+      message:
+        `box4_ss_tax is ${ssTax.toFixed(2)}, above the ${year} maximum of ` +
+        `${taxCeiling.toFixed(2)} (6.2% of the ${cap} wage base).`,
     });
   }
 }
@@ -271,6 +312,7 @@ export const CONFIDENCE_PENALTY: Record<WarningCode, number> = {
   'ss-tax-mismatch': 0.4,
   'medicare-tax-mismatch': 0.4,
   'ss-wage-base-exceeded': 0.3,
+  'ss-tax-ceiling-exceeded': 0.3,
   'bad-amount-format': 0.5,
   'bad-ein-format': 0.7,
   'bad-ssn-format': 0.7,
