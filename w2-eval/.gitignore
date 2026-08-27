@@ -3,4 +3,8 @@ node_modules/
 results/raw/
 results/*.json
 results/report.md
+results/*.html
 # test-cases/ is committed on purpose; see its README.
+
+# The findings report is a deliverable and is committed on purpose.
+!results/w2-extraction-findings.pdf
