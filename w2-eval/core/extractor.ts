@@ -51,6 +51,23 @@ export interface ExtractionResult {
    * think about it.
    */
   failed?: boolean;
+
+  /**
+   * Field paths where the engine could see something and could not read it.
+   *
+   * Distinct from a `null`, which means "there is nothing in this box". The check-image standards
+   * treat these as different states and reserve a character for the second one — the X9 registry
+   * emits `Q` for "a character is detected here but cannot be identified" — because collapsing them
+   * throws away the only signal that separates a blank form field from a damaged capture.
+   *
+   * That is exactly the distinction a hallucinating model destroys: `qwen3-vl` wrote `0.00` into
+   * boxes that were not on the page, which reads downstream as a confident zero rather than as
+   * "look at this yourself". An engine that says *unreadable* has told the truth; one that says
+   * `null` has told a smaller truth; one that says `0.00` has lied.
+   *
+   * Optional, because an engine with no way to tell the difference should not pretend it can.
+   */
+  unreadable?: string[];
 }
 
 export interface Extractor {

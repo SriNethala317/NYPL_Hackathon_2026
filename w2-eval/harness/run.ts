@@ -5,10 +5,10 @@ import { fileURLToPath } from 'node:url';
 
 import type { Extractor, ExtractionResult } from '../core/extractor.ts';
 import { emptyFields, W2Fields } from '../core/schema.ts';
-import { runOrReplay } from './cache.ts';
+import { allCached, runOrReplay } from './cache.ts';
 import { describeKeys, loadEnv } from './env.ts';
 import { renderReport, type EngineRun } from './report.ts';
-import { scoreExtraction } from './score.ts';
+import { scoreExtraction, type Scope } from './score.ts';
 
 /**
  * The runner.
@@ -39,6 +39,8 @@ type Options = {
   ocr?: string;
   resolutions?: string[];
   selfConsistency: boolean;
+  /** `screener` scores only the fields the app consumes; `all` scores the whole schema. */
+  scope: Scope;
   mode: Mode;
 };
 
@@ -66,6 +68,7 @@ function parseArgs(argv: readonly string[]): Options {
     ocr: get('--ocr'),
     resolutions: list('--resolution').length > 0 ? list('--resolution') : undefined,
     selfConsistency: argv.includes('--self-consistency'),
+    scope: get('--scope') === 'screener' ? 'screener' : 'all',
     mode: argv.includes('--no-cache') ? 'no-cache' : argv.includes('--replay') ? 'replay' : 'normal',
   };
 }
@@ -226,6 +229,8 @@ async function main(): Promise<void> {
   const runs: EngineRun[] = [];
   const skipped: { engine: string; reason: string }[] = [];
 
+  const rawDir = join(options.out, 'raw');
+
   const { fixtures, problems } = await loadFixtures(options.input);
   for (const problem of problems) skipped.push({ engine: 'fixtures', reason: problem });
 
@@ -235,6 +240,38 @@ async function main(): Promise<void> {
 
   if (options.engines.includes('stub-null')) {
     extractors.push({ track: 'a', extractor: stubNull });
+  }
+
+  /*
+   * Replay scores what is already on disk, so it must not need the track that produced it.
+   *
+   * The engine is never called in this mode, and requiring its module anyway meant a Track B run
+   * could not be re-scored from the shared branch — precisely where the two tracks are meant to be
+   * compared. So replay reads the cache directly and returns before any track is loaded.
+   */
+  if (options.mode === 'replay') {
+    const cached = await allCached(rawDir);
+    const truthFor = new Map(fixtures.map((f) => [f.name, f.truth]));
+
+    for (const { fixture, engine, result } of cached) {
+      const truth = truthFor.get(fixture);
+      if (truth === undefined) {
+        skipped.push({ engine, reason: `${fixture}: cached, but no matching test case` });
+        continue;
+      }
+      runs.push({
+        engine,
+        track: engine.startsWith('track-a') ? 'a' : 'b',
+        fixture,
+        scores: scoreExtraction(result.fields, truth, result.fieldConfidence, options.scope),
+        result,
+        fromCache: true,
+      });
+    }
+
+    if (runs.length === 0) skipped.push({ engine: 'replay', reason: `no cached runs under ${rawDir}` });
+    await writeReport(options, runs, skipped);
+    return;
   }
 
   for (const track of options.tracks) {
@@ -250,8 +287,6 @@ async function main(): Promise<void> {
     console.log('No engines configured. Nothing to run.');
     for (const item of skipped) console.log(`  skipped: ${item.engine} — ${item.reason}`);
   }
-
-  const rawDir = join(options.out, 'raw');
 
   /*
    * An engine that has run out of quota is done for this run.
@@ -288,7 +323,12 @@ async function main(): Promise<void> {
           engine: extractor.name,
           track,
           fixture: fixture.name,
-          scores: scoreExtraction(run.result.fields, fixture.truth, run.result.fieldConfidence),
+          scores: scoreExtraction(
+            run.result.fields,
+            fixture.truth,
+            run.result.fieldConfidence,
+            options.scope,
+          ),
           result: run.result,
           fromCache: run.fromCache === true,
         });
@@ -311,12 +351,27 @@ async function main(): Promise<void> {
     }
   }
 
+  await writeReport(options, runs, skipped);
+}
+
+/** Writes the report and the per-field scores. Shared by the live and replay paths. */
+async function writeReport(
+  options: Options,
+  runs: EngineRun[],
+  skipped: { engine: string; reason: string }[],
+): Promise<void> {
   await mkdir(options.out, { recursive: true });
 
   const report = renderReport({
     runs,
     skipped,
     fixtureNote:
+      (options.scope === 'screener'
+        ? '**Scored against the four fields the NYC screener consumes** — income, address, name, ' +
+          'tax year — not the whole schema. Everything else a W-2 carries is read for the record ' +
+          'and consumed by nothing, so ranking engines on it ranks them on the wrong thing. Pass ' +
+          '`--scope all` for the full picture.\n\n'
+        : '') +
       '**Fixtures are rendered, not photographed.** Ground truth is authored first and the image ' +
       'rendered from it, so the truth never passes through an extractor. But a synthetic image ' +
       'that was never printed lacks real capture artefacts — genuine skew, focus falloff, paper ' +
@@ -327,9 +382,8 @@ async function main(): Promise<void> {
   const reportPath = options.out.endsWith('.md') ? options.out : join(options.out, 'report.md');
   await writeFile(reportPath, report, 'utf8');
 
-  const perFixture = join(options.out, 'scores.json');
   await writeFile(
-    perFixture,
+    join(options.out, 'scores.json'),
     `${JSON.stringify(
       runs.map((r) => ({ engine: r.engine, fixture: r.fixture, scores: r.scores })),
       null,

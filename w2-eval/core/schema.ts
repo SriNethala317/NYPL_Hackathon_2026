@@ -160,6 +160,49 @@ export const MONETARY_FIELDS = new Set<string>([
 ]);
 
 /**
+ * The only fields the NYC benefits screener can take from a W-2.
+ *
+ * `EligibilityInput` (`src/data/eligibility.ts:41-48`) accepts age, NYC residency, household size
+ * and annual income. A W-2 carries no date of birth and no household size, so it can supply
+ * exactly two of those — income, and residency via the employee's address — plus the name that
+ * ties the document to a person and the year that says how stale the income figure is.
+ *
+ * Everything else in `W2Fields` is kept for the record and consumed by nothing.
+ *
+ * ## Why this list is short on purpose
+ *
+ * Measured, same model and same image: a 9-field prompt returned 9 of 9 correct; the full ~40-field
+ * schema returned 68% on the same page and invented a box-12 row whose code was the section header
+ * "13". Asking for less is not a compromise here — it is the single largest accuracy lever found.
+ */
+export const SCREENER_FIELDS = [
+  'box5_medicare_wages',
+  'box1_wages',
+  'employee_address',
+  'employee_name',
+  'tax_year',
+] as const satisfies readonly (keyof W2Fields)[];
+
+export type ScreenerField = (typeof SCREENER_FIELDS)[number];
+
+/**
+ * Box 5 is the income figure, with Box 1 as the fallback.
+ *
+ * Box 1 excludes 401(k) deferrals and understates gross; Box 3 caps at the Social Security wage
+ * base. Box 5 excludes only pre-tax health premiums and does not cap, so it is the closest thing
+ * on the form to the gross income a screener means.
+ *
+ * **The result is ANNUAL.** The app's `income` profile field is documented as gross *monthly*
+ * (`src/data/profile-fields.ts:85`) and is multiplied by 12 at the eligibility boundary
+ * (`src/data/eligibility.ts:75-82`). Writing this through unconverted overstates income twelvefold,
+ * pushes a household over every cap, and silently hides the programmes they qualify for — the
+ * failure this project weights at -5 precisely because nothing downstream would ever reveal it.
+ */
+export function annualIncomeFrom(fields: W2Fields): string | null {
+  return fields.box5_medicare_wages ?? fields.box1_wages;
+}
+
+/**
  * Never scored, never written out.
  *
  * The screening step downstream determines eligibility from household composition, age, income and

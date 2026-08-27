@@ -67,6 +67,56 @@ test('the wage base is read per year, not from one hardcoded figure', () => {
   assert.ok(!codes(goodW2({ ...wages, tax_year: '2025' })).includes('ss-wage-base-exceeded'));
 });
 
+test('a high earner is not flagged for the 0.9% additional Medicare tax', () => {
+  // Above $200,000 the correct withholding is 1.45% PLUS 0.9% on the excess. Checking only the
+  // 1.45% would flag every high earner as a misread -- and those are exactly the households whose
+  // income figure most needs to be trusted.
+  const wages = '250000.00';
+  const correct = (250000 * 0.0145 + 50000 * 0.009).toFixed(2); // 3625 + 450 = 4075.00
+  assert.equal(correct, '4075.00');
+
+  const fields = goodW2({
+    box1_wages: '250000.00',
+    box3_ss_wages: '176100.00', // at the 2025 cap
+    box4_ss_tax: (176100 * 0.062).toFixed(2),
+    box5_medicare_wages: wages,
+    box6_medicare_tax: correct,
+  });
+  assert.ok(!codes(fields).includes('medicare-tax-mismatch'), `unexpected: ${codes(fields)}`);
+
+  // The plain 1.45% figure is now the wrong answer for this wage, and is caught.
+  const naive = goodW2({
+    box1_wages: '250000.00',
+    box3_ss_wages: '176100.00',
+    box4_ss_tax: (176100 * 0.062).toFixed(2),
+    box5_medicare_wages: wages,
+    box6_medicare_tax: (250000 * 0.0145).toFixed(2),
+  });
+  assert.ok(codes(naive).includes('medicare-tax-mismatch'));
+});
+
+test('Box 4 above the year maximum is caught even when its ratio to Box 3 holds', () => {
+  // The 6.2% check alone cannot see this: if BOTH boxes are read with the same extra digit their
+  // ratio still holds, and only the absolute magnitude betrays the misread.
+  const fields = goodW2({ box3_ss_wages: '290000.00', box4_ss_tax: '17980.00' });
+  const found = codes(fields);
+
+  assert.ok(!found.includes('ss-tax-mismatch'), '6.2% still holds, so that check stays quiet');
+  assert.ok(found.includes('ss-tax-ceiling-exceeded'), `expected the ceiling to fire, got ${found}`);
+});
+
+test('Box 4 exactly at the year maximum is accepted', () => {
+  // 6.2% of the 2025 wage base is 10,918.20 to the cent. An earner at the cap is not an error.
+  const fields = goodW2({
+    box1_wages: '176100.00',
+    box3_ss_wages: '176100.00',
+    box4_ss_tax: '10918.20',
+    box5_medicare_wages: '176100.00',
+    box6_medicare_tax: (176100 * 0.0145).toFixed(2),
+  });
+  assert.deepEqual(codes(fields), []);
+});
+
 test('an unreadable year disables the cap check and says so, rather than assuming a year', () => {
   const found = codes(goodW2({ tax_year: null }));
   assert.ok(found.includes('unknown-tax-year'));
