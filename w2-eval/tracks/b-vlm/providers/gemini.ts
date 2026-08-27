@@ -43,8 +43,28 @@ const API_ROOT = 'https://generativelanguage.googleapis.com/v1beta/models';
  * The known-good model leads deliberately. Putting the newest first means every run pays two
  * failed round trips before it gets an answer, and the newest flash model being under load is the
  * normal state rather than the exception. `GEMINI_MODEL` overrides the whole list.
+ *
+ * ## The daily cap is a property of the model, not of the free tier
+ *
+ * The 429 that kept killing runs names its own quota:
+ *
+ *     quotaId: GenerateRequestsPerDayPerProjectPerModel-FreeTier
+ *     quotaValue: 20
+ *
+ * Twenty requests per day, per model — which a single 17-fixture run all but exhausts. That cap
+ * belongs to the **3.x preview** models, not to the free tier generally; the lite and GA models
+ * carry far higher daily allowances. Leading with `flash-lite` is therefore worth roughly two
+ * orders of magnitude of headroom for the cost of one string, and it is why the order changed.
+ *
+ * Because the quota is per *model*, the cascade also spreads load: exhausting one model's day
+ * does not exhaust the next one's.
  */
-const MODELS = ['gemini-3.5-flash', 'gemini-3.6-flash', 'gemini-flash-latest', 'gemini-3.7-flash'];
+const MODELS = [
+  'gemini-flash-lite-latest',
+  'gemini-3.1-flash-lite',
+  'gemini-3.5-flash',
+  'gemini-3.6-flash',
+];
 
 const TIMEOUT_MS = 60_000;
 const MAX_ATTEMPTS = 4;
