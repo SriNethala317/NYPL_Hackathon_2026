@@ -12,3 +12,10 @@ export { canExtract, ocrProvider, type OcrOutcome, type OcrProvider } from './oc
 export { createGeminiProvider, geminiVision, type GeminiOptions } from './gemini-vision';
 export { redact, containsSensitive, REDACTED } from './redact';
 export { readDocument, type ReadOutcome } from './read-document';
+export {
+  extractW2,
+  annualIncome,
+  type W2Extraction,
+  type ExtractOutcome,
+  type ArithmeticCheck,
+} from './extract-w2';

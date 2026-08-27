@@ -10,7 +10,7 @@
  */
 
 const en = {
-  tabs: { home: 'Home', enrollment: 'Enrollment', profile: 'Profile' },
+  tabs: { home: 'Home', enrollment: 'Enrollment', profile: 'Profile', scan: 'Scan' },
 
   titles: {
     home: 'Your applications',
@@ -358,7 +358,7 @@ const en = {
 type Strings = typeof en;
 
 const es: Strings = {
-  tabs: { home: 'Inicio', enrollment: 'Inscripción', profile: 'Perfil' },
+  tabs: { home: 'Inicio', enrollment: 'Inscripción', profile: 'Perfil', scan: 'Escanear' },
 
   titles: {
     home: 'Sus solicitudes',

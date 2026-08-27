@@ -163,7 +163,7 @@ const RESPONSE_SCHEMA = {
   propertyOrdering: ['text', 'legibility', 'fields'],
 };
 
-type LoadedImage = { base64: string; mimeType: string; bytes: number };
+export type LoadedImage = { base64: string; mimeType: string; bytes: number };
 
 export type GeminiOptions = {
   /** Explicit key, for tests. Falls back to `EXPO_PUBLIC_GEMINI_API_KEY`. */
@@ -218,7 +218,14 @@ function blobToBase64(blob: Blob): Promise<string> {
  * Three shapes reach this: a `data:` url (any platform), a `blob:`/`http:` url (web, which is
  * what `expo-image-picker` produces there), and a `file://` path (iOS and Android).
  */
-async function loadImage(uri: string, maxBytes: number): Promise<LoadedImage> {
+/*
+ * Exported so the Edge Function provider can reuse it rather than write a second one.
+ *
+ * The three URI shapes this handles -- `data:`, web `blob:`/`http:`, and native `file://` through
+ * expo-file-system v19 -- are the whole reason not to duplicate it: each was arrived at by
+ * something breaking, and a second copy would have to break the same way again to catch up.
+ */
+export async function loadImage(uri: string, maxBytes: number): Promise<LoadedImage> {
   const dataUrl = DATA_URL.exec(uri);
   if (dataUrl) {
     if (!dataUrl[2]) {

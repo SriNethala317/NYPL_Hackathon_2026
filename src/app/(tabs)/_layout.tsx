@@ -4,17 +4,30 @@ import { Tabs } from 'expo-router';
 import { TabBar, type TabItem, type TabKey } from '@/components/enroll';
 import { useStrings } from '@/i18n/use-strings';
 
+/**
+ * The Scan tab is a development surface, not part of the design.
+ *
+ * `docs/design/README.md` fixes three tabs, and this is a fourth that exists to try the extraction
+ * pipeline against real documents before it is wired into the upload flow. `__DEV__` is true in
+ * Expo Go — which is where that testing happens — and false in a release build, so the shipped app
+ * keeps the three tabs the design specifies. Flip this constant to carry it into a build you hand
+ * to somebody else.
+ */
+const SHOW_SCAN_TAB = __DEV__;
+
 /** Route name → the key the design's tab bar uses. */
 const routeToKey: Record<string, TabKey> = {
   index: 'home',
   enrollment: 'enroll',
   profile: 'profile',
+  scan: 'scan',
 };
 
 const keyToRoute: Record<TabKey, string> = {
   home: 'index',
   enroll: 'enrollment',
   profile: 'profile',
+  scan: 'scan',
 };
 
 export default function TabsLayout() {
@@ -23,6 +36,8 @@ export default function TabsLayout() {
       <Tabs.Screen name="index" />
       <Tabs.Screen name="enrollment" />
       <Tabs.Screen name="profile" />
+      {/* Registered either way — expo-router routes by file — but hidden from the bar in release. */}
+      <Tabs.Screen name="scan" options={{ href: SHOW_SCAN_TAB ? undefined : null }} />
     </Tabs>
   );
 }
@@ -41,6 +56,9 @@ function FloatingTabBar({ state, navigation }: BottomTabBarProps) {
     { key: 'home', label: strings.tabs.home, icon: 'home' },
     { key: 'enroll', label: strings.tabs.enrollment, icon: 'enrollment' },
     { key: 'profile', label: strings.tabs.profile, icon: 'profile' },
+    ...(SHOW_SCAN_TAB
+      ? [{ key: 'scan' as const, label: strings.tabs.scan, icon: 'camera' as const }]
+      : []),
   ];
 
   const activeRoute = state.routes[state.index]?.name ?? 'index';
