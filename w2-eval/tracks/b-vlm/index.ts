@@ -27,6 +27,7 @@ import { repair } from './repair.ts';
 
 function createExtractor(provider: VlmProvider, resolution: Resolution, selfConsistency: boolean): Extractor {
   const name = `track-b:${provider.name}@${resolution}${selfConsistency ? '+sc' : ''}`;
+  let warmed = false;
 
   return {
     name,
@@ -37,6 +38,11 @@ function createExtractor(provider: VlmProvider, resolution: Resolution, selfCons
 
       if (!provider.isAvailable()) {
         return failed(name, started, [provider.unavailableReason()]);
+      }
+
+      if (!warmed && provider.warmup) {
+        warmed = true;
+        await provider.warmup();
       }
 
       const image = await prepare(imagePath, resolution);
@@ -191,21 +197,31 @@ export function createExtractors(options: Options): Extractor[] {
       continue;
     }
 
-    if (which === 'ollama') {
+    /*
+     * `ollama` runs the default model; `ollama:<model>` runs a named one, e.g. `ollama:qwen3-vl:2b`.
+     *
+     * The colon-splitting is fiddly because ollama's own model names contain colons — `gemma3:4b`
+     * is one name, not a provider and a tag. Everything after the first colon is the model.
+     */
+    if (which === 'ollama' || which.startsWith('ollama:')) {
+      const model = which.startsWith('ollama:') ? which.slice('ollama:'.length) : undefined;
       const resolutions = chosen ?? (['mid'] as Resolution[]);
       if (!chosen) {
         console.log(
-          '  note: ollama pinned to --resolution mid (~90s/doc on a 4GB GPU). ' +
+          '  note: ollama pinned to --resolution mid (~90s/doc for a 4B model on a 4GB GPU). ' +
             'Pass --resolution low,mid,high to sweep anyway.',
         );
       }
       for (const resolution of resolutions) {
-        extractors.push(createExtractor(createOllama(), resolution, selfConsistency));
+        extractors.push(createExtractor(createOllama(model), resolution, selfConsistency));
       }
       continue;
     }
 
-    console.log(`  note: unknown --vlm "${which}", ignored. Known: gemini, groq, ollama.`);
+    console.log(
+      `  note: unknown --vlm "${which}", ignored. ` +
+        'Known: gemini, groq, ollama, ollama:<model> (e.g. ollama:qwen3-vl:2b).',
+    );
   }
 
   return extractors;

@@ -24,6 +24,14 @@ export type VlmProvider = {
   isAvailable(): boolean;
   /** Why it is unavailable, for the report's "Not run" section. */
   unavailableReason(): string;
+  /**
+   * Optional: get the engine ready before timing starts.
+   *
+   * Only local providers need this. A cold model load billed to the first fixture makes that
+   * fixture look slow and every other one look fast, which is a measurement artefact rather than
+   * a property of the document.
+   */
+  warmup?(): Promise<void>;
   extract(imageBase64: string, prompt: string): Promise<VlmCall>;
 };
 

@@ -22,19 +22,44 @@ import { ProviderError, type VlmCall, type VlmProvider } from './types.ts';
  * on the easiest image in the corpus. That is not a reason to exclude it, it is the finding. But it
  * is why the runner defaults this provider to one resolution instead of sweeping three: an hour of
  * wall-clock to confirm a result this clear is not a good trade.
+ *
+ * ## Model choice matters more here than anywhere else
+ *
+ * 3.3 GB of weights against 4 GB of VRAM leaves nothing for the vision tower and the KV cache, so
+ * `gemma3:4b` spills to CPU and pays for it. A smaller vision model — `qwen3-vl:2b` at 1.9 GB —
+ * fits with room to spare and should be markedly faster. Whether it is also less accurate is
+ * exactly the sort of question this harness exists to answer, so both are worth running:
+ *
+ *     --vlm ollama:gemma3:4b
+ *     --vlm ollama:qwen3-vl:2b
  */
 
 const DEFAULT_URL = 'http://localhost:11434';
 const DEFAULT_MODEL = 'gemma3:4b';
 
-/** Generous because it has to be: see the measured throughput above. */
-const TIMEOUT_MS = 300_000;
+/**
+ * Fifteen minutes, which sounds absurd until you see the measured numbers.
+ *
+ * The first version used five minutes and every one of gemma3:4b's runs aborted, which read as
+ * "Ollama is not responding" when the model was in fact working the whole time. A timeout shorter
+ * than the work turns a slow engine into a broken one, and the report then blames the wrong thing.
+ */
+const TIMEOUT_MS = 900_000;
 
 type OllamaResponse = {
   response?: string;
+  /**
+   * Where a reasoning model actually puts its answer.
+   *
+   * `qwen3-vl:2b` returns an empty `response` and the complete JSON in `thinking`, and it does so
+   * even with `think: false`. Reading only `response` made a model that had extracted all nine
+   * requested fields perfectly look like it had returned nothing at all.
+   */
+  thinking?: string;
   prompt_eval_count?: number;
   eval_count?: number;
   total_duration?: number;
+  load_duration?: number;
   error?: string;
 };
 
@@ -50,6 +75,26 @@ export function createOllama(model = DEFAULT_MODEL): VlmProvider {
     // probing the daemon on every construction would slow the runner's startup for nothing.
     isAvailable: () => true,
     unavailableReason: () => `Ollama did not respond at ${url}. Is \`ollama serve\` running?`,
+
+    /**
+     * Loads the model before the corpus run starts.
+     *
+     * Cold-loading `qwen3-vl:2b` takes ~35s, and on a card too small to hold it that cost lands on
+     * whichever fixture happens to be first — which then looks like the slowest fixture rather than
+     * the one that paid for everyone else's startup. Warming up separately keeps the per-document
+     * latencies comparable, which is the whole point of measuring them.
+     */
+    async warmup(): Promise<void> {
+      try {
+        await fetch(`${url}/api/generate`, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ model, prompt: 'hi', stream: false, options: { num_predict: 1 } }),
+        });
+      } catch {
+        // A failed warm-up is not fatal; the first real call will report the problem properly.
+      }
+    },
 
     async extract(imageBase64: string, prompt: string): Promise<VlmCall> {
       const started = Date.now();
@@ -84,7 +129,8 @@ export function createOllama(model = DEFAULT_MODEL): VlmProvider {
         if (body.error) throw new ProviderError(`Ollama: ${body.error}`, false);
 
         return {
-          text: body.response ?? '',
+          // `response` first, `thinking` when a reasoning model left it empty. See the type above.
+          text: (body.response?.trim() ? body.response : (body.thinking ?? '')),
           // Ollama's own timing, which excludes the HTTP round trip on localhost.
           latencyMs: body.total_duration ? Math.round(body.total_duration / 1e6) : Date.now() - started,
           costUsd: 0,
