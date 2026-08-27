@@ -35,14 +35,14 @@
  */
 
 import { execFile } from 'node:child_process';
-import { mkdir, rm, writeFile } from 'node:fs/promises';
+import { copyFile, mkdir, rm, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 
 const run = promisify(execFile);
 const HERE = dirname(fileURLToPath(import.meta.url));
-const OUT = join(HERE, 'fixtures');
+const OUT = join(HERE, 'test-cases');
 const CHROME = process.env.CHROME_BIN ?? 'google-chrome';
 
 /* ------------------------------------------------------------------ people */
@@ -539,6 +539,23 @@ const VARIANTS = {
 /* ---------------------------------------------------------------- fixtures */
 
 /**
+ * What each capture condition is modelling, in the words a person would use.
+ *
+ * Written into every case's NOTES.md so the corpus explains itself to somebody browsing it, rather
+ * than only to somebody reading this file.
+ */
+const VARIANT_NOTES = {
+  clean: 'A flatbed scan. The control, and the best input this app will ever get.',
+  blur: 'Out of focus. The app\u2019s own OCR measurements found defocus to be the accuracy cliff.',
+  skew: 'Photographed at an angle \u2014 a real perspective projection, not a rotation.',
+  glare: 'A window or ceiling light reflecting off the paper, washing out one corner.',
+  lowlight: 'A dim room. The damage is sensor noise, not the darkness itself.',
+  phone: 'Everything at once: off-axis, out of focus, noisy, unevenly lit, then compressed the way '
+    + 'a messaging app compresses it. The closest thing here to what someone standing in a benefits '
+    + 'office actually sends.',
+};
+
+/**
  * Thirteen fixtures across four layouts and five capture variants.
  *
  * `crop` is adversarial: the page is cut off below box 14, so boxes 15-20 genuinely are not there.
@@ -552,6 +569,13 @@ const FIXTURES = [
     layout: irsRedInk,
     variants: ['clean', 'blur', 'skew', 'glare', 'lowlight', 'phone'],
     size: '1000,800',
+    about: 'The official IRS red-ink form, boxes in their real positions. The control layout.',
+    checks: [
+      'Every numbered box read from its correct position.',
+      'Two box-12 codes, one of them the two-letter `DD`.',
+      'One state row with local wages and a locality name.',
+      'All three box-13 checkboxes present, only "retirement plan" ticked.',
+    ],
   },
   {
     id: 'laser-4up',
@@ -561,6 +585,13 @@ const FIXTURES = [
     size: '1000,620',
     // Box 14 is the one thing this condensed sheet genuinely has no room for.
     omits: ['box14_other'],
+    about: 'A plain laser print, four copies to one sheet (Copy B, C, 2, 2).',
+    checks: [
+      'The same figures appear FOUR times. An engine must return one W-2, not four merged.',
+      'A parser anchored on "the value below the Box 1 label" will find four of them.',
+      'Two state rows, NY and NJ \u2014 the row-repetition case.',
+      'Small type: this is where digit transposition shows up first.',
+    ],
   },
   {
     id: 'adp',
@@ -568,6 +599,13 @@ const FIXTURES = [
     layout: (p) => payrollProvider(p, 'ADP', '#C8102E'),
     variants: ['clean', 'blur', 'glare', 'phone'],
     size: '1000,470',
+    about: 'Payroll-provider styling: branded header, boxes in a different visual order.',
+    checks: [
+      'Box 12 is EMPTY. An engine must abstain, not invent a row.',
+      'Box 14 carries two free-text rows (NY SDI, NY PFL).',
+      'No control number \u2014 another field that must come back null.',
+      'Boxes 3 and 5 equal box 1: no pre-tax deferral to explain a difference.',
+    ],
   },
   {
     id: 'gusto',
@@ -575,6 +613,12 @@ const FIXTURES = [
     layout: (p) => payrollProvider(p, 'gusto', '#F45D48'),
     variants: ['clean', 'lowlight', 'phone'],
     size: '1000,470',
+    about: 'A second payroll-provider style, to prove the reader is not tuned to one brand.',
+    checks: [
+      'Three box-12 codes including `DD` and `W`.',
+      'An accented name (TOM\u00c1S FERREIRA-LUZ) that must survive normalisation intact.',
+      'Box 3 exceeds box 1 by a 401(k) deferral \u2014 legitimate, must not be "corrected".',
+    ],
   },
   {
     id: 'crop',
@@ -584,19 +628,100 @@ const FIXTURES = [
     // Cuts the page below box 14. Boxes 15-20 are absent from the image and from the truth, so
     // this is the fixture that scores an engine on abstaining rather than on reading.
     size: '1000,660',
+    about: 'The IRS layout, cut off below box 14.',
+    checks: [
+      'Boxes 15-20 are PHYSICALLY ABSENT from the image.',
+      'The only case that scores abstention rather than reading.',
+      'qwen3-vl invented a whole state row here: `NY, 0, 0.00, 0.00, 0.00, 0`.',
+    ],
     // The page is cut below box 14, so boxes 15-20 are genuinely absent from the image.
     omits: ['state_items'],
   },
 ];
 
+/** The corpus index, so the directory explains itself to whoever opens it first. */
+function readme(index) {
+  const byLayout = new Map();
+  for (const c of index) {
+    if (!byLayout.has(c.layout)) byLayout.set(c.layout, { about: c.about, cases: [] });
+    byLayout.get(c.layout).cases.push(c);
+  }
+
+  return [
+    '# W-2 test cases',
+    '',
+    `${index.length} cases across ${byLayout.size} layouts and six capture conditions.`,
+    'Each case is a directory you can open: the image, the ground truth, the HTML it was',
+    'rendered from, and a note saying what it is for.',
+    '',
+    '## How ground truth is produced',
+    '',
+    'The data is authored first and the image is rendered **from** it, so the truth never passes',
+    'through an extractor and never through a human transcriber. `expected.json` describes what is',
+    'printed on that specific image \u2014 not what is true of the employee. Where a layout does not',
+    'print a field, the truth for that field is null, because an engine that correctly returns',
+    'nothing must not be scored as having missed something.',
+    '',
+    '## A caveat that matters',
+    '',
+    'These pages were **rendered, never printed**. Paper texture and true focus falloff are not',
+    'here, so every engine scores better on this corpus than it would on a photograph of a real',
+    'form. The `phone` condition narrows that gap; it does not close it. Treat the numbers as an',
+    'upper bound.',
+    '',
+    'To add a real photograph: make a directory beside these, put the image in it with an',
+    '`expected.json` describing what the photo shows. The generator will leave it alone.',
+    '',
+    '## All data is fabricated',
+    '',
+    'SSNs come from the 900-99 range, which the SSA has never issued and never will. Employers and',
+    'addresses are invented. No real tax document is in this repository.',
+    '',
+    '## The cases',
+    '',
+    ...[...byLayout.entries()].flatMap(([layout, { about, cases }]) => [
+      `### ${layout}`,
+      '',
+      about,
+      '',
+      ...cases.map((c) => `- [\`${c.name}\`](./${c.name}/) \u2014 ${VARIANT_NOTES[c.variant].split('.')[0]}.`),
+      '',
+    ]),
+    '## Regenerating',
+    '',
+    '```bash',
+    'node make-fixtures.mjs      # needs google-chrome and ImageMagick',
+    '```',
+    '',
+    'It overwrites the four files it owns in each case directory and deletes nothing else.',
+    '',
+  ].join('\n');
+}
+
 const PAGE = (body, css) =>
   `<!doctype html><html><head><meta charset="utf-8"><style>${css}</style></head><body>${body}</body></html>`;
 
+/**
+ * Writes one case as its own directory, so the corpus can be browsed in a file manager.
+ *
+ * Deliberately NOT `rm -rf` on the output root. These are committed now, and a generator that
+ * wipes a version-controlled directory destroys anything a human filed there by hand -- a
+ * photographed fixture, an extra note. It overwrites the four files it owns and touches nothing
+ * else.
+ */
+async function writeCase(dir, { image, imageName, truth, html, notes }) {
+  await mkdir(dir, { recursive: true });
+  await copyFile(image, join(dir, imageName));
+  await writeFile(join(dir, 'expected.json'), `${JSON.stringify(truth, null, 2)}\n`, 'utf8');
+  await writeFile(join(dir, 'source.html'), html, 'utf8');
+  await writeFile(join(dir, 'NOTES.md'), notes, 'utf8');
+}
+
 async function main() {
-  await rm(OUT, { recursive: true, force: true });
   await mkdir(OUT, { recursive: true });
 
   let count = 0;
+  const index = [];
 
   for (const fixture of FIXTURES) {
     const person = PEOPLE[fixture.person];
@@ -606,10 +731,11 @@ async function main() {
     // Chrome runs once per layout; the variants are derived from that one render. Cheaper, and it
     // guarantees every variant of a fixture is a degradation of the same pixels rather than a
     // separate render that might differ in some way nobody noticed.
-    const htmlPath = join(OUT, `${fixture.id}.html`);
-    const cleanPath = join(OUT, `${fixture.id}.clean.png`);
+    const page = PAGE(body, fixture.css ?? '');
+    const htmlPath = join(OUT, `.${fixture.id}.html`);
+    const cleanPath = join(OUT, `.${fixture.id}.clean.png`);
 
-    await writeFile(htmlPath, PAGE(body, fixture.css ?? ''), 'utf8');
+    await writeFile(htmlPath, page, 'utf8');
     await run(CHROME, [
       '--headless',
       '--disable-gpu',
@@ -622,24 +748,67 @@ async function main() {
     ]);
 
     for (const variant of fixture.variants) {
-      const name = `w2-${fixture.id}-${variant}`;
+      const name = `${fixture.id}-${variant}`;
       // Clean stays a PNG; every degraded variant becomes a JPEG, because a lossy codec is part of
       // what the degradation is modelling.
-      const outPath = join(OUT, `${name}.${variant === 'clean' ? 'png' : 'jpg'}`);
+      const ext = variant === 'clean' ? 'png' : 'jpg';
+      const staged = join(OUT, `.${name}.${ext}`);
 
       const [w, h] = (fixture.size ?? '1000,900').split(',').map(Number);
-      await run('magick', [cleanPath, ...VARIANTS[variant](w, h), outPath]);
-      await writeFile(join(OUT, `${name}.truth.json`), `${JSON.stringify(truth, null, 2)}\n`, 'utf8');
+      await run('magick', [cleanPath, ...VARIANTS[variant](w, h), staged]);
 
+      const filled = Object.entries(truth).filter(([, v]) => v !== null && !(Array.isArray(v) && !v.length));
+      const notes = [
+        `# ${name}`,
+        '',
+        `**Layout:** ${fixture.about}`,
+        '',
+        `**Capture:** ${VARIANT_NOTES[variant]}`,
+        '',
+        `**Employee:** ${person.employee_name} \u2014 ${person.employer_name}`,
+        '',
+        '## What this case checks',
+        '',
+        ...(fixture.checks ?? []).map((c) => `- ${c}`),
+        ...(fixture.omits?.length
+          ? ['', `Not printed on this layout, so \`expected.json\` leaves it null: \`${fixture.omits.join('`, `')}\`.`]
+          : []),
+        '',
+        '## Files',
+        '',
+        `- \`${name}.${ext}\` \u2014 the image an engine is given`,
+        '- `expected.json` \u2014 what is printed on that image; the ground truth',
+        '- `source.html` \u2014 what it was rendered from; open it in a browser',
+        '',
+        `${filled.length} of the schema's fields carry a value here.`,
+        '',
+        '_Generated by `make-fixtures.mjs`. Ground truth is authored first and the image rendered',
+        'from it, so the truth never passes through an extractor or a human transcriber._',
+        '',
+      ].join('\n');
+
+      await writeCase(join(OUT, name), {
+        image: staged,
+        imageName: `${name}.${ext}`,
+        truth,
+        html: page,
+        notes,
+      });
+      await rm(staged, { force: true });
+
+      index.push({ name, layout: fixture.id, variant, about: fixture.about });
       count += 1;
       console.log(`  ${name.padEnd(26)} ${variant === 'clean' ? '(control)' : ''}`);
     }
 
     await rm(cleanPath, { force: true });
+    await rm(htmlPath, { force: true });
   }
 
-  console.log(`\n${count} fixtures in ${OUT}`);
-  console.log('Rendered, not photographed — treat the resulting scores as an upper bound.');
+  await writeFile(join(OUT, 'README.md'), readme(index), 'utf8');
+
+  console.log(`\n${count} test cases in ${OUT}`);
+  console.log('Rendered, not photographed \u2014 treat the resulting scores as an upper bound.');
 }
 
 await main();

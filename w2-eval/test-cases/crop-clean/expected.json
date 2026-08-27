@@ -1,0 +1,36 @@
+{
+  "employee_ssn": "900-99-1234",
+  "employer_ein": "13-4567890",
+  "employer_name": "ATLAS HOME CARE INC",
+  "employer_address": "77 WATER ST, NEW YORK, NY 10005",
+  "employee_name": "MARIA REYES",
+  "employee_address": "1240 GRAND CONCOURSE, BRONX, NY 10456",
+  "control_number": "A-0042719",
+  "box1_wages": "27720.00",
+  "box2_federal_tax": "1980.00",
+  "box3_ss_wages": "29000.00",
+  "box4_ss_tax": "1798.00",
+  "box5_medicare_wages": "29000.00",
+  "box6_medicare_tax": "420.50",
+  "box7_ss_tips": null,
+  "box8_allocated_tips": null,
+  "box10_dependent_care": null,
+  "box11_nonqualified": null,
+  "box12": [
+    {
+      "code": "D",
+      "amount": "1280.00"
+    },
+    {
+      "code": "DD",
+      "amount": "9100.00"
+    }
+  ],
+  "box13_statutory_employee": false,
+  "box13_retirement_plan": true,
+  "box13_third_party_sick": false,
+  "box14_other": [],
+  "state_items": [],
+  "tax_year": "2025",
+  "as_of": "2025-12-31"
+}

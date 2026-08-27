@@ -60,7 +60,7 @@ function parseArgs(argv: readonly string[]): Options {
   return {
     tracks,
     engines: list('--engines'),
-    input: get('--input') ?? join(ROOT, 'fixtures'),
+    input: get('--input') ?? join(ROOT, 'test-cases'),
     out: get('--out') ?? join(ROOT, 'results'),
     vlm: get('--vlm'),
     ocr: get('--ocr'),
@@ -151,9 +151,15 @@ type Fixture = { name: string; image: string; truth: W2Fields };
 /**
  * Reads the corpus.
  *
- * A fixture is an image with a `.truth.json` beside it. An image without one is reported and
- * skipped rather than scored against nothing — scoring an extraction against an absent truth
- * would classify every field it read as a hallucination.
+ * Two layouts are accepted, because they serve different people:
+ *
+ * - **One directory per case** (`test-cases/adp-clean/` holding the image plus `expected.json`).
+ *   This is what the generator writes and what a human browses.
+ * - **Flat** (`foo.png` beside `foo.truth.json`). Kept so an ad-hoc directory of photographs can be
+ *   pointed at with `--input` without being restructured first.
+ *
+ * An image with no ground truth is reported and skipped rather than scored against nothing —
+ * scoring against an absent truth would classify every field an engine read as a hallucination.
  */
 async function loadFixtures(dir: string): Promise<{ fixtures: Fixture[]; problems: string[] }> {
   const fixtures: Fixture[] = [];
@@ -163,22 +169,45 @@ async function loadFixtures(dir: string): Promise<{ fixtures: Fixture[]; problem
     return { fixtures, problems: [`fixture directory ${dir} does not exist`] };
   }
 
-  const entries = await readdir(dir);
-  const images = entries.filter((f) => /\.(png|jpe?g)$/i.test(f)).sort();
+  const isImage = (f: string) => /\.(png|jpe?g)$/i.test(f);
 
-  for (const image of images) {
-    const name = image.replace(/\.(png|jpe?g)$/i, '');
-    const truthPath = join(dir, `${name}.truth.json`);
-    if (!existsSync(truthPath)) {
-      problems.push(`${image} has no ${name}.truth.json — not scored`);
+  const read = async (name: string, image: string, truthPath: string) => {
+    try {
+      fixtures.push({
+        name,
+        image,
+        truth: W2Fields.parse(JSON.parse(await readFile(truthPath, 'utf8'))),
+      });
+    } catch (error) {
+      problems.push(`${name}: ground truth does not match the schema — ${String(error)}`);
+    }
+  };
+
+  for (const entry of (await readdir(dir, { withFileTypes: true })).sort((a, b) =>
+    a.name.localeCompare(b.name),
+  )) {
+    if (entry.isDirectory()) {
+      const caseDir = join(dir, entry.name);
+      const image = (await readdir(caseDir)).find(isImage);
+      const truthPath = join(caseDir, 'expected.json');
+
+      if (image === undefined) continue; // Not a case directory; nothing to say about it.
+      if (!existsSync(truthPath)) {
+        problems.push(`${entry.name}/ has an image but no expected.json — not scored`);
+        continue;
+      }
+      await read(entry.name, join(caseDir, image), truthPath);
       continue;
     }
-    try {
-      const parsed = W2Fields.parse(JSON.parse(await readFile(truthPath, 'utf8')));
-      fixtures.push({ name, image: join(dir, image), truth: parsed });
-    } catch (error) {
-      problems.push(`${name}.truth.json does not match the schema: ${String(error)}`);
+
+    if (!isImage(entry.name)) continue;
+    const name = entry.name.replace(/\.(png|jpe?g)$/i, '');
+    const truthPath = join(dir, `${name}.truth.json`);
+    if (!existsSync(truthPath)) {
+      problems.push(`${entry.name} has no ${name}.truth.json — not scored`);
+      continue;
     }
+    await read(name, join(dir, entry.name), truthPath);
   }
 
   return { fixtures, problems };

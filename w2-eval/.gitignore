@@ -3,4 +3,4 @@ node_modules/
 results/raw/
 results/*.json
 results/report.md
-fixtures/
+# test-cases/ is committed on purpose; see its README.
