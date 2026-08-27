@@ -7,7 +7,7 @@
   "scripts": {
     "extract": "tsx harness/run.ts",
     "eval": "tsx harness/run.ts",
-    "test": "node --test --experimental-strip-types \"core/*.test.ts\" \"harness/*.test.ts\"",
+    "test": "node --test --experimental-strip-types \"core/*.test.ts\" \"harness/*.test.ts\" \"tracks/*/*.test.ts\"",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
