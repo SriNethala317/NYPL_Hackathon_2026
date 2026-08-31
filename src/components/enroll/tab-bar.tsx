@@ -5,7 +5,15 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { GlassSurface, Icon, Text, type IconName } from '@/components/ui';
 import { colors, motion, radius, shadow } from '@/theme';
 
-export type TabKey = 'home' | 'enroll' | 'profile';
+/**
+ * `scan` is a development-only tab and is not part of the design.
+ *
+ * The spec fixes three tabs (docs/design/README.md); the fourth exists to try the extraction
+ * pipeline on real documents and is hidden in release builds. It is in this union rather than
+ * bolted on outside it so the bar stays exhaustively typed — a fourth key that the bar could not
+ * describe would be worse than a fourth key it can.
+ */
+export type TabKey = 'home' | 'enroll' | 'profile' | 'scan';
 
 export type TabItem = {
   key: TabKey;

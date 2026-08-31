@@ -12,10 +12,10 @@ import Animated, {
 import { DocumentThumbnail } from './document-thumbnail';
 
 import { Text } from '@/components/ui';
-import { motion, type DocumentKind } from '@/theme';
+import { motion, type DocumentCategory } from '@/theme';
 
 export type ScanningIndicatorProps = {
-  kind: DocumentKind;
+  category: DocumentCategory;
   /** "Reading your document". */
   title: string;
   /** The document being read, e.g. "Pay stubs". */
@@ -29,7 +29,7 @@ export type ScanningIndicatorProps = {
  * thread through Reanimated — a JS-driven loop would stutter exactly when the extraction work
  * it stands in for is busiest.
  */
-export function ScanningIndicator({ kind, title, documentLabel }: ScanningIndicatorProps) {
+export function ScanningIndicator({ category, title, documentLabel }: ScanningIndicatorProps) {
   const progress = useSharedValue(0);
 
   useEffect(() => {
@@ -52,7 +52,7 @@ export function ScanningIndicator({ kind, title, documentLabel }: ScanningIndica
       accessibilityLabel={`${title}. ${documentLabel}`}
       style={styles.container}>
       <View style={styles.frame}>
-        <DocumentThumbnail kind={kind} size="lg" />
+        <DocumentThumbnail category={category} size="lg" />
         <Animated.View style={[styles.sweep, sweepStyle]}>
           <LinearGradient
             colors={SWEEP_COLORS}

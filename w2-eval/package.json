@@ -1,0 +1,21 @@
+{
+  "name": "w2-eval",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "W-2 extraction bake-off: Track A (OCR + parser + LLM) vs Track B (VLM), scored against one contract.",
+  "scripts": {
+    "extract": "tsx harness/run.ts",
+    "eval": "tsx harness/run.ts",
+    "test": "node --test --experimental-strip-types \"core/*.test.ts\" \"harness/*.test.ts\" \"tracks/*/*.test.ts\"",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "tsx": "^4.19.2",
+    "typescript": "~5.9.2"
+  }
+}

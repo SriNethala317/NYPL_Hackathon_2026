@@ -15,8 +15,8 @@ export {
 export { eligibility, type EligibilityStatus } from './eligibility';
 
 export {
-  documentKinds,
+  documentCategories,
   documentTints,
   emptyDocumentTint,
-  type DocumentKind,
+  type DocumentCategory,
 } from './documents';

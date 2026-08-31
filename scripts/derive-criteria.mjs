@@ -1,0 +1,387 @@
+#!/usr/bin/env node
+/**
+ * Turns the City's plain-language eligibility prose into structured, machine-checkable criteria.
+ *
+ *   node scripts/derive-criteria.mjs             # heuristic only, no API key needed
+ *   node scripts/derive-criteria.mjs --llm       # adds an LLM pass for what heuristics missed
+ *
+ * Two rules govern this file:
+ *
+ *   1. Nothing is derived at runtime. This runs once, the output is committed, and a human can
+ *      read the diff. A benefits rule nobody can audit is worse than no rule at all.
+ *   2. Every criterion carries the exact `sourceText` it came from. If the app tells someone they
+ *      may not qualify, we can show them the City's own sentence that says so.
+ *
+ * Heuristics handle the patterns this dataset actually uses — age ranges, NYC residency, and the
+ * household-size income tables. Anything they cannot parse is recorded as `unmatched` rather than
+ * guessed at, which is what keeps the coverage number honest.
+ */
+
+import { readFile, writeFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
+import { dirname, join } from 'node:path';
+
+const here = dirname(fileURLToPath(import.meta.url));
+const IN = join(here, '..', 'src', 'data', 'programs.generated.json');
+const OUT = join(here, '..', 'src', 'data', 'program-criteria.generated.json');
+
+const useLlm = process.argv.includes('--llm');
+
+/** The snippet a criterion was read from, trimmed to something quotable in the UI. */
+function snippet(text, match) {
+  if (!match) return undefined;
+  const at = text.indexOf(match);
+  if (at === -1) return match.trim();
+  const start = Math.max(0, text.lastIndexOf('\n', at) + 1);
+  const end = text.indexOf('\n', at + match.length);
+  return text.slice(start, end === -1 ? undefined : end).trim();
+}
+
+/** "Do you live in New York City?" / "Live in NYC (any of the five boroughs)" */
+function deriveResidency(text) {
+  const trigger = text.match(/\b(?:live|living|reside|residing|residents? of)\b[^.\n]*\b(new york city|nyc|five boroughs)\b/i);
+  // "New York City resident" puts the place first, which the trigger-first pattern never matched.
+  const inverted = text.match(/\b(?:new york city|nyc)\s+residents?\b/i);
+  const match = trigger ?? inverted;
+  return match ? { nycResident: true, sourceText: snippet(text, match[0]) } : null;
+}
+
+/**
+ * Words that mean the age belongs to somebody other than the applicant.
+ *
+ * "Your family must have a child under 18" produced `maxAge: 17`, which the engine then applied
+ * to the adult filling in the form — telling every real parent facing eviction that they did not
+ * qualify for eviction prevention. An age we cannot confidently attribute to the applicant is
+ * worse than no age at all.
+ */
+const DEPENDANT_WORDS =
+  /\b(child|children|kid|kids|son|daughter|dependent|dependant|infant|toddler|baby|babies|youth|student|minor|grandchild)\b/i;
+
+/** The sentence a match sits in, which is the scope that decides whose age it is. */
+function sentenceAround(text, match) {
+  const at = text.indexOf(match);
+  if (at === -1) return text;
+  const start = Math.max(0, text.lastIndexOf('\n', at) + 1);
+  const end = text.indexOf('\n', at + match.length);
+  return text.slice(start, end === -1 ? text.length : end);
+}
+
+/**
+ * Age bounds. Ordered most specific first, because "18-64" also contains "18", and matching the
+ * looser pattern first would silently drop the upper bound.
+ */
+function deriveAge(text) {
+  const range = text.match(/\b(\d{1,3})\s*(?:-|–|—|to)\s*(\d{1,3})\s*years?\s*old\b/i);
+  if (range) {
+    return { minAge: Number(range[1]), maxAge: Number(range[2]), sourceText: snippet(text, range[0]) };
+  }
+  const andUp = text.match(/\bages?\s*(\d{1,3})\s*(?:and|or)\s*(?:up|older|above|over)\b/i);
+  if (andUp) return { minAge: Number(andUp[1]), sourceText: snippet(text, andUp[0]) };
+
+  const orOlder = text.match(/\b(\d{1,3})\s*(?:years old)?\s*(?:or|and)\s*(?:older|above|over)\b/i);
+  if (orOlder) return { minAge: Number(orOlder[1]), sourceText: snippet(text, orOlder[0]) };
+
+  const under = text.match(/\bunder\s*(?:the\s*age\s*of\s*)?(\d{1,3})\b/i);
+  if (under) return { maxAge: Number(under[1]) - 1, sourceText: snippet(text, under[0]) };
+
+  // "anyone age 18 or younger" — the mirror of "and up", which was previously unhandled.
+  const orYounger = text.match(/\bages?\s*(\d{1,3})\s*(?:and|or)\s*(?:younger|under|below)\b/i);
+  if (orYounger) return { maxAge: Number(orYounger[1]), sourceText: snippet(text, orYounger[0]) };
+
+  return null;
+}
+
+/** Drops an age whose sentence is about a dependant rather than the applicant. */
+function deriveApplicantAge(text) {
+  const age = deriveAge(text);
+  if (!age) return null;
+  const scope = sentenceAround(text, age.sourceText ?? '');
+  return DEPENDANT_WORDS.test(scope) ? null : age;
+}
+
+/**
+ * The household-size income tables.
+ *
+ * The City renders these as a table, which flattens to alternating lines: a household size, then
+ * a dollar amount. We only accept a run where the sizes ascend from 1 by one, which is what stops
+ * unrelated numbers elsewhere in the prose from being mistaken for a bracket table.
+ */
+function deriveIncomeTable(text) {
+  const lines = text.split('\n').map((l) => l.trim()).filter(Boolean);
+  const brackets = {};
+  // Some tables legitimately start at 2 (a "family" implies at least a parent and a child), so
+  // the run may begin anywhere -- it only has to ascend by one.
+  let expected = null;
+
+  for (let i = 0; i < lines.length - 1; i++) {
+    const size = lines[i].match(/^(\d{1,2})$/);
+    const money = lines[i + 1].match(/^\$([\d,]+)$/);
+    if (!size || !money) continue;
+
+    const n = Number(size[1]);
+    if (expected === null ? n >= 1 && n <= 3 : n === expected) {
+      brackets[n] = Number(money[1].replace(/,/g, ''));
+      expected = n + 1;
+      i += 1;
+    }
+  }
+
+  if (Object.keys(brackets).length < 2) return null;
+
+  const increment = text.match(/each additional (?:person|member|household member)[^$]*\$([\d,]+)/i);
+  const perPerson = increment ? Number(increment[1].replace(/,/g, '')) : undefined;
+
+  /*
+   * Monthly tables are not annual tables.
+   *
+   * The agency publishes some of these as "Maximum Monthly Gross Income" and others annually.
+   * Storing a monthly figure in the annual field made the limit roughly twelve times too strict:
+   * a HEAP applicant earning $1,800 a month was measured against $3,322 a *year* and told they
+   * did not qualify for heating assistance.
+   */
+  const monthly = /\bmonthly\b/i.test(text) && !/\byearly|annual(?:ly)?\b/i.test(text);
+  const scale = (value) => (monthly ? value * 12 : value);
+
+  return {
+    annualIncomeByHouseholdSize: Object.fromEntries(
+      Object.entries(brackets).map(([size, value]) => [size, scale(value)]),
+    ),
+    additionalPersonIncrement: perPerson === undefined ? undefined : scale(perPerson),
+    statedMonthly: monthly || undefined,
+    sourceText: monthly
+      ? 'Monthly household income table published by the agency, converted to a yearly figure.'
+      : 'Household income table published by the agency.',
+  };
+}
+
+/**
+ * Income limits that are about something narrower than household income.
+ *
+ * The EITC text sets an investment-income sub-limit of $11,950 alongside household limits running
+ * from $19,104 to $68,675. Capturing the first "income ... less than $N" match took the sub-limit
+ * and applied it as the household cap, ruling out most working families who actually qualify.
+ */
+const NARROW_INCOME = /\b(investment|asset|unearned|interest|dividend|capital gain|resource)\b/i;
+
+/** A single cap with no table behind it — "income at or below $50,000", "$50,000 or less". */
+function deriveSingleIncomeCap(text) {
+  const before = text.match(/income[^.\n]*?(?:at or below|below|less than|under|up to|not exceed)[^$\n]*\$([\d,]+)/i);
+  // "Your household income is $50,000 or less per year" -- the qualifier trails the figure, which
+  // the original pattern could not see at all.
+  const after = text.match(/income[^.\n]{0,40}?\$([\d,]+)\s*(?:or less|or below|or under)\b/i);
+  const match = before ?? after;
+  if (!match) return null;
+
+  const scope = sentenceAround(text, match[0]);
+  if (NARROW_INCOME.test(scope)) return null;
+
+  const amount = Number(match[1].replace(/,/g, ''));
+  const monthly = /\bmonthly\b/i.test(scope) || amount < 10_000;
+  return {
+    annualIncomeCap: monthly ? amount * 12 : amount,
+    statedAs: amount,
+    sourceText: snippet(text, match[0]),
+  };
+}
+
+/**
+ * Whether the rule offers alternative routes to eligibility.
+ *
+ * "You qualify if any of the following apply: 65 or older, legally blind, deaf, ..." was being
+ * collapsed to a hard age-65 floor, so a forty-year-old blind rider was told they did not qualify
+ * for a reduced fare. Where alternatives exist and we can only evaluate one, the result must not
+ * be presented as a determination.
+ */
+function hasAlternatives(text) {
+  return /\b(any of the following|one of the following|one of these|any of these|either)\b/i.test(text);
+}
+
+/**
+ * Conditions the engine has no way to evaluate, because we never ask about them.
+ *
+ * Half the scorable catalogue turns on at least one of these. Naming them is what lets the app
+ * say "we checked what we could" instead of implying it checked everything.
+ */
+function uncheckedConditions(text) {
+  const checks = {
+    disability: /\b(disab(?:led|ility)|blind|deaf|ambulatory)\b/i,
+    immigration: /\b(citizen|immigration status|qualified (?:non-?citizen|alien)|lawfully present|green card)\b/i,
+    veteran: /\bveteran\b/i,
+    pregnancy: /\bpregnan/i,
+    otherBenefits: /\b(SNAP|SSI|Cash Assistance|Medicaid|public assistance)\b/,
+    student: /\b(enrolled full-time|student status)\b/i,
+  };
+  return Object.entries(checks)
+    .filter(([, pattern]) => pattern.test(text))
+    .map(([name]) => name);
+}
+
+const MONTHS = ['january','february','march','april','may','june','july','august','september','october','november','december'];
+
+/**
+ * When a programme has to be renewed, read from the City's own wording.
+ *
+ * This matters more than it looks. Reporting on NY benefits finds that two of the commonest
+ * reasons people lose food and health coverage have nothing to do with eligibility — a
+ * recertification notice lost in the mail, or a portal that fails mid-upload. Getting somebody
+ * enrolled and then letting them fall off solves half the problem.
+ *
+ * Only cadences the text actually states are returned. A programme with no renewal language gets
+ * nothing rather than an assumed twelve months, because a made-up deadline is worse than none.
+ */
+function deriveRenewal(text) {
+  if (!text) return null;
+
+  const everyN = text.match(/\b(?:renew|recertif\w*|recert)\w*[^.\n]{0,40}?every\s+(\d{1,2})\s+months?/i);
+  if (everyN) {
+    return { cadenceMonths: Number(everyN[1]), sourceText: snippet(text, everyN[0]) };
+  }
+
+  const annual = text.match(/\b(?:renew|recertif\w*|reapply|re-apply)\w*[^.\n]{0,60}?\b(?:each year|every year|annually|yearly)\b/i);
+  const annualAlt = text.match(/\b(?:each year|every year|annually)\b[^.\n]{0,40}?\b(?:renew|recertif\w*|reapply)/i);
+  const hit = annual ?? annualAlt;
+  if (!hit) return null;
+
+  // "Renew every year by March 15" -- a fixed calendar deadline, not a rolling anniversary.
+  const byDate = text.match(/\bby\s+(January|February|March|April|May|June|July|August|September|October|November|December)\s+(\d{1,2})\b/i);
+
+  return {
+    cadenceMonths: 12,
+    ...(byDate
+      ? { deadlineMonth: MONTHS.indexOf(byDate[1].toLowerCase()) + 1, deadlineDay: Number(byDate[2]) }
+      : {}),
+    sourceText: snippet(text, hit[0]),
+  };
+}
+
+/** Which categories of proof the program asks for, mapped onto our document registry. */
+function deriveDocumentCategories(documentsText) {
+  if (!documentsText) return [];
+  const lower = documentsText.toLowerCase();
+  const categories = new Set();
+
+  if (/\bidentity|identification|photo id|government-issued|passport|driver'?s licen[cs]e\b/.test(lower)) {
+    categories.add('identity');
+  }
+  if (/\bresidency|where you live|proof of address|lease|utility bill|rent receipt\b/.test(lower)) {
+    categories.add('residence');
+  }
+  if (/\bincome|pay ?stub|w-?2|tax return|wages|earnings\b/.test(lower)) {
+    categories.add('income');
+  }
+  if (/\bimmigration|visa|i-?20|permanent resident|green card|sevis\b/.test(lower)) {
+    categories.add('immigration');
+  }
+  return [...categories];
+}
+
+const catalogue = JSON.parse(await readFile(IN, 'utf8'));
+
+const derived = catalogue.programs.map((program) => {
+  const text = program.eligibilityText ?? '';
+  const residency = deriveResidency(text);
+  const age = deriveApplicantAge(text);
+  const table = deriveIncomeTable(text);
+  const cap = table ? null : deriveSingleIncomeCap(text);
+  const documentCategories = deriveDocumentCategories(program.requiredDocumentsText);
+  // Renewal language lives across several prose fields, not just the eligibility block.
+  const renewalText = [
+    program.headsUp,
+    program.description,
+    program.howToApply?.summary,
+    program.howToApply?.online,
+    text,
+  ]
+    .filter(Boolean)
+    .join('\n');
+  const renewal = deriveRenewal(renewalText);
+  const alternatives = hasAlternatives(text);
+  const unchecked = uncheckedConditions(text);
+
+  const criteria = {};
+  const sources = {};
+
+  if (residency) {
+    criteria.nycResident = residency.nycResident;
+    sources.nycResident = residency.sourceText;
+  }
+  if (age) {
+    if (age.minAge !== undefined) criteria.minAge = age.minAge;
+    if (age.maxAge !== undefined) criteria.maxAge = age.maxAge;
+    sources.age = age.sourceText;
+  }
+  if (table) {
+    criteria.annualIncomeByHouseholdSize = table.annualIncomeByHouseholdSize;
+    if (table.additionalPersonIncrement !== undefined) {
+      criteria.additionalPersonIncrement = table.additionalPersonIncrement;
+    }
+    sources.income = table.sourceText;
+  }
+  if (cap) {
+    criteria.annualIncomeCap = cap.annualIncomeCap;
+    sources.income = cap.sourceText;
+  }
+  if (documentCategories.length > 0) criteria.requiredCategories = documentCategories;
+
+  const scorable = Boolean(
+    criteria.nycResident ||
+      criteria.minAge !== undefined ||
+      criteria.maxAge !== undefined ||
+      criteria.annualIncomeByHouseholdSize ||
+      criteria.annualIncomeCap,
+  );
+
+  /*
+   * `partial` is the safety net under every heuristic in this file.
+   *
+   * When the rule offers alternative routes, or turns on something we never ask about, our
+   * reading is a fragment of the real test. The engine refuses to issue a negative on a fragment
+   * -- see `evaluate()`. This bounds the damage from any miss here, present or future.
+   */
+  const partial = alternatives || unchecked.length > 0;
+
+  return {
+    programId: program.id,
+    programName: program.name,
+    partial: partial || undefined,
+    unchecked: unchecked.length > 0 ? unchecked : undefined,
+    // `scorable` is what the UI keys off to decide between "we checked" and "read the rules
+    // yourself". Overstating it would mean telling someone they do not qualify on no evidence.
+    scorable,
+    method: scorable ? 'heuristic' : 'unmatched',
+    criteria,
+    // Present only where the City states a cadence. Absence means "we do not know", never
+    // "no renewal needed".
+    renewal: renewal ?? undefined,
+    // Only the quoted lines, not the whole eligibility text -- that already ships in
+    // programs.runtime.json and duplicating it here would double the bundle cost for nothing.
+    sources,
+    sourceUrl: program.applyUrls?.online ?? program.source?.url,
+  };
+});
+
+if (useLlm) {
+  console.log('--llm requested. Set EXPO_PUBLIC_GEMINI_API_KEY and re-run once the key exists;');
+  console.log('unmatched programs will then be structured by the model and marked method="llm".');
+}
+
+const scorable = derived.filter((d) => d.scorable).length;
+const withDocs = derived.filter((d) => d.criteria.requiredCategories?.length).length;
+const withRenewal = derived.filter((d) => d.renewal).length;
+
+await writeFile(
+  OUT,
+  `${JSON.stringify(
+    { derivedAt: new Date().toISOString(), method: useLlm ? 'heuristic+llm' : 'heuristic', count: derived.length, scorable, programs: derived },
+    null,
+    2,
+  )}\n`,
+);
+
+console.log(`Derived criteria for ${derived.length} programs`);
+console.log(`  scorable                : ${scorable}`);
+console.log(`  with document categories: ${withDocs}`);
+console.log(`  with a stated renewal   : ${withRenewal}`);
+console.log(`  partial (no hard "no")  : ${derived.filter((d) => d.partial).length}`);
+console.log(`  unmatched (browse only) : ${derived.length - scorable}`);
+console.log(`  written to ${OUT}`);

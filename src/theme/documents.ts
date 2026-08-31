@@ -1,40 +1,40 @@
-/**
- * The five document types the app collects, and the tint each one's thumbnail uses.
- *
- * Thumbnails are striped placeholders standing in for a real page preview. In production the
- * uploaded file's first page replaces the stripes, but the tint stays — it's what makes the
- * five rows scannable at a glance in Profile.
- */
-
 import { colors } from './tokens';
 
-export type DocumentKind = 'id' | 'address' | 'income' | 'lease' | 'utility';
+/**
+ * Documents are tinted by what they *prove*, not by which file they are.
+ *
+ * A passport and an IDNYC card both prove identity, so they share a tint. This is what lets the
+ * registry stay open — a new document type picks up its colour from its category instead of
+ * needing a palette entry of its own.
+ */
 
-/** Render order in Profile and in the review screen's attachment list. */
-export const documentKinds: readonly DocumentKind[] = [
-  'id',
-  'address',
+export type DocumentCategory = 'identity' | 'immigration' | 'income' | 'residence' | 'other';
+
+/** Render order in Profile: identity first, because nothing else is accepted without it. */
+export const documentCategories: readonly DocumentCategory[] = [
+  'identity',
+  'immigration',
   'income',
-  'lease',
-  'utility',
+  'residence',
+  'other',
 ] as const;
 
 type DocumentTint = {
-  /** Thumbnail fill once the document is verified. */
+  /** Thumbnail fill once the document has been read. */
   surface: string;
   /** The 135° stripe drawn over it. */
   stripe: string;
 };
 
 export const documentTints = {
-  id: { surface: '#EEEEF8', stripe: '#DCDCEF' },
-  address: { surface: '#E7F3FC', stripe: '#D2E8F8' },
+  identity: { surface: '#EEEEF8', stripe: '#DCDCEF' },
+  immigration: { surface: '#EAF0FB', stripe: '#D6E2F5' },
   income: { surface: colors.greenTint, stripe: '#D3EEDE' },
-  lease: { surface: '#F0F0F2', stripe: '#E3E3E7' },
-  utility: { surface: colors.amberTint, stripe: '#F7E7C4' },
-} as const satisfies Record<DocumentKind, DocumentTint>;
+  residence: { surface: '#E7F3FC', stripe: '#D2E8F8' },
+  other: { surface: colors.amberTint, stripe: '#F7E7C4' },
+} as const satisfies Record<DocumentCategory, DocumentTint>;
 
-/** An unadded document shows a flat neutral tile with no stripes. */
+/** A document still being read, or one that failed, shows a flat neutral tile. */
 export const emptyDocumentTint = {
   surface: colors.offWhite,
   stripe: 'transparent',
