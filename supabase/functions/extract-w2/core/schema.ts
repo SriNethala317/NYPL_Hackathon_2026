@@ -1,4 +1,4 @@
-import { z } from 'npm:zod@3.24.1';
+import { z } from 'https://esm.sh/zod@3.24.1';
 
 /**
  * The one schema both tracks emit.

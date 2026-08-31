@@ -239,3 +239,8 @@ eng.traineddata
 
 # Local secrets.
 .env
+
+# Deno resolves the Edge Function imports at deploy time; the lockfile is a local artifact
+# of running the function under `deno run` for testing, not part of what ships.
+deno.lock
+supabase/.temp/

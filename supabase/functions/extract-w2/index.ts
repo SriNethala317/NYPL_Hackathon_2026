@@ -1,4 +1,4 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.112.4';
 
 import { redact } from './redact.ts';
 import { W2Fields, emptyFields } from './core/schema.ts';

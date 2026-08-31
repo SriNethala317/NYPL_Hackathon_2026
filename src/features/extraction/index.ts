@@ -15,6 +15,7 @@ export { readDocument, type ReadOutcome } from './read-document';
 export {
   extractW2,
   annualIncome,
+  describeInvokeError,
   type W2Extraction,
   type ExtractOutcome,
   type ArithmeticCheck,

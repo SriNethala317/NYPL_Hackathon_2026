@@ -86,11 +86,34 @@ export function annualIncome(result: W2Extraction): { value: string; from: 'box5
   return null;
 }
 
-/** Shrinks the photograph so the request is small enough to survive a phone connection. */
+/**
+ * Shrinks the photograph so the request is small enough to survive a phone connection.
+ *
+ * Bounds the *long* edge, which is not the same as bounding the width. A phone camera shoots
+ * portrait — 3024x4032 on an iPhone — so constraining width alone to 1600 leaves a 1600x2133 image
+ * whose long edge is a third larger than anything the accuracy figures were measured against, and
+ * a third more bytes on the wire. Scaling both sides by one ratio also preserves the aspect ratio,
+ * where passing width alone relies on the library to infer it.
+ *
+ * An image already inside the bound is not enlarged. Upscaling invents no detail for the model to
+ * read and costs bytes to send, so the only thing it can do is make the request slower.
+ */
 async function downscale(uri: string): Promise<string> {
-  const context = ImageManipulator.manipulate(uri).resize({ width: MAX_EDGE });
-  const image = await context.renderAsync();
-  const saved = await image.saveAsync({ format: SaveFormat.JPEG, compress: JPEG_QUALITY });
+  const source = await ImageManipulator.manipulate(uri).renderAsync();
+  const longest = Math.max(source.width, source.height);
+
+  // Re-encoded as JPEG either way, so the function receives one predictable media type rather
+  // than whichever format the camera or the file picker happened to hand over.
+  if (longest <= MAX_EDGE) {
+    const saved = await source.saveAsync({ format: SaveFormat.JPEG, compress: JPEG_QUALITY });
+    return saved.uri;
+  }
+
+  const scale = MAX_EDGE / longest;
+  const resized = await ImageManipulator.manipulate(uri)
+    .resize({ width: Math.round(source.width * scale), height: Math.round(source.height * scale) })
+    .renderAsync();
+  const saved = await resized.saveAsync({ format: SaveFormat.JPEG, compress: JPEG_QUALITY });
   return saved.uri;
 }
 
@@ -130,23 +153,7 @@ export async function extractW2(uri: string): Promise<ExtractOutcome> {
   });
 
   if (error) {
-    /*
-     * A FunctionsHttpError carries the function's own JSON body, which is where the useful message
-     * is -- "GEMINI_API_KEY is not set on this function" rather than "Edge Function returned a
-     * non-2xx status code". Reading it costs one await and turns an opaque failure into an
-     * actionable one.
-     */
-    let detail = error.message;
-    const response = (error as { context?: Response }).context;
-    if (response instanceof Response) {
-      try {
-        const body = await response.json();
-        if (typeof body?.error === 'string') detail = body.error;
-      } catch {
-        /* The body was not JSON; the original message is the best we have. */
-      }
-    }
-    return { ok: false, detail };
+    return { ok: false, detail: await describeInvokeError(error) };
   }
 
   return {
@@ -155,4 +162,43 @@ export async function extractW2(uri: string): Promise<ExtractOutcome> {
     uploadedBytes: image.bytes,
     totalMs: Date.now() - started,
   };
+}
+
+/**
+ * Turning a failed `invoke()` into something a person can act on.
+ *
+ * `supabase-js` reports every non-2xx as the same sentence — "Edge Function returned a non-2xx
+ * status code" — regardless of whether the function rejected the image, refused the caller, or was
+ * never deployed at all. The distinction is entirely in the response body, which the error carries
+ * on `context` and which nothing reads unless asked.
+ *
+ * Two body shapes matter, because two different services answer here. This function's own errors
+ * are `{ error }`. The Supabase gateway's are `{ code, message }` — and the gateway is what answers
+ * when the function is missing, which is the single most likely failure on a fresh project and
+ * exactly the one the generic message hides.
+ */
+export async function describeInvokeError(error: Error): Promise<string> {
+  const response = (error as { context?: unknown }).context;
+
+  if (!(response instanceof Response)) {
+    // No response at all: DNS, no network, or the request never left the phone.
+    return `${error.message} (the request did not reach Supabase — check the connection and EXPO_PUBLIC_SUPABASE_URL)`;
+  }
+
+  let body: unknown = null;
+  try {
+    body = await response.clone().json();
+  } catch {
+    /* Not JSON; the status alone has to carry it. */
+  }
+
+  const fields = (body ?? {}) as { error?: unknown; message?: unknown; msg?: unknown; code?: unknown };
+  const message = [fields.error, fields.message, fields.msg].find((v) => typeof v === 'string' && v);
+
+  if (response.status === 404 || fields.code === 'NOT_FOUND') {
+    return 'The extract-w2 function is not deployed to this Supabase project. Run: npx supabase functions deploy extract-w2';
+  }
+
+  if (typeof message === 'string') return message;
+  return `${error.message} (HTTP ${response.status})`;
 }
