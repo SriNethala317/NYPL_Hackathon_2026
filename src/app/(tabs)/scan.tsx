@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
+import { TabScreen } from '@/components/enroll';
 import { Badge, Button, Card, Icon, Text } from '@/components/ui';
 import {
   annualIncome,
@@ -9,7 +10,9 @@ import {
   extractW2,
   type W2Extraction,
 } from '@/features/extraction';
-import { colors, layout } from '@/theme';
+import { useLanguageSwitchLabel, useStrings } from '@/i18n/use-strings';
+import { useAppStore } from '@/state/app-store';
+import { colors } from '@/theme';
 
 /**
  * A development surface for trying the extraction pipeline on real documents.
@@ -19,8 +22,16 @@ import { colors, layout } from '@/theme';
  * project has was measured against *rendered* fixtures that were never printed, which makes them an
  * upper bound. The only way to find out what a photograph of a real W-2 does is to photograph one.
  *
- * Deliberately holds no shared state. Everything is `useState` in this file, nothing is dispatched
- * to the store, nothing is persisted — so deleting this screen changes nothing else.
+ * Deliberately holds no shared state of its own. Every extraction result is `useState` in this
+ * file and nothing is persisted, so deleting this screen changes nothing else. The only thing it
+ * takes from the store is the language, and the only thing it dispatches is the toggle that the
+ * shared header already owns.
+ *
+ * It renders inside `TabScreen` rather than its own `ScrollView` for a reason worth stating: the
+ * status bar is not padding you can guess. `AppHeader` derives its top inset from the real safe
+ * area, so a screen that frames itself sits under the clock and the carrier text on a notched
+ * phone while looking correct in a simulator. The same frame is also what keeps the last card
+ * clear of the floating tab bar and caps the content width on web and tablets.
  *
  * ## Why the arithmetic is the headline
  *
@@ -40,6 +51,9 @@ type State =
   | { phase: 'failed'; detail: string };
 
 export default function ScanScreen() {
+  const strings = useStrings();
+  const switchLabel = useLanguageSwitchLabel();
+  const { language, toggleLanguage } = useAppStore();
   const [state, setState] = useState<State>({ phase: 'idle' });
 
   const run = async (pick: typeof captureDocument) => {
@@ -61,9 +75,12 @@ export default function ScanScreen() {
   };
 
   return (
-    <ScrollView style={styles.root} contentContainerStyle={styles.content}>
-      <Text variant="screenTitle">Scan a W-2</Text>
-      <Text variant="bodySm" color="muted" style={styles.intro}>
+    <TabScreen
+      title={strings.tabs.scan}
+      language={language}
+      switchLabel={switchLabel}
+      onToggleLanguage={toggleLanguage}>
+      <Text variant="bodySm" color="muted">
         Development only. Reads the document through the Edge Function and shows exactly what came
         back — nothing is saved to your profile.
       </Text>
@@ -100,7 +117,7 @@ export default function ScanScreen() {
       )}
 
       {state.phase === 'done' && <Result state={state} />}
-    </ScrollView>
+    </TabScreen>
   );
 }
 
@@ -221,9 +238,6 @@ function Field({ label, value }: { label: string; value: string | null }) {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: colors.offWhite },
-  content: { padding: layout.screenPaddingX, paddingBottom: layout.tabBarClearance, gap: 16 },
-  intro: { marginTop: 4 },
   actions: { flexDirection: 'row', gap: 10, marginTop: 4 },
   card: { gap: 8 },
   row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },

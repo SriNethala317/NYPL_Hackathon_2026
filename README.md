@@ -28,7 +28,7 @@ If the QR code shows `127.0.0.1`, your phone cannot reach it — use `npm start 
 |---|---|
 | `npm start` | Expo dev server |
 | `npm run ios` / `android` / `web` | Open a platform directly |
-| `npm test` | Jest — 310 tests across 22 suites |
+| `npm test` | Jest — 313 tests across 23 suites |
 | `npm run lint` | ESLint via `expo lint` |
 | `npx tsc --noEmit` | Typecheck (strict) |
 | `npx expo export --platform web` | Static-renders every route; a render crash fails the build |
