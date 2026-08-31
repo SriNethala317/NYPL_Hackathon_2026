@@ -33,9 +33,10 @@ export default function PrivacyScreen() {
   const never = neverStored();
   /*
    * Where a document image goes, read off the OCR provider that will actually run rather than
-   * asserted here. On the web build tesseract reads the image in the browser and this is null; on
-   * a phone with a Gemini key the photograph is sent to Google, and the "where it goes" card
-   * names it. The screen cannot go on saying "nowhere" once the code stops meaning it.
+   * asserted here. There is no local reader on any platform this app ships on: with no Gemini key
+   * configured, nothing is read at all and this is null; with a key, the photograph is sent to
+   * Google, and the "where it goes" card names it. The screen cannot go on saying "nowhere" once
+   * the code stops meaning it.
    */
   const destination = documentDestination();
 

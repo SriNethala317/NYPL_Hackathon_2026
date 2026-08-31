@@ -79,9 +79,12 @@ export default function EnrollmentScreen() {
               label: strings.enrollment.addDocuments,
               onPress: () => router.navigate('/profile'),
             }}
+            // The design's "Preview with sample documents" fabricated four verified documents.
+            // The only real substitute is the same trip the primary action takes — there is no
+            // eligibility to preview until something has actually been uploaded.
             secondaryAction={{
-              label: strings.enrollment.previewSample,
-              onPress: store.loadSample,
+              label: strings.enrollment.goToProfile,
+              onPress: () => router.navigate('/profile'),
             }}
           />
           <PrivacyNote onPress={() => router.push('/privacy')}>{strings.privacy}</PrivacyNote>

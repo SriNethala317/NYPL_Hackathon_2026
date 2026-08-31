@@ -58,10 +58,11 @@ export function neverStored(): string[] {
  * Where a document image goes to be read on this platform, or `null` when it never leaves.
  *
  * Derived from the OCR provider that will actually run, not from a flag someone remembers to
- * flip. On the web build tesseract reads the image inside the browser and this is `null`; on a
- * phone with a Gemini key configured the photograph is sent to Google, and this returns the name
- * of the service so the privacy screen can say so in as many words. Wiring a new remote reader in
- * without updating the disclosure is not possible: the disclosure reads from the reader.
+ * flip. There is no local reader on any platform this app ships on: with a Gemini key configured
+ * the photograph is sent to Google and this returns the name of the service so the privacy screen
+ * can say so in as many words; without one, nothing is read at all and this stays `null` because
+ * there is nowhere for an image to go. Wiring a new remote reader in without updating the
+ * disclosure is not possible: the disclosure reads from the reader.
  */
 export function documentDestination(): string | null {
   return ocrProvider().sendsImagesTo;

@@ -28,13 +28,14 @@ If the QR code shows `127.0.0.1`, your phone cannot reach it — use `npm start 
 |---|---|
 | `npm start` | Expo dev server |
 | `npm run ios` / `android` / `web` | Open a platform directly |
-| `npm test` | Jest — 306 tests across 22 suites |
+| `npm test` | Jest — 310 tests across 22 suites |
 | `npm run lint` | ESLint via `expo lint` |
 | `npx tsc --noEmit` | Typecheck (strict) |
 | `npx expo export --platform web` | Static-renders every route; a render crash fails the build |
 
-`npm test` includes the OCR accuracy suite, which shells out to Tesseract and takes about 12
-seconds. Skip it with `npx jest --testPathIgnorePatterns=ocr-accuracy`.
+There used to be an OCR accuracy suite here that shelled out to Tesseract and took about 12
+seconds. It's gone along with the tesseract.js provider it measured — see **Document extraction**
+below.
 
 ## Data: where the programmes come from
 
@@ -65,40 +66,40 @@ not qualify it can show the line that decided it.
 
 ## Document extraction
 
-`src/features/extraction/` — OCR plus label-anchored field matching. Tesseract needs no key, so
-accuracy is **measured, not assumed**:
+`src/features/extraction/` — vision-model reading plus label-anchored field matching. There used
+to be a second, local reader here (tesseract.js), with an accuracy suite that measured it across
+five corrupted variants — clean, skew and lowlight held 100%, glare fell to 82%, and blur bottomed
+out at 36%. Both the provider and that suite are gone: tesseract's workers need
+`Worker`/`Blob`/`importScripts` (web) or `worker_threads`/`fs` (Node), none of which Hermes
+provides, so it only ever ran in a plain web build — not the app this project ships — and the
+numbers it produced belonged to a reader nobody actually used in Expo Go. Full reasoning is the
+comment at the top of `src/features/extraction/ocr-provider.ts`. The accuracy figures above are
+historical, describing a reader this codebase no longer contains; there is no command that
+reproduces them any more.
 
-| Variant | Field accuracy |
-|---|---|
-| clean | 100% |
-| skew | 100% |
-| lowlight | 100% |
-| glare | 82% |
-| **blur** | **36%** |
+Gemini vision is what's left: one model call classifies, reads and cleans, where OCR plus regex
+cannot. It switches on the moment a key is set (see below).
 
-Run it: `npx jest ocr-accuracy`. The corpus (`docs/ocr-corpus/`, built by
-`scripts/make-ocr-corpus.mjs`) is **synthetic** — committing a photo of a real ID would hand out
-the exact data this app exists to protect.
+`ocr-provider.ts` takes the first reader that can actually run, and there are now exactly two
+cases, the same on every platform including web:
 
-Blur is the cliff, and it is the argument for a vision model: one call classifies, reads and
-cleans, where OCR plus regex cannot. Gemini vision is wired and switches on the moment a key is
-set (see below).
-
-Which reader runs is decided by the platform rather than by preference — `ocr-provider.ts` takes
-the first that can actually run:
-
-| Platform | Reader | Does the image leave the device? |
+| Configuration | Reader | Does the image leave the device? |
 |---|---|---|
-| Web | tesseract.js, inside the browser | No |
-| Phone, Gemini key set | Gemini vision | Yes — the privacy screen names Google |
-| Phone, no key | none, and it says so | No |
+| `EXPO_PUBLIC_GEMINI_API_KEY` set | Gemini vision | Yes — the privacy screen names Google |
+| No key | none, and it says so | No |
 
-The phone has no free option, because **tesseract.js cannot run in Expo Go** — both of its workers
-need APIs Hermes does not provide. Without a key the upload flow admits it and falls through to
-typing the details in, rather than appearing to read and returning nothing.
+There is no longer a platform on which a document is read without the image leaving the device —
+the old story ("tesseract.js in the browser keeps it local") described a provider that has been
+removed for the reason above, not a capability phones lack. Without a key the upload flow admits
+it and falls through to typing the details in, rather than appearing to read and returning
+nothing.
 
-The corpus includes a document containing *"IGNORE ALL PREVIOUS INSTRUCTIONS"*. A test asserts the
-real value survives — document text is data, never instructions.
+The synthetic corpus (`docs/ocr-corpus/`, built by `scripts/make-ocr-corpus.mjs`) is still here —
+committing a photo of a real ID would hand out the exact data this app exists to protect — and
+still includes a document containing *"IGNORE ALL PREVIOUS INSTRUCTIONS"*. The test asserting the
+real value survives now lives in `src/features/extraction/gemini-vision.test.ts` ("treats an
+instruction printed on the page as text, not as a command") — document text is data, never
+instructions.
 
 ## Filling the actual form
 
@@ -209,12 +210,14 @@ is:
   back on the next launch. Without it, state lives in memory for the session and is gone on
   restart. Saving is fire-and-forget by design: a failed write costs you the convenience next
   time, never the form you came to print.
-- `EXPO_PUBLIC_GEMINI_API_KEY` — a phone can read a document. Without it only the web build can,
-  and the phone asks you to type the details in instead.
+- `EXPO_PUBLIC_GEMINI_API_KEY` — a document can be read, on any platform. Without it, no build can
+  read one at all: the upload flow says so and falls through to typing the details in.
 
-**Simulated:** "Load sample" and the demo buttons fabricate an applicant so the failure states can
-be shown without a camera. Those documents are namespaced `sample-` and the first real upload
-clears them, so an invented passport cannot outrank a real driver's licence.
+**Nothing is fabricated.** There is no sample applicant, no "Load sample" button, and no simulated
+upload path — every document, field and application in the app came from something you actually
+uploaded or typed. The demo affordances that used to stand in for a camera during development have
+been deleted from the code; `docs/design/*` still shows and describes them, but that is the frozen
+design handoff describing intent, not the current app.
 
 **Known gaps:**
 

@@ -53,7 +53,7 @@ const en = {
     emptyBody:
       'Once your ID and income documents are on file, eligible programs appear here automatically.',
     addDocuments: 'Add documents',
-    previewSample: 'Preview with sample documents',
+    goToProfile: 'Go to Profile',
   },
 
   detail: {
@@ -133,8 +133,7 @@ const en = {
     yourDocuments: 'Your documents',
     stillNeeded: 'Still needed',
     addADocument: 'Add a document',
-    loadSample: 'Load sample',
-    resetDemo: 'Reset demo',
+    clearProfile: 'Clear profile',
     countRead: '{done} documents read',
     none: 'No documents on file yet',
     verified: 'Verified',
@@ -160,7 +159,7 @@ const en = {
       'We do not read these at all. Where a form has a box for one, we leave it blank for you to fill in before you sign.',
     whereTitle: 'Where it goes',
     whereBody:
-      'Nowhere. On this platform your document is read here, so no image of it has left your phone. Your details are held only while the app is open and are gone when you close it.',
+      'Nowhere. This build has no way to read a document automatically, so no image of it has left your phone — nothing has been read at all. Whatever you type in yourself is held only while the app is open and is gone when you close it.',
     whereNext:
       'If that ever changes — if a document has to be sent somewhere to be read — this screen will name where it goes before you upload anything.',
     /*
@@ -280,7 +279,7 @@ const en = {
     failedBody: 'The photo may be blurry or cropped. Try again with the whole page in frame.',
     tryAgain: 'Try again',
     manualOnly:
-      'This build cannot read documents automatically. Add the document, then type the details in yourself \u2014 or open the app in a browser.',
+      'This build cannot read documents automatically. Add the document, then type the details in yourself.',
     /*
      * At the moment of the decision, not buried in a settings screen. Somebody about to
      * photograph a passport is owed the fact that the photograph is going to be sent somewhere,
@@ -288,8 +287,6 @@ const en = {
      */
     sentToProvider:
       'To read it, the photo of your document is sent to {service}. Nothing else about you is sent.',
-    demoSample: 'Demo: sample document',
-    demoFailure: 'Demo: failed read',
   },
 
   /** One label per entry in the open document registry. */
@@ -393,7 +390,7 @@ const es: Strings = {
     emptyBody:
       'Cuando sus documentos de identidad e ingresos estén archivados, los programas elegibles aparecerán aquí automáticamente.',
     addDocuments: 'Agregar documentos',
-    previewSample: 'Ver con documentos de ejemplo',
+    goToProfile: 'Ir a Perfil',
   },
 
   detail: {
@@ -458,8 +455,7 @@ const es: Strings = {
     yourDocuments: 'Sus documentos',
     stillNeeded: 'Aún falta',
     addADocument: 'Agregar un documento',
-    loadSample: 'Cargar ejemplo',
-    resetDemo: 'Reiniciar demo',
+    clearProfile: 'Borrar perfil',
     countRead: '{done} documentos leídos',
     none: 'Aún no hay documentos archivados',
     verified: 'Verificado',
@@ -483,7 +479,7 @@ const es: Strings = {
       'No leemos esto en absoluto. Cuando un formulario tiene una casilla para ello, la dejamos en blanco para que usted la complete antes de firmar.',
     whereTitle: 'A d\u00f3nde va',
     whereBody:
-      'A ninguna parte. En esta plataforma su documento se lee aqu\u00ed mismo, as\u00ed que ninguna imagen de \u00e9l ha salido de su tel\u00e9fono. Sus datos se guardan solo mientras la aplicaci\u00f3n est\u00e1 abierta.',
+      'A ninguna parte. Esta versi\u00f3n no tiene forma de leer un documento autom\u00e1ticamente, as\u00ed que ninguna imagen de \u00e9l ha salido de su tel\u00e9fono \u2014 no se ha le\u00eddo nada. Lo que usted escriba directamente se guarda solo mientras la aplicaci\u00f3n est\u00e1 abierta y desaparece al cerrarla.',
     whereNext:
       'Si eso cambia alguna vez \u2014 si hay que enviar un documento a otro lugar para leerlo \u2014 esta pantalla dir\u00e1 a d\u00f3nde va antes de que usted suba nada.',
     whereRemoteBody:
@@ -589,11 +585,9 @@ const es: Strings = {
     failedBody: 'La foto puede estar borrosa o cortada. Intente de nuevo con la página completa.',
     tryAgain: 'Intentar de nuevo',
     manualOnly:
-      'Esta versi\u00f3n no puede leer documentos autom\u00e1ticamente. Agregue el documento y escriba los datos usted mismo, o abra la aplicaci\u00f3n en un navegador.',
+      'Esta versi\u00f3n no puede leer documentos autom\u00e1ticamente. Agregue el documento y escriba los datos usted mismo.',
     sentToProvider:
       'Para leerla, la foto de su documento se env\u00eda a {service}. No se env\u00eda nada m\u00e1s sobre usted.',
-    demoSample: 'Demo: documento de ejemplo',
-    demoFailure: 'Demo: lectura fallida',
   },
 
   documents: {

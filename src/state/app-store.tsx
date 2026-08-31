@@ -11,10 +11,10 @@ import {
 import { documentType, type DocumentTypeId } from '@/data/document-types';
 import { profileFields, type ProfileFieldKey } from '@/data/profile-fields';
 import { reconcile, unresolved, type FieldCandidate, type ResolvedField } from '@/data/reconcile';
-import { extractionFor, sampleApplication, sampleUploads } from '@/data/sample-profile';
 import {
   captureDocument,
   chooseDocument,
+  extractFields,
   looksReadable,
   readDocument,
   type PickedDocument,
@@ -93,17 +93,6 @@ type Action =
   | { type: 'openSheet' }
   | { type: 'closeSheet' }
   | { type: 'uploadStarted'; id: string; at: number }
-  /**
-   * Throws away the demo profile the moment a real document arrives.
-   *
-   * The sample includes a passport, and a passport outranks a driver's licence for a legal name.
-   * So somebody who pressed "Load sample" and then photographed their own licence saw the demo's
-   * name win the reconciliation — their document was read correctly and then outvoted by fiction.
-   *
-   * Reconciliation was behaving exactly as designed; the mistake was letting invented documents
-   * sit in the same pile as real ones. Real and demo data must never compete.
-   */
-  | { type: 'clearSample' }
   | { type: 'classified'; id: string; docType: DocumentTypeId; confidence: number }
   | { type: 'read'; id: string; readOn: string; candidates: FieldCandidate[] }
   | { type: 'failed'; id: string; reason: FailureReason }
@@ -115,7 +104,6 @@ type Action =
   | { type: 'setConsent'; value: boolean }
   | { type: 'setTouched'; value: boolean }
   | { type: 'submitted'; programId: string; reference: string; date: string }
-  | { type: 'loadSample'; readOn: string; at: number; date: string }
   /**
    * Everything this user had on file, arriving from the server after sign-in.
    *
@@ -143,9 +131,6 @@ const initialState: State = {
   lastReference: null,
   sheet: { open: false },
 };
-
-/** Every fabricated document id starts with this. See `loadSample`. */
-const SAMPLE_PREFIX = 'sample-';
 
 function patchDocument(state: State, id: string, patch: Partial<UploadedDocument>): State {
   return {
@@ -211,22 +196,6 @@ function reducer(state: State, action: Action): State {
       };
     }
 
-    case 'clearSample': {
-      const sample = new Set(
-        state.documents.filter((d) => d.id.startsWith(SAMPLE_PREFIX)).map((d) => d.id),
-      );
-      if (sample.size === 0) return state;
-
-      return {
-        ...state,
-        documents: state.documents.filter((d) => !sample.has(d.id)),
-        candidates: state.candidates.filter((c) => !sample.has(c.documentId)),
-        // The demo's applications go too: a reference nobody issued, against a programme this
-        // person never applied for, is worse than an empty Home tab.
-        applications: [],
-      };
-    }
-
     case 'failed':
       return patchDocument(state, action.id, { status: 'failed', failure: action.reason });
 
@@ -287,29 +256,6 @@ function reducer(state: State, action: Action): State {
         touched: false,
       };
 
-    case 'loadSample': {
-      const documents = sampleUploads.map((upload, index) => ({
-        id: `sample-${upload.type}`,
-        type: upload.type,
-        status: 'read' as const,
-        readOn: action.readOn,
-        readAt: action.at + index,
-        confidence: 0.97,
-      }));
-      const candidates = documents.flatMap((doc) =>
-        extractionFor(doc.type, doc.id, doc.readAt),
-      );
-      return {
-        ...state,
-        documents,
-        candidates,
-        overrides: {},
-        conflictChoices: {},
-        confirmedFields: [],
-        applications: [{ ...sampleApplication, date: action.date }],
-      };
-    }
-
     case 'hydrated': {
       /*
        * Server rows fill gaps; they never overwrite. Someone who opens the app and immediately
@@ -346,17 +292,12 @@ type Store = State & {
   openSheet: () => void;
   closeSheet: () => void;
   /**
-   * The real thing: pick a document, read it, reconcile what it yields.
+   * Pick a document, read it, reconcile what it yields.
    *
-   * `source` decides camera or library. `simulate` drives the demo buttons, which fabricate a
-   * document without touching the camera — kept because they are the only way to show the
-   * failure paths on demand.
+   * `source` decides camera or library. `as` is set only when the caller already knows the
+   * document's type, so classification is skipped rather than asked to re-guess it.
    */
-  upload: (options?: {
-    source?: 'camera' | 'library';
-    as?: DocumentTypeId;
-    simulate?: 'sample' | 'unknown' | 'failure';
-  }) => void;
+  upload: (options?: { source?: 'camera' | 'library'; as?: DocumentTypeId }) => void;
   setDocumentType: (id: string, docType: DocumentTypeId) => void;
   removeDocument: (id: string) => void;
   setValue: (key: ProfileFieldKey, value: string) => void;
@@ -365,7 +306,6 @@ type Store = State & {
   setConsent: (value: boolean) => void;
   setTouched: (value: boolean) => void;
   submit: (programId: string) => string;
-  loadSample: () => void;
   reset: () => void;
 
   /** Derived: the reconciled profile. */
@@ -389,12 +329,22 @@ type Store = State & {
   syncError: string | null;
 };
 
+/** The five keys a profile can actually hold. Anything else a reader emits is not a profile field. */
+const PROFILE_FIELD_KEYS = new Set<string>(profileFields.map((field) => field.key));
+
 const AppStoreContext = createContext<Store | null>(null);
 
 export function AppStoreProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(reducer, initialState);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
   const counter = useRef(0);
+  /**
+   * OCR text for a document the classifier couldn't name, keyed by document id.
+   *
+   * Kept so naming it later — `setDocumentType` — re-extracts from the page already read, rather
+   * than asking the applicant to hold the same document up to the camera a second time.
+   */
+  const pendingText = useRef<Map<string, string>>(new Map());
   /** Last thing that failed to save. Surfaced rather than swallowed — see persistence.ts. */
   const [syncError, setSyncError] = useState<string | null>(null);
 
@@ -490,57 +440,11 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
     upload: (options = {}) => {
       counter.current += 1;
       const at = counter.current;
-
-      /*
-       * A demo document is named as one, so a real upload can throw it away.
-       *
-       * There are exactly two modes and they must not mix. "Load sample" and the demo buttons
-       * fabricate Maria Reyes; the camera and the photo library read whatever the applicant
-       * actually holds. Without the prefix, a demo document created through the upload sheet was
-       * indistinguishable from a real one, and its invented passport went on outranking a real
-       * driver's licence for the applicant's own legal name.
-       */
-      const id = options.simulate ? `${SAMPLE_PREFIX}doc-${counter.current}` : `doc-${counter.current}`;
-
-      // The demo paths, kept so the failure states can be shown without a camera.
-      if (options.simulate) {
-        dispatch({ type: 'uploadStarted', id, at });
-        after(motion.scanDuration / 2, () => {
-          if (options.simulate === 'failure') {
-            dispatch({ type: 'failed', id, reason: 'unreadable' });
-            dispatch({ type: 'closeSheet' });
-            return;
-          }
-          const docType = options.simulate === 'unknown' ? 'unknown' : (options.as ?? 'passport');
-          dispatch({
-            type: 'classified',
-            id,
-            docType,
-            confidence: docType === 'unknown' ? 0.3 : 0.96,
-          });
-          if (docType === 'unknown') {
-            dispatch({ type: 'closeSheet' });
-            return;
-          }
-          after(motion.scanDuration / 2, () => {
-            dispatch({ type: 'read', id, readOn: today(), candidates: extractionFor(docType, id, at) });
-            dispatch({ type: 'closeSheet' });
-          });
-        });
-        return;
-      }
+      const id = `doc-${counter.current}`;
 
       void (async () => {
         const picked =
           options.source === 'camera' ? await captureDocument() : await chooseDocument();
-
-        /*
-         * A real document ends the demo.
-         *
-         * Done after the picker returns rather than before it opens, so cancelling out of the
-         * camera does not silently wipe a profile somebody was still looking at.
-         */
-        if (picked.ok) dispatch({ type: 'clearSample' });
 
         // Cancelling is not a failure and must not leave a dead row in the list.
         if (!picked.ok) {
@@ -565,6 +469,9 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
           // "We could not tell what this is" is a different state from "we could not read it":
           // one the user can resolve by naming the document, the other they cannot.
           if (outcome.reason === 'no-type') {
+            // Keep the text so `setDocumentType` can extract from it once the user names the
+            // document, rather than re-photographing a page that was already read successfully.
+            if (outcome.text) pendingText.current.set(id, outcome.text);
             dispatch({ type: 'classified', id, docType: 'unknown', confidence: 0.3 });
           } else {
             dispatch({ type: 'failed', id, reason: 'unreadable' });
@@ -602,17 +509,47 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
     setDocumentType: (id, docType) => {
       dispatch({ type: 'setType', id, docType });
       const doc = state.documents.find((d) => d.id === id);
+      const text = pendingText.current.get(id);
+      pendingText.current.delete(id);
+
+      // Re-runs the same label matching the automatic path uses, against the text already read
+      // off the page. Nothing is re-photographed and nothing is invented: a document the reader
+      // truly could not get anything from yields no candidates at all.
       after(motion.scanDuration / 2, () =>
         dispatch({
           type: 'read',
           id,
           readOn: today(),
-          candidates: extractionFor(docType, id, doc?.readAt ?? 0),
+          candidates: text
+            ? extractFields(text, docType)
+                /*
+                 * The same guard the automatic path applies in `readDocument`.
+                 *
+                 * `extractFields` also emits `employer`, which is captured to match a pay stub
+                 * against a W-2 later and is not a profile field. Without this filter it would be
+                 * cast to a `ProfileFieldKey` it is not and dispatched as a candidate, putting a
+                 * company name into a profile that has nowhere to hold one.
+                 */
+                .filter((field) => PROFILE_FIELD_KEYS.has(field.key))
+                .map((field) => ({
+                field: field.key as ProfileFieldKey,
+                value: field.value,
+                documentId: id,
+                documentType: docType,
+                confidence: field.confidence,
+                readAt: doc?.readAt ?? 0,
+              }))
+            : [],
         }),
       );
     },
 
-    removeDocument: (id) => dispatch({ type: 'removeDocument', id }),
+    removeDocument: (id) => {
+      // The page text goes with the document. Keeping it would leave the contents of something
+      // the applicant explicitly removed sitting in memory for the rest of the session.
+      pendingText.current.delete(id);
+      dispatch({ type: 'removeDocument', id });
+    },
     setValue: (key, value) => dispatch({ type: 'setValue', key, value }),
     resolveConflict: (key, value) => dispatch({ type: 'resolveConflict', key, value }),
     confirmField: (key) => dispatch({ type: 'confirmField', key }),
@@ -625,8 +562,12 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
       return reference;
     },
 
-    loadSample: () => dispatch({ type: 'loadSample', readOn: today(), at: 1000, date: today() }),
-    reset: () => dispatch({ type: 'reset' }),
+    reset: () => {
+      // "Clear profile" has to clear this too, or a page read before the reset could still supply
+      // candidates to a document named after it.
+      pendingText.current.clear();
+      dispatch({ type: 'reset' });
+    },
   };
 
   return <AppStoreContext.Provider value={store}>{children}</AppStoreContext.Provider>;

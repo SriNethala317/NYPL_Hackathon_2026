@@ -234,8 +234,6 @@ example
 # Kept out of git because the PNGs are large and add nothing a reviewer can read.
 docs/ocr-corpus/
 
-# Tesseract language model, downloaded on first OCR run.
-eng.traineddata
 
 # Local secrets.
 .env

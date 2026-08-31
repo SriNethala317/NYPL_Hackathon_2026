@@ -11,8 +11,10 @@ import { AppStoreProvider } from '@/state/app-store';
  * This is the test that stops the app from repeating the mistake it already made once: the "where
  * it goes" card used to say "nowhere yet — no document has left your phone", and remote OCR makes
  * that a lie the moment it is switched on. The card is generated from the OCR provider that will
- * actually run, and this asserts the generation both ways — the provider is mocked as remote and
- * as local, and the screen has to change its answer.
+ * actually run, and this asserts the generation both ways — the provider is mocked once as remote
+ * and once as unavailable (`sendsImagesTo: null`, the same value a provider that kept the image on
+ * the device would have produced, back when this app had one), and the screen has to change its
+ * answer.
  *
  * Lives outside `src/app` because that directory is the expo-router routes root.
  */
@@ -76,7 +78,10 @@ describe('when a remote reader is enabled', () => {
   });
 });
 
-describe('when the document is read on the device', () => {
+describe('when no image needs to leave the device', () => {
+  // `sendsImagesTo: null` today means "no reader is available at all" (there is no longer a
+  // provider that reads locally) -- but the card's behavior for a null destination has to stay
+  // correct regardless of which provider produces it, so the mock stands in for either.
   beforeEach(() => {
     mockSendsImagesTo.value = null;
   });

@@ -74,14 +74,13 @@ describe('where a document goes', () => {
     expect(remote.sendsImagesTo).toEqual(expect.stringMatching(/\S/));
   });
 
-  it('is null for every reader that keeps the image on the device', () => {
-    // The local providers are the ones allowed to leave the "nowhere" copy standing.
-    const local = ocrProvider();
-    if (local.name === 'gemini') {
-      expect(local.sendsImagesTo).not.toBeNull();
-    } else {
-      expect(local.sendsImagesTo).toBeNull();
-    }
+  it('is non-null exactly when Gemini is the provider that will run', () => {
+    // There is no local reader left to special-case: the only two providers are Gemini (remote,
+    // names its destination) and the refusal (reads nothing, so nowhere for an image to go).
+    // Asserted as one equality rather than a branch, since a branch here would just be restating
+    // that fact with extra steps.
+    const provider = ocrProvider();
+    expect(provider.sendsImagesTo !== null).toBe(provider.name === 'gemini');
   });
 });
 

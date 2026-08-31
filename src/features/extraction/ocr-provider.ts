@@ -1,22 +1,18 @@
-import { Platform } from 'react-native';
-
 import { geminiVision } from './gemini-vision';
-import { redact } from './redact';
 
 /**
  * Reading text off a document image.
  *
- * The awkward truth this file exists to handle: **tesseract.js cannot run in Expo Go.** It ships
- * two workers and neither fits — the browser one needs `Worker`, `Blob` and `importScripts`, the
- * Node one needs `worker_threads` and `fs`, and React Native's Hermes runtime provides none of
- * them. So the same "free, no API key" OCR that works fine in the web build is simply unavailable
- * on the phone.
+ * There used to be a second, local provider here (tesseract.js) that read the image in-browser
+ * with no upload. It is gone: this app has to run inside Expo Go, and tesseract's workers need
+ * `Worker`/`Blob`/`importScripts` (web) or `worker_threads`/`fs` (Node) — none of which Hermes
+ * provides — so it only ever worked in a plain web build, not the app this project ships. Keeping
+ * a provider that runs on one platform nobody uses was just dead weight and a false sense that
+ * there was a private option.
  *
- * There are three answers to that and this file holds all of them, in preference order: tesseract
- * where it runs, Gemini where a key is configured, and an honest refusal where neither applies.
- * The order is not accidental — tesseract reads the image inside the browser, so where it works
- * it is the private option as well as the free one, and Gemini is what makes the phone work at
- * the cost of the photograph leaving the device.
+ * What is left is Gemini where a key is configured, and an honest refusal where one is not. There
+ * is no longer a platform on which reading a document keeps the image on the device — see
+ * `unavailableOnNative` and the privacy screen it feeds.
  */
 
 export type OcrOutcome =
@@ -35,7 +31,8 @@ export type OcrOutcome =
        *
        * A vision model can name the fields on an identity card; label matching cannot, because an
        * ID prints no "Name:" or "Address:" to anchor to. When these are present they are preferred
-       * over the matchers — see `readDocument`. Absent for a pure text engine like tesseract.
+       * over the matchers — see `readDocument`. Absent for a pure text engine, if one is ever
+       * added back; Gemini, the only provider today, always supplies them.
        */
       fields?: Partial<Record<'fullName' | 'dob' | 'address' | 'income' | 'household', string>>;
     }
@@ -56,42 +53,15 @@ export type OcrProvider = {
 };
 
 /**
- * tesseract.js, in a browser.
+ * The honest refusal provider.
  *
- * Loaded lazily so the WASM core is never pulled into the native bundle, where it cannot run and
- * would only cost startup time.
- */
-const browserTesseract: OcrProvider = {
-  name: 'tesseract',
-  // The WASM core reads the image in the page; nothing is uploaded.
-  sendsImagesTo: null,
-  isAvailable: () => Platform.OS === 'web',
-
-  async read(imageUri) {
-    try {
-      const { createWorker } = await import('tesseract.js');
-      const worker = await createWorker('eng');
-      try {
-        const { data } = await worker.recognize(imageUri);
-        // Redacted for the same reason the Gemini path is: an SSN transcribed off a W-2 is a
-        // plain string in memory until something removes it, whichever engine did the reading.
-        const { text, removed } = redact(data.text);
-        return { ok: true, text, confidence: data.confidence / 100, removed };
-      } finally {
-        await worker.terminate();
-      }
-    } catch (error) {
-      return { ok: false, reason: 'failed', detail: String(error) };
-    }
-  },
-};
-
-/**
- * The honest native provider.
- *
- * It does not attempt OCR, because nothing here can. Returning a clear "not on this platform"
- * lets the upload flow fall through to manual entry with the document still attached — a worse
- * experience than automatic extraction, but a working one, and the user is told which they got.
+ * It does not attempt OCR, because nothing here can: there is no local reader on any platform
+ * this app ships on. Returning a clear "not available" lets the upload flow fall through to
+ * manual entry with the document still attached — a worse experience than automatic extraction,
+ * but a working one, and the user is told which they got. The `detail` deliberately does not
+ * suggest a browser as a workaround — there used to be a browser-local reader (tesseract.js) that
+ * made that true, but it is gone, so a browser now reaches this same refusal or Gemini, never a
+ * local one.
  */
 const unavailableOnNative: OcrProvider = {
   name: 'none',
@@ -102,8 +72,7 @@ const unavailableOnNative: OcrProvider = {
     return {
       ok: false,
       reason: 'unavailable-on-platform',
-      detail:
-        'Reading documents automatically is not available in this build. Add the details yourself, or open the app in a browser.',
+      detail: 'Reading documents automatically is not available right now. Add the details yourself.',
     };
   },
 };
@@ -111,13 +80,10 @@ const unavailableOnNative: OcrProvider = {
 /**
  * The best provider this platform can actually run.
  *
- * Tesseract first wherever it runs, and not only because it is free: the image never leaves the
- * browser, so on web the private option and the working option are the same one and there is no
- * reason to send anything to Google. Gemini is what makes the phone work at all, and it is chosen
- * only when a key is configured. Neither available means the app says so instead of pretending.
+ * Gemini when a key is configured, on every platform — there is no longer a local option to
+ * prefer ahead of it. Without a key, the app says it cannot read documents rather than pretending.
  */
 export function ocrProvider(): OcrProvider {
-  if (browserTesseract.isAvailable()) return browserTesseract;
   if (geminiVision.isAvailable()) return geminiVision;
   return unavailableOnNative;
 }

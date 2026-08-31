@@ -44,10 +44,11 @@ export default function ProfileScreen() {
             ? fill(strings.profile.countRead, { done: read.length })
             : strings.profile.none
         }
-        action={{
-          label: read.length > 0 ? strings.profile.resetDemo : strings.profile.loadSample,
-          onPress: read.length > 0 ? store.reset : store.loadSample,
-        }}
+        action={
+          read.length > 0
+            ? { label: strings.profile.clearProfile, onPress: store.reset }
+            : undefined
+        }
       />
 
       {/*
@@ -229,13 +230,9 @@ function UploadSheet() {
           </View>
 
           {/*
-            Demo affordances for the two failure paths the design never drew. Real uploads reach
-            these on their own; these buttons just make them reachable in a demo.
-          */}
-          {/*
             Says plainly when automatic reading is unavailable, rather than letting someone
-            photograph their passport and wonder why nothing came back. tesseract.js cannot run
-            in Expo Go -- see src/features/extraction/ocr-provider.ts.
+            photograph their passport and wonder why nothing came back. With no Gemini key there
+            is no reader at all -- see src/features/extraction/ocr-provider.ts.
           */}
           {!canExtract() && (
             <Text variant="caption" color="amberText">
@@ -253,21 +250,6 @@ function UploadSheet() {
               {fill(strings.upload.sentToProvider, { service: destination })}
             </Text>
           ) : null}
-
-          <View style={styles.options}>
-            <Button
-              label={strings.upload.demoSample}
-              variant="tertiary"
-              size="md"
-              onPress={() => store.upload({ simulate: 'sample' })}
-            />
-            <Button
-              label={strings.upload.demoFailure}
-              variant="tertiary"
-              size="md"
-              onPress={() => store.upload({ simulate: 'failure' })}
-            />
-          </View>
 
           <PrivacyNote>{strings.privacy}</PrivacyNote>
           <Button label={strings.upload.cancel} variant="tertiary" onPress={store.closeSheet} />

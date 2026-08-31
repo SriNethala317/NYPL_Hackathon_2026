@@ -11,7 +11,8 @@ import type { DocumentCategory } from '@/theme';
  *   mandatory    → required to submit, vs. an optional parameter
  *   note         → extraction logic: where it sits on the page, or how it is derived
  *
- * Values currently come from `sampleProfile`; nothing here assumes that.
+ * Values come only from a document the applicant actually uploaded, reconciled in `reconcile.ts`;
+ * nothing here assumes any particular source.
  */
 
 export type ProfileFieldKey = 'fullName' | 'dob' | 'address' | 'household' | 'income';
