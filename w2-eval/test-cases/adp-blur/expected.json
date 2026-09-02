@@ -1,0 +1,46 @@
+{
+  "employee_ssn": "900-99-3311",
+  "employer_ein": "45-1122334",
+  "employer_name": "NORTHSIDE DENTAL GROUP PC",
+  "employer_address": "410 QUEENS BLVD, QUEENS, NY 11101",
+  "employee_name": "PRIYA RAMACHANDRAN",
+  "employee_address": "88 STEINWAY ST, ASTORIA, NY 11103",
+  "control_number": null,
+  "box1_wages": "43800.00",
+  "box2_federal_tax": "4120.00",
+  "box3_ss_wages": "43800.00",
+  "box4_ss_tax": "2715.60",
+  "box5_medicare_wages": "43800.00",
+  "box6_medicare_tax": "635.10",
+  "box7_ss_tips": null,
+  "box8_allocated_tips": null,
+  "box10_dependent_care": null,
+  "box11_nonqualified": null,
+  "box12": [],
+  "box13_statutory_employee": false,
+  "box13_retirement_plan": false,
+  "box13_third_party_sick": false,
+  "box14_other": [
+    {
+      "label": "NY SDI",
+      "amount": "31.20"
+    },
+    {
+      "label": "NY PFL",
+      "amount": "154.00"
+    }
+  ],
+  "state_items": [
+    {
+      "state": "NY",
+      "employer_state_id": "45-1122334",
+      "state_wages": "43800.00",
+      "state_tax": "2190.00",
+      "local_wages": "43800.00",
+      "local_tax": "1314.00",
+      "locality_name": "NYC"
+    }
+  ],
+  "tax_year": "2025",
+  "as_of": "2025-12-31"
+}

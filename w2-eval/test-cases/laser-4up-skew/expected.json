@@ -1,0 +1,51 @@
+{
+  "employee_ssn": "900-99-5567",
+  "employer_ein": "22-7788990",
+  "employer_name": "HARBORLIGHT LOGISTICS LLC",
+  "employer_address": "1900 PORT RD, ELIZABETH, NJ 07201",
+  "employee_name": "DANIEL OKONKWO",
+  "employee_address": "512 BERGENLINE AVE, UNION CITY, NJ 07087",
+  "control_number": "HL-99213",
+  "box1_wages": "61450.00",
+  "box2_federal_tax": "7310.00",
+  "box3_ss_wages": "64200.00",
+  "box4_ss_tax": "3980.40",
+  "box5_medicare_wages": "64200.00",
+  "box6_medicare_tax": "930.90",
+  "box7_ss_tips": null,
+  "box8_allocated_tips": null,
+  "box10_dependent_care": null,
+  "box11_nonqualified": null,
+  "box12": [
+    {
+      "code": "D",
+      "amount": "2750.00"
+    }
+  ],
+  "box13_statutory_employee": false,
+  "box13_retirement_plan": true,
+  "box13_third_party_sick": false,
+  "box14_other": [],
+  "state_items": [
+    {
+      "state": "NY",
+      "employer_state_id": "22-7788990",
+      "state_wages": "40000.00",
+      "state_tax": "2100.00",
+      "local_wages": null,
+      "local_tax": null,
+      "locality_name": null
+    },
+    {
+      "state": "NJ",
+      "employer_state_id": "22-7788990-000",
+      "state_wages": "24200.00",
+      "state_tax": "980.00",
+      "local_wages": null,
+      "local_tax": null,
+      "locality_name": null
+    }
+  ],
+  "tax_year": "2025",
+  "as_of": "2025-12-31"
+}

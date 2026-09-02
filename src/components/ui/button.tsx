@@ -21,6 +21,14 @@ export type ButtonProps = Omit<PressableProps, 'style' | 'children'> & {
   /** Leading glyph, e.g. the `+` on "Add a document". */
   icon?: ReactNode;
   fullWidth?: boolean;
+  /**
+   * Renders as unavailable but stays pressable, so the caller can explain *why* on tap.
+   *
+   * Forms need this: a truly `disabled` submit button swallows the press, leaving the user with
+   * a dead control and no idea what is missing. The design's "Review application" button works
+   * exactly this way — muted until complete, but tapping reveals the field errors.
+   */
+  inactive?: boolean;
 };
 
 export function Button({
@@ -30,15 +38,23 @@ export function Button({
   icon,
   fullWidth = true,
   disabled,
+  inactive = false,
   ...rest
 }: ButtonProps) {
   // `PressableProps['disabled']` is nullable; normalize before it reaches accessibilityState.
   const isDisabled = disabled ?? false;
-  const palette = isDisabled ? disabledPalette[variant] : palettes[variant];
+  const muted = isDisabled || inactive;
+  const palette = muted ? disabledPalette[variant] : palettes[variant];
 
   return (
     <Pressable
       accessibilityRole="button"
+      /*
+       * Only a genuinely disabled button announces as disabled. An `inactive` one must not:
+       * assistive tech skips or discourages disabled controls, and pressing this one is
+       * precisely how the user finds out what is incomplete. Pair `inactive` with an
+       * `accessibilityHint` saying what is missing.
+       */
       accessibilityState={{ disabled: isDisabled }}
       disabled={isDisabled}
       style={({ pressed }) => [

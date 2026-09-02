@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, View, type PressableProps } from 'react-native';
 import { Card, Icon, Text } from '@/components/ui';
 import { colors, eligibility, type EligibilityStatus } from '@/theme';
 
-export type ProgramRowProps = Omit<PressableProps, 'style' | 'children'> & {
+export type ProgramRowProps = Omit<PressableProps, 'children'> & {
   name: string;
   /** One-line description of the program. */
   blurb: string;
@@ -22,13 +22,14 @@ export type ProgramRowProps = Omit<PressableProps, 'style' | 'children'> & {
  * scanned at speed in a way a badge doesn't — and the meta line repeats that status in color
  * *and* in words, so it doesn't rely on color alone.
  */
-export function ProgramRow({ name, blurb, meta, status, ...rest }: ProgramRowProps) {
+export function ProgramRow({ name, blurb, meta, status, style, ...rest }: ProgramRowProps) {
   const palette = eligibility[status];
 
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={[name, blurb, meta].filter(Boolean).join('. ')}
+      style={style}
       {...rest}>
       {({ pressed }) => (
         <Card accent={palette.accent} style={[styles.card, pressed && styles.pressed]}>

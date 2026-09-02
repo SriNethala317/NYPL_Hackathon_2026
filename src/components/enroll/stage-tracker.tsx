@@ -9,6 +9,11 @@ export type StageTrackerProps = {
   labels: string[];
   /** Zero-based index of the stage reached. `0` means only the first stage is complete. */
   stage: number;
+  /**
+   * Localized progress announcement, e.g. "Stage 2 of 3: In review". Supplied by the caller
+   * because building it here would hardcode English into a screen reader's output.
+   */
+  announcement?: string;
 };
 
 /**
@@ -17,14 +22,16 @@ export type StageTrackerProps = {
  * Each stage owns a dot plus the connector trailing it, so the columns stay equal width and
  * the labels sit flush under their own dot no matter how long the translated names get.
  */
-export function StageTracker({ labels, stage }: StageTrackerProps) {
+export function StageTracker({ labels, stage, announcement }: StageTrackerProps) {
   const current = labels[stage];
 
   return (
     <View
       accessible
       accessibilityRole="progressbar"
-      accessibilityLabel={`Stage ${stage + 1} of ${labels.length}${current ? `: ${current}` : ''}`}
+      accessibilityLabel={
+        announcement ?? `Stage ${stage + 1} of ${labels.length}${current ? `: ${current}` : ''}`
+      }
       style={styles.container}>
       <View style={styles.rail}>
         {labels.map((label, index) => {
