@@ -65,22 +65,22 @@ try {
 }
 
 // 2. Has the migration been applied?
-const programs = await fetch(`${url}/rest/v1/programs?select=id&limit=1`, { headers });
+const programs = await fetch(`${url}/rest/v1/benefit_programs?select=id&limit=1`, { headers });
 if (programs.status === 404 || programs.status === 400) {
   const body = await programs.text();
   fail(
-    'the `programs` table does not exist',
-    'Apply supabase/migrations/0001_initial.sql — paste it into the SQL editor and run it.',
+    'the `benefit_programs` table does not exist',
+    'Apply supabase/migrations/20260101000001_base_schema.sql (and the 3 follow-on migrations) — paste them into the SQL editor and run them.',
   );
   if (process.env.VERBOSE) console.log(`        ${body.slice(0, 160)}`);
 } else if (!programs.ok) {
-  fail(`reading programs returned ${programs.status}`, await programs.text());
+  fail(`reading benefit_programs returned ${programs.status}`, await programs.text());
 } else {
-  pass('migration applied — `programs` is readable');
+  pass('migration applied — `benefit_programs` is readable');
 }
 
 // 3. Is the catalogue loaded?
-const counted = await fetch(`${url}/rest/v1/programs?select=id`, {
+const counted = await fetch(`${url}/rest/v1/benefit_programs?select=id`, {
   headers: { ...headers, Prefer: 'count=exact', Range: '0-0' },
 });
 if (counted.ok) {
@@ -110,21 +110,21 @@ if (signIn.ok) {
 }
 
 // 5. Are the private tables actually protected?
-const leak = await fetch(`${url}/rest/v1/field_candidates?select=id&limit=1`, { headers });
+const leak = await fetch(`${url}/rest/v1/field_provenance?select=id&limit=1`, { headers });
 if (leak.status === 200) {
   const rows = await leak.json();
   Array.isArray(rows) && rows.length === 0
     ? pass('private tables return nothing without a session (RLS active)')
     : fail(
         'private data is readable without signing in',
-        'Check RLS is enabled on field_candidates.',
+        'Check RLS is enabled on field_provenance.',
       );
 } else if (leak.status === 401 || leak.status === 403) {
   pass('private tables reject unauthenticated reads (RLS active)');
 } else if (leak.status === 404) {
   // Already reported by step 2.
 } else {
-  fail(`field_candidates returned ${leak.status}`);
+  fail(`field_provenance returned ${leak.status}`);
 }
 
 console.log(
