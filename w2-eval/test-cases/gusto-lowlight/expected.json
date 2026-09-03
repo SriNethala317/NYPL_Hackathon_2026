@@ -1,0 +1,50 @@
+{
+  "employee_ssn": "900-99-8842",
+  "employer_ein": "81-5566778",
+  "employer_name": "MERIDIAN SOFTWARE PARTNERS",
+  "employer_address": "1 METROTECH CTR, BROOKLYN, NY 11201",
+  "employee_name": "TOMÁS FERREIRA-LUZ",
+  "employee_address": "3301 CHURCH AVE, BROOKLYN, NY 11226",
+  "control_number": "MSP-2025-0417",
+  "box1_wages": "52300.00",
+  "box2_federal_tax": "5890.00",
+  "box3_ss_wages": "56800.00",
+  "box4_ss_tax": "3521.60",
+  "box5_medicare_wages": "56800.00",
+  "box6_medicare_tax": "823.60",
+  "box7_ss_tips": null,
+  "box8_allocated_tips": null,
+  "box10_dependent_care": null,
+  "box11_nonqualified": null,
+  "box12": [
+    {
+      "code": "D",
+      "amount": "3200.00"
+    },
+    {
+      "code": "DD",
+      "amount": "11400.00"
+    },
+    {
+      "code": "W",
+      "amount": "1300.00"
+    }
+  ],
+  "box13_statutory_employee": false,
+  "box13_retirement_plan": true,
+  "box13_third_party_sick": false,
+  "box14_other": [],
+  "state_items": [
+    {
+      "state": "NY",
+      "employer_state_id": "81-5566778",
+      "state_wages": "56800.00",
+      "state_tax": "2840.00",
+      "local_wages": "56800.00",
+      "local_tax": "1704.00",
+      "locality_name": "NYC"
+    }
+  ],
+  "tax_year": "2025",
+  "as_of": "2025-12-31"
+}

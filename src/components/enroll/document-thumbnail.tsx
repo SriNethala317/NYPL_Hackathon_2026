@@ -1,12 +1,20 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { StyleSheet, View } from 'react-native';
 
-import { colors, documentTints, emptyDocumentTint, layout, radius, type DocumentKind } from '@/theme';
+import {
+  colors,
+  documentTints,
+  emptyDocumentTint,
+  layout,
+  radius,
+  type DocumentCategory,
+} from '@/theme';
 
 export type DocumentThumbnailSize = 'sm' | 'md' | 'lg';
 
 export type DocumentThumbnailProps = {
-  kind: DocumentKind;
+  /** Tinted by what the document proves, so a new document type needs no new colour. */
+  category: DocumentCategory;
   /** `sm` in the review attachment list, `md` in Profile, `lg` in the scanning sheet. */
   size?: DocumentThumbnailSize;
   /** An unverified document shows a flat neutral tile with no stripes. */
@@ -20,11 +28,11 @@ export type DocumentThumbnailProps = {
  * since that's what makes the five Profile rows scannable at a glance.
  */
 export function DocumentThumbnail({
-  kind,
+  category,
   size = 'md',
   verified = true,
 }: DocumentThumbnailProps) {
-  const tint = verified ? documentTints[kind] : emptyDocumentTint;
+  const tint = verified ? documentTints[category] : emptyDocumentTint;
 
   return (
     <View
