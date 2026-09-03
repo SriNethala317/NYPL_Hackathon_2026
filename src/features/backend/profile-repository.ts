@@ -240,9 +240,19 @@ export async function loadProfile(): Promise<RepoOutcome<PersistedProfile>> {
           readAt: Date.parse(row.extracted_at) || 0,
         })),
       applications: ((applications.data ?? []) as unknown as ApplicationRow[]).map((row) => ({
-        // benefit_programs.code (e.g. "FAIR_FARES"), not the static catalogue's id/programCode
-        // (e.g. "P085en"/"S2R085") that the rest of the app currently matches on — see the
-        // rewrite report for why this mismatch exists and is not fixed here.
+        // Investigated (see the program-id-mismatch report): benefit_programs.code is NOT a
+        // second id scheme colliding with the catalogue's "P085en"/"S2R085" — there is no
+        // api_program_code column anywhere in the live schema, and no scheme other than the
+        // static catalogue's own `id`/`programCode` (src/data/catalogue.ts) exists for a program.
+        // `code` is the only string identifier benefit_programs has; it is currently unpopulated
+        // (0 rows, confirmed live) because the seed path for it (scripts/push-catalogue.mjs)
+        // still targets the pre-redesign `programs`/`program_criteria` tables and was never
+        // ported to write `benefit_programs`. Nothing anywhere inserts into `applications` either,
+        // so this mapping is dead in practice today: `code` is the correct column to select once
+        // ingestion is fixed, this line does not need to change — but until `benefit_programs`
+        // actually gets seeded (with catalogue `id` values, since that's what programById/
+        // criteriaFor/every form filler key on) and something starts writing `applications` rows,
+        // `programId` here will always come back ''. That is a data/ingestion gap, not a join bug.
         programId: row.benefit_programs?.code ?? '',
         // No column anywhere in the new schema holds a real external confirmation number yet.
         // Using the application's own id as a placeholder, per explicit decision — not invented
