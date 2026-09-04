@@ -1,9 +1,7 @@
 import type { Request, Response } from 'express';
 import { readEligibilityResult, readProfile } from '@/api/request-validation';
 import { generateFormPayload } from '@/features/form-payload';
-import type { EligibilityResult } from '@/features/eligibility';
-
-const SUPPORTED_PROGRAM_IDS = new Set(['fair_fares', 'idnyc', 'nyc_care']);
+import { resolveCanonicalProgramId, type EligibilityResult } from '@/features/eligibility';
 
 function error(response: Response, status: number, code: string, message: string, fields?: string[]): void {
   response.status(status).json({ success: false, error: { code, message, ...(fields ? { fields } : {}) } });
@@ -22,10 +20,12 @@ function isEligibilityResult(value: unknown): value is EligibilityResult {
 }
 
 export function generateFormPayloadController(request: Request, response: Response): void {
-  const programId = typeof request.params.programId === 'string' ? request.params.programId : undefined;
-  if (!programId) return error(response, 400, 'INVALID_REQUEST', 'A programId path parameter is required.', ['programId']);
-  if (!SUPPORTED_PROGRAM_IDS.has(programId)) {
-    return error(response, 404, 'FORM_AUTOMATION_NOT_SUPPORTED', `Form payload generation is not supported for program: ${programId}.`);
+  const rawProgramId = typeof request.params.programId === 'string' ? request.params.programId : undefined;
+  if (!rawProgramId) return error(response, 400, 'INVALID_REQUEST', 'A programId path parameter is required.', ['programId']);
+  // Same resolution as benefits.controller.ts's /validate route — see program-id-resolver.ts.
+  const programId = resolveCanonicalProgramId(rawProgramId);
+  if (!programId) {
+    return error(response, 404, 'FORM_AUTOMATION_NOT_SUPPORTED', `Form payload generation is not supported for program: ${rawProgramId}.`);
   }
   const input = readProfile(request.body);
   if ('error' in input) return error(response, 400, input.error.code, input.error.message, input.error.fields);

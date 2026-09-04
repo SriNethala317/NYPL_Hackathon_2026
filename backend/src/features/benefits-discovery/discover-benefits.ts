@@ -1,6 +1,6 @@
 import { BENEFITS_CONFIG } from '@/config/benefits.config';
 import { GEMINI_CONFIG } from '@/config/gemini.config';
-import type { MockUserProfile } from '../eligibility';
+import { resolveCanonicalProgramIdForProgram, type MockUserProfile } from '../eligibility';
 import type { BenefitExplanationProvider } from './adapters/benefit-explanation-provider';
 import type { BenefitsCatalogProvider } from './adapters/benefits-catalog-provider';
 import type { BenefitsScreeningProvider } from './adapters/benefits-screening-provider';
@@ -19,9 +19,7 @@ export interface DiscoveryDependencies {
 }
 
 function supportsDetailedValidation(program: BenefitProgram): boolean {
-  return (BENEFITS_CONFIG.deepValidationProgramIds as readonly string[]).includes(program.programId)
-    || (BENEFITS_CONFIG.deepValidationProgramCodes as readonly string[]).includes(program.programCode ?? '')
-    || (BENEFITS_CONFIG.deepValidationProgramNames as readonly string[]).includes(program.programName);
+  return resolveCanonicalProgramIdForProgram(program) !== undefined;
 }
 
 function fallbackMatch(program: BenefitProgram, index: number): GeminiProgramMatch {
@@ -76,10 +74,9 @@ export async function discoverBenefits(profile: MockUserProfile, dependencies: D
         whyItMayHelp: match.reason,
         missingInformation: match.missingInformation,
         detailedValidationSupported,
-        formAutomationSupported: detailedValidationSupported
-          && ((BENEFITS_CONFIG.formAutomationProgramIds as readonly string[]).includes(program.programId)
-            || (BENEFITS_CONFIG.deepValidationProgramCodes as readonly string[]).includes(program.programCode ?? '')
-            || (BENEFITS_CONFIG.deepValidationProgramNames as readonly string[]).includes(program.programName)),
+        // Form automation is currently supported for exactly the same programs as detailed
+        // validation — both gated by the one resolver above, so they can't drift apart again.
+        formAutomationSupported: detailedValidationSupported,
         discoverySource: byId.has(program.programId) ? 'gemini_catalog_match' : catalogFallback ? 'fixture_screening' : 'catalog_pre_filter',
         metadataSource: catalogFallback || program.source.type === 'fixture' ? 'fixture_catalog' : 'live_nyc_dataset',
         explanationSource: byId.has(program.programId) ? 'gemini' : 'official_description',

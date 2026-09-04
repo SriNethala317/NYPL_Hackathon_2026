@@ -5,10 +5,9 @@ export const BENEFITS_CONFIG = {
   liveCatalogEnabled: FEATURE_FLAGS.liveBenefitsCatalog,
   fixtureFallbackEnabled: FEATURE_FLAGS.fixtureFallback,
   requestTimeoutMs: 8_000,
-  deepValidationProgramIds: ['fair_fares', 'idnyc', 'nyc_care'],
-  formAutomationProgramIds: ['fair_fares', 'idnyc', 'nyc_care'],
-  deepValidationProgramCodes: ['S2R034', 'S2R032'],
-  deepValidationProgramNames: ['Fair Fares NYC', 'IDNYC', 'NYC Care'],
+  // Which programs support detailed validation / form automation, and every id/code/name variant
+  // that means one of them, now lives in one place:
+  // `features/eligibility/program-id-resolver.ts`'s `PROGRAM_ID_ALIASES`.
   screeningApi: {
     documentationUrl: 'https://screeningapidocs.cityofnewyork.us/',
     // NYC issues this endpoint after account onboarding. Do not guess or commit it.
