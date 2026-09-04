@@ -12,15 +12,21 @@ import type { RepoOutcome } from './profile-repository';
  */
 
 /**
- * Mirrors `backend/src/features/form-payload/types.ts`'s `FormFillPayload` exactly. Defined
- * locally rather than imported: `backend/` is a separate TypeScript project (its own
- * `package.json`, own `tsconfig.json`, not in this app's `include`), and the payload crosses that
- * boundary as JSON over HTTP, not a shared compiled type.
+ * Shaped after `backend/src/features/form-payload/types.ts`'s `FormFillPayload`, not copied
+ * verbatim: this app's own in-app apply flow (`src/state/app-store.tsx`'s `submit()`) has never
+ * called `backend/`'s HTTP API and has its own local, 97-program eligibility engine
+ * (`src/data/eligibility.ts`) with its own status vocabulary (`'yes'|'more'|'no'|'not_screened'`,
+ * not backend's 3-program `'potentially_eligible'|...`). Forcing one caller's enum onto the other
+ * would misrepresent what actually produced the value, so `eligibilityStatus` is a plain string
+ * here — whichever engine called this stores its own real status, unstranslated. `applicantId` is
+ * optional for the same reason: the UI caller does not know its own applicant id (only
+ * `ensureApplicant()`, called below, does), so this function fills it in from there rather than
+ * asking every caller to plumb it through.
  */
 export type ApplicationPayload = {
   programId: string;
-  applicantId: string;
-  eligibilityStatus: 'potentially_eligible' | 'needs_more_information' | 'likely_not_eligible';
+  applicantId?: string;
+  eligibilityStatus: string;
   fields: Record<string, { value: string | number | boolean | null; source: string; confirmed: boolean }>;
   missingFields: string[];
   readyForPreview: boolean;
@@ -65,7 +71,7 @@ export async function submitApplication(
       benefit_program_id: benefitProgram.id,
       form_version_id: null,
       status: 'DRAFT',
-      answers: payload,
+      answers: { ...payload, applicantId: applicant.applicantId },
     })
     .select('id')
     .single();

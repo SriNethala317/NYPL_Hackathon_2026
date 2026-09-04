@@ -9,8 +9,10 @@ import {
 } from 'react';
 
 import { documentType, type DocumentTypeId } from '@/data/document-types';
+import { ageFromDob, evaluate, monthlyToAnnual } from '@/data/eligibility';
 import { profileFields, type ProfileFieldKey } from '@/data/profile-fields';
 import { reconcile, unresolved, type FieldCandidate, type ResolvedField } from '@/data/reconcile';
+import type { ApplicationPayload } from '@/features/backend';
 import {
   captureDocument,
   chooseDocument,
@@ -20,7 +22,7 @@ import {
   type PickedDocument,
 } from '@/features/extraction';
 import type { Language } from '@/i18n/strings';
-import { hydrate, persistDocument } from '@/state/persistence';
+import { hydrate, persistApplication, persistDocument } from '@/state/persistence';
 import { motion, type DocumentCategory } from '@/theme';
 
 /**
@@ -559,6 +561,49 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
     submit: (programId) => {
       const reference = newReference();
       dispatch({ type: 'submitted', programId, reference, date: today() });
+
+      /*
+       * Real, but never blocking: the local dispatch above and the `reference` returned to the
+       * caller are what let the applicant move on immediately, offline or not — same fire-and-
+       * forget posture as `persistDocument` in `upload()`. This app has no reachable connection
+       * to `backend/`'s HTTP API (it never has — that service only knows 3 of the 97 programs
+       * this screen can be reached from), so the payload is built from this app's own local,
+       * already-reconciled state rather than from `POST /forms/:programId/payload`.
+       */
+      const result = evaluate(programId, {
+        age: ageFromDob(values.dob),
+        householdSize: values.household ? Number(values.household) : undefined,
+        annualIncome: values.income ? monthlyToAnnual(values.income) : undefined,
+        nycResident: values.address ? true : undefined,
+        categoriesOnFile,
+      });
+
+      const fields: ApplicationPayload['fields'] = {};
+      for (const field of profileFields) {
+        const isUserSourced =
+          state.overrides[field.key] !== undefined || state.conflictChoices[field.key] !== undefined;
+        const winner = resolved.find((r) => r.field === field.key);
+        fields[field.key] = {
+          value: values[field.key] ?? null,
+          source: isUserSourced ? 'user' : (winner?.documentType ?? 'user'),
+          confirmed: state.confirmedFields.includes(field.key),
+        };
+      }
+
+      void persistApplication(
+        programId,
+        {
+          programId,
+          eligibilityStatus: result.status,
+          fields,
+          missingFields: profileFields
+            .filter((f) => f.mandatory && !values[f.key]?.trim())
+            .map((f) => f.key),
+          readyForPreview: profileFields.every((f) => !f.mandatory || values[f.key]?.trim()),
+        },
+        { onError: setSyncError },
+      );
+
       return reference;
     },
 

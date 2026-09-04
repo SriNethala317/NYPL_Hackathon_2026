@@ -1,7 +1,8 @@
-import { isConfigured, loadProfile, saveDocument, deleteMyData, signOut } from '@/features/backend';
+import { isConfigured, loadProfile, saveDocument, submitApplication, deleteMyData, signOut } from '@/features/backend';
 
 import type { DocumentTypeId } from '@/data/document-types';
 import type { FieldCandidate } from '@/data/reconcile';
+import type { ApplicationPayload } from '@/features/backend';
 
 /**
  * Keeping the profile on the server, without letting the server hold the app up.
@@ -76,6 +77,27 @@ export async function persistDocument(
   if (!isConfigured()) return;
 
   const result = await saveDocument(document, candidates);
+  if (!result.ok && result.reason !== 'not-configured') {
+    events?.onError?.(result.reason);
+  }
+}
+
+/**
+ * Saves a submitted application.
+ *
+ * Same posture as `persistDocument`: called after the local, immediate `store.submit()` already
+ * has its reference and has moved the UI on to the confirmation screen — never awaited there. A
+ * benefits application that only exists on this one device is still worth having; the network
+ * write is a bonus that must never hold up the flow a person came here to complete.
+ */
+export async function persistApplication(
+  programId: string,
+  payload: ApplicationPayload,
+  events?: Pick<PersistenceEvents, 'onError'>,
+): Promise<void> {
+  if (!isConfigured()) return;
+
+  const result = await submitApplication(programId, payload);
   if (!result.ok && result.reason !== 'not-configured') {
     events?.onError?.(result.reason);
   }
