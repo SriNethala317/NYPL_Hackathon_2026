@@ -25,6 +25,14 @@
  * responses) and has no column on `benefit_programs` — there was never a reason to add one, since
  * nothing in this app calls that API against this table yet.
  *
+ * `code` is written lowercased ("p085en"), not in the catalogue's original mixed case. The live
+ * NYC catalog provider backend/ discovery reads from (`NycBenefitsCatalogProvider`) lowercases
+ * `unique_id_number` before using it as its own `programId`, and `program-id-resolver.ts` already
+ * normalizes to lowercase for the same reason — a mock end-to-end run found that a mixed-case
+ * `code` here makes `code = '<discovery's id>'` silently match nothing, since Postgres text
+ * equality is case-sensitive. Lowercasing at the source is the fix; matching it with `ILIKE`
+ * everywhere it's queried is not.
+ *
  * Not every field `criteriaFor()` returns has a home in the current schema. What's seeded, and
  * what's a real gap left for a human decision rather than forced into a table that doesn't fit:
  *
@@ -129,14 +137,16 @@ async function upsert(table, rows, conflictColumn) {
   });
 }
 
-// 1. benefit_programs — code = catalogue id (see header comment for why).
+// 1. benefit_programs — code = catalogue id, lowercased (see header comment for why).
 const programRows = catalogue.programs.map((p) => ({
-  code: p.id,
+  code: p.id.toLowerCase(),
   name: p.name,
   description: p.summary ?? null,
   active: true,
 }));
 const writtenPrograms = await upsert('benefit_programs', programRows, 'code');
+// Keyed by the catalogue's own (mixed-case) id, lowercased at lookup time -- every caller below
+// still has program.id in its original casing, and this is the one place that reconciles it.
 const benefitProgramIdByCode = new Map(writtenPrograms.map((row) => [row.code, row.id]));
 console.log(`pushed ${writtenPrograms.length} benefit_programs`);
 
@@ -145,7 +155,7 @@ const incomeRows = [];
 const noLongerIncomeTested = [];
 const filterRows = [];
 for (const program of catalogue.programs) {
-  const benefitProgramId = benefitProgramIdByCode.get(program.id);
+  const benefitProgramId = benefitProgramIdByCode.get(program.id.toLowerCase());
   const record = criteriaById.get(program.id);
   const c = record?.criteria ?? {};
 
@@ -195,7 +205,7 @@ console.log(`pushed ${writtenIncome.length} income_eligibility rows`);
 const householdIncomeRows = writtenIncome.filter((row) => row.type === 'by_household_size');
 const thresholdRows = [];
 for (const row of householdIncomeRows) {
-  const program = catalogue.programs.find((p) => benefitProgramIdByCode.get(p.id) === row.benefit_program_id);
+  const program = catalogue.programs.find((p) => benefitProgramIdByCode.get(p.id.toLowerCase()) === row.benefit_program_id);
   const table = criteriaById.get(program.id)?.criteria.annualIncomeByHouseholdSize ?? {};
   for (const [size, limit] of Object.entries(table)) {
     thresholdRows.push({
@@ -228,7 +238,7 @@ console.log(`pushed ${writtenFilters.length} basic_eligibility_filters rows`);
 // comes from deleting each touched program's rows before re-inserting rather than an upsert.
 const ruleRows = [];
 for (const program of catalogue.programs) {
-  const benefitProgramId = benefitProgramIdByCode.get(program.id);
+  const benefitProgramId = benefitProgramIdByCode.get(program.id.toLowerCase());
   const c = criteriaById.get(program.id)?.criteria ?? {};
   if (c.minAge !== undefined) {
     ruleRows.push({ benefit_program_id: benefitProgramId, rule_key: 'min_age', rule_value: String(c.minAge) });
