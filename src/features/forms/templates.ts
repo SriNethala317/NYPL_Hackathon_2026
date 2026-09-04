@@ -293,10 +293,15 @@ export const formTemplates: readonly FormTemplate[] = [
   },
 ];
 
+// Same case-insensitive matching as src/data/catalogue.ts's programById/criteriaFor, and for the
+// same reason: a programId read back from the database (lowercased) must resolve against these
+// templates' mixed-case literal ids.
 export function templateFor(programId: string): FormTemplate | undefined {
-  return formTemplates.find((template) => template.programId === programId);
+  const target = programId.toLowerCase();
+  return formTemplates.find((template) => template.programId.toLowerCase() === target);
 }
 
 export function hasTemplate(programId: string): boolean {
-  return formTemplates.some((template) => template.programId === programId);
+  const target = programId.toLowerCase();
+  return formTemplates.some((template) => template.programId.toLowerCase() === target);
 }

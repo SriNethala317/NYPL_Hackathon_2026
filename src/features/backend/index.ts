@@ -9,3 +9,4 @@ export {
   type PersistedProfile,
   type RepoOutcome,
 } from './profile-repository';
+export { submitApplication, type ApplicationPayload } from './application-repository';

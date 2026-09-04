@@ -84,21 +84,33 @@ export type ProgramCriteriaRecord = {
 export const catalogueFetchedAt: string = catalogueFile.fetchedAt;
 export const programs = catalogueFile.programs as Program[];
 
+/**
+ * `benefit_programs.code` (Supabase) is seeded lowercased, to match the live NYC catalog
+ * provider's own lowercased `programId` — see `scripts/push-catalogue.mjs`. This catalogue's own
+ * ids stay in their original mixed case ("P120en"), matching the dataset and every hardcoded
+ * literal id in `src/features/forms/templates.ts` and its tests. Normalizing here, at every
+ * lookup, is what lets a lowercase id read back from the database (via `applicationRepository`'s
+ * `submitApplication`/`loadProfile`) resolve to the same program as the mixed-case id used
+ * everywhere else, without a second, drifting normalization living in each caller.
+ */
+const normalizeProgramId = (id: string): string => id.toLowerCase();
+
 const criteriaById = new Map<string, ProgramCriteriaRecord>(
-  (criteriaFile.programs as ProgramCriteriaRecord[]).map((record) => [record.programId, record]),
+  (criteriaFile.programs as ProgramCriteriaRecord[]).map((record) => [normalizeProgramId(record.programId), record]),
 );
 
 export function programById(id: string): Program | undefined {
-  return programs.find((program) => program.id === id);
+  const target = normalizeProgramId(id);
+  return programs.find((program) => normalizeProgramId(program.id) === target);
 }
 
 export function criteriaFor(id: string): ProgramCriteriaRecord | undefined {
-  return criteriaById.get(id);
+  return criteriaById.get(normalizeProgramId(id));
 }
 
 /** Programs we can actually score, which is a subset of the catalogue. */
 export function scorablePrograms(): Program[] {
-  return programs.filter((program) => criteriaById.get(program.id)?.scorable);
+  return programs.filter((program) => criteriaById.get(normalizeProgramId(program.id))?.scorable);
 }
 
 /** Distinct categories, for filtering a 97-item list into something browsable. */
