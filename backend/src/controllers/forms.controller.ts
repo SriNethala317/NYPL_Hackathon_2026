@@ -22,11 +22,13 @@ function isEligibilityResult(value: unknown): value is EligibilityResult {
 export function generateFormPayloadController(request: Request, response: Response): void {
   const rawProgramId = typeof request.params.programId === 'string' ? request.params.programId : undefined;
   if (!rawProgramId) return error(response, 400, 'INVALID_REQUEST', 'A programId path parameter is required.', ['programId']);
-  // Same resolution as benefits.controller.ts's /validate route — see program-id-resolver.ts.
-  const programId = resolveCanonicalProgramId(rawProgramId);
-  if (!programId) {
-    return error(response, 404, 'FORM_AUTOMATION_NOT_SUPPORTED', `Form payload generation is not supported for program: ${rawProgramId}.`);
-  }
+  // Every program checkEligibility() can score now gets at least the generic-fields fallback
+  // mapping (see generate-form-payload.ts / config/generic.mapping.ts), so this no longer gates
+  // on a fixed id list first — same reasoning as benefits.controller.ts's /validate route.
+  // Resolves the incoming id the same way (the aliased literal id if one exists, the catalogue's
+  // own lowercased id otherwise) so it matches whatever programId the caller's eligibilityResult
+  // (obtained from /validate) actually carries.
+  const programId = (resolveCanonicalProgramId(rawProgramId) ?? rawProgramId).toLowerCase();
   const input = readProfile(request.body);
   if ('error' in input) return error(response, 400, input.error.code, input.error.message, input.error.fields);
   const eligibilityResult = readEligibilityResult(request.body);

@@ -75,6 +75,15 @@ export interface BenefitRecommendation {
   applicationUrl?: string;
   detailedValidationSupported: boolean;
   formAutomationSupported: boolean;
+  /**
+   * Present only when `formAutomationSupported` is true. `'program_specific'` — a mapping
+   * hand-verified against that program's real application form (currently Fair Fares, IDNYC, NYC
+   * Care only). `'generic_fields'` — the 9-field identity/residence/contact fallback every other
+   * scorable program gets (`form-payload/config/generic.mapping.ts`), not verified against that
+   * program's actual form. The frontend must not present these the same way — that would recreate
+   * the false-advertising shape `formAutomationSupported` itself was fixed for, one level deeper.
+   */
+  formAutomationSource?: 'program_specific' | 'generic_fields';
   source: { type: 'nyc_dataset' | 'fixture'; lastVerified?: string };
   discoverySource: 'gemini_catalog_match' | 'catalog_pre_filter' | 'fixture_screening' | 'nyc_screening_api';
   metadataSource: 'live_nyc_dataset' | 'fixture_catalog';

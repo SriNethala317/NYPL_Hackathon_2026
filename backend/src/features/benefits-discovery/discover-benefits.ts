@@ -28,20 +28,27 @@ function supportsDetailedValidation(program: BenefitProgram): boolean {
 }
 
 /**
- * A real form-payload mapping exists for exactly 3 programs (`PROGRAM_FORM_MAPPINGS` —
- * `fair-fares.mapping.ts`/`idnyc.mapping.ts`/`nyc-care.mapping.ts`), unrelated to how many
- * programs the generic eligibility engine can score. Confirmed by a real round trip: after the
- * generic-engine port, `detailedValidationSupported` correctly went from 3 programs to ~49, but
- * `formAutomationSupported` was wired to the same boolean and went with it — every one of those
- * programs *except* the 3 with a real mapping then 404'd on `/payload` with
- * `FORM_AUTOMATION_NOT_SUPPORTED`, despite this flag telling the caller otherwise. This checks
- * `PROGRAM_FORM_MAPPINGS` membership directly, resolved through the same canonical-id table so a
- * program's live-catalog id ("p120en") and its literal id ("fair_fares") both resolve to the same
- * answer — the same principle `program-id-resolver.ts` already applies everywhere else.
+ * `generate-form-payload.ts` now falls back to a generic 9-field mapping
+ * (`config/generic.mapping.ts`) for any program with no entry in `PROGRAM_FORM_MAPPINGS`, so
+ * `/payload` genuinely works for the whole `detailedValidationSupported` set now (~49 of 97) —
+ * not just the 3 programs with a real, hand-verified mapping. `formAutomationSupported` can
+ * therefore honestly track `detailedValidationSupported` again (a program can only reach
+ * `/payload` at all via an `eligibilityResult` that `/validate` produced, which only exists for
+ * that same set) — but collapsing back to one boolean would hide *which kind* of mapping a
+ * program gets, which is exactly the distinction that matters: `formAutomationSource` says
+ * whether it's the real, per-program mapping or the generic fallback, so the frontend can't
+ * present "core fields only" as if it were "this exact form was verified" — the same
+ * false-advertising shape `formAutomationSupported` was fixed for last session, one level deeper.
  */
-function supportsFormAutomation(program: BenefitProgram): boolean {
+function formAutomationSupport(
+  program: BenefitProgram,
+  detailedValidationSupported: boolean,
+): { supported: boolean; source?: 'program_specific' | 'generic_fields' } {
+  if (!detailedValidationSupported) return { supported: false };
   const canonicalId = resolveCanonicalProgramIdForProgram(program);
-  return canonicalId !== undefined && canonicalId in PROGRAM_FORM_MAPPINGS;
+  const source: 'program_specific' | 'generic_fields' =
+    canonicalId !== undefined && canonicalId in PROGRAM_FORM_MAPPINGS ? 'program_specific' : 'generic_fields';
+  return { supported: true, source };
 }
 
 function fallbackMatch(program: BenefitProgram, index: number): GeminiProgramMatch {
@@ -87,6 +94,7 @@ export async function discoverBenefits(profile: MockUserProfile, dependencies: D
     .map((program, index): BenefitRecommendation => {
       const match = byId.get(program.programId) ?? fallbackMatch(program, index);
       const detailedValidationSupported = supportsDetailedValidation(program);
+      const formAutomation = formAutomationSupport(program, detailedValidationSupported);
       return {
         ...program,
         discoveryStatus: match.matchStatus,
@@ -96,7 +104,8 @@ export async function discoverBenefits(profile: MockUserProfile, dependencies: D
         whyItMayHelp: match.reason,
         missingInformation: match.missingInformation,
         detailedValidationSupported,
-        formAutomationSupported: supportsFormAutomation(program),
+        formAutomationSupported: formAutomation.supported,
+        formAutomationSource: formAutomation.source,
         discoverySource: byId.has(program.programId) ? 'gemini_catalog_match' : catalogFallback ? 'fixture_screening' : 'catalog_pre_filter',
         metadataSource: catalogFallback || program.source.type === 'fixture' ? 'fixture_catalog' : 'live_nyc_dataset',
         explanationSource: byId.has(program.programId) ? 'gemini' : 'official_description',

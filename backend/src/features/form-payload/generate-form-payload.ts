@@ -1,5 +1,5 @@
 import type { EligibilityResult, MockUserProfile } from '../eligibility';
-import { PROGRAM_FORM_MAPPINGS } from './mappings';
+import { GENERIC_FORM_MAPPING, PROGRAM_FORM_MAPPINGS } from './mappings';
 import type { FormFieldPrimitive, FormFillPayload } from './types';
 
 function readProfileValue(profile: MockUserProfile, source: string): FormFieldPrimitive | undefined {
@@ -35,8 +35,11 @@ export function generateFormPayload(
   if (eligibilityResult.programId !== programId) {
     throw new Error('The eligibility result does not match the selected program.');
   }
-  const mapping = PROGRAM_FORM_MAPPINGS[programId];
-  if (!mapping) throw new Error(`No form mapping is configured for program: ${programId}`);
+  // Every program gets at least the generic core fields now — see config/generic.mapping.ts for
+  // why this is a reasonable default, not a per-program-verified mapping.
+  const specificMapping = PROGRAM_FORM_MAPPINGS[programId];
+  const mapping = specificMapping ?? GENERIC_FORM_MAPPING;
+  const mappingSource: FormFillPayload['mappingSource'] = specificMapping ? 'program_specific' : 'generic_fields';
 
   const missingFields = [...eligibilityResult.missingFields];
   const fields = Object.fromEntries(
@@ -66,5 +69,6 @@ export function generateFormPayload(
     missingFields: uniqueMissingFields,
     readyForPreview:
       eligibilityResult.status === 'potentially_eligible' && uniqueMissingFields.length === 0 && !hasUnconfirmedField,
+    mappingSource,
   };
 }
