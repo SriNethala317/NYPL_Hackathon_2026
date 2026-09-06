@@ -36,7 +36,11 @@
  * Not every field `criteriaFor()` returns has a home in the current schema. What's seeded, and
  * what's a real gap left for a human decision rather than forced into a table that doesn't fit:
  *
- *   - `criteria.nycResident`, `.annualIncomeByHouseholdSize`, `.additionalPersonIncrement`,
+ *   - `criteria.nycResident`           -> basic_eligibility_filters.requires_nyc_residency,
+ *                                          written explicitly (`=== true`), not left at the
+ *                                          schema default — see the inline comment where it's
+ *                                          set for why that distinction matters.
+ *   - `.annualIncomeByHouseholdSize`, `.additionalPersonIncrement`,
  *     `.annualIncomeCap`               -> income_eligibility / income_eligibility_thresholds,
  *                                          basic_eligibility_filters.has_income_test
  *   - `criteria.minAge` / `.maxAge`    -> eligibility_rules (rule_key `min_age`/`max_age` — the
@@ -189,9 +193,16 @@ for (const program of catalogue.programs) {
     benefit_program_id: benefitProgramId,
     has_income_test: hasTable || hasFlatCap,
     targets_students: program.populationServed.some((p) => /student/i.test(p)),
-    // requires_nyc_residency and immigration_requirement are left at their schema defaults —
-    // see header comment. We only ever detect a *positive* NYC-residency mention, never a
-    // negative one, so writing anything but the default would be inventing evidence.
+    // Written explicitly from the real per-program signal (criteria.nycResident), not left at the
+    // schema default. Leaving it at DEFAULT TRUE made every one of the 97 rows say "requires NYC
+    // residency" regardless of what was actually derived -- confirmed live (97/97 true) against
+    // only 20/97 programs that actually have criteria.nycResident === true. The heuristic still
+    // only ever detects a *positive* mention (see deriveResidency() in derive-criteria.mjs), so
+    // "not detected" is written as `false` here, not "unknown" -- there is no residency column
+    // shaped to hold "unknown", and false is what the schema default was silently standing in for
+    // anyway. immigration_requirement is left alone: its own column comment requires a human
+    // reading the actual eligibility text, which this heuristic does not do.
+    requires_nyc_residency: c.nycResident === true,
     last_computed_at: new Date().toISOString(),
   });
 }
