@@ -5,6 +5,7 @@
     "moduleResolution": "Bundler",
     "ignoreDeprecations": "6.0",
     "strict": true,
+    "resolveJsonModule": true,
     "types": ["node"],
     "rootDir": ".",
     "outDir": "./dist",

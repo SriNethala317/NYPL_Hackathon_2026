@@ -68,6 +68,16 @@ export interface EligibilityResult {
   programId: string;
   programName: string;
   status: EligibilityStatus;
+  /**
+   * True when the underlying rule is only a fragment of the real test (an OR-condition the
+   * parser could only capture part of, or a condition the engine never asks about) — see
+   * `generic-catalogue.ts`'s `ProgramCriteriaRecord.partial` doc for the incident this exists to
+   * prevent. Present for every program the generic evaluator scores; absent for the pre-existing
+   * fixture-only programs that never carried this field.
+   */
+  partial?: boolean;
+  /** Named conditions the engine cannot evaluate for this program, e.g. disability status. */
+  unchecked?: string[];
   reasons: string[];
   missingFields: string[];
   source: ProgramSource;
@@ -76,10 +86,4 @@ export interface EligibilityResult {
 export interface ProfileValidationResult {
   isValid: boolean;
   issues: string[];
-}
-
-export interface ProgramValidator {
-  programId: string;
-  programName: string;
-  validate(input: EligibilityInput): EligibilityResult;
 }

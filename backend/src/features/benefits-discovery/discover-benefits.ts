@@ -1,6 +1,6 @@
 import { BENEFITS_CONFIG } from '@/config/benefits.config';
 import { GEMINI_CONFIG } from '@/config/gemini.config';
-import { resolveCanonicalProgramIdForProgram, type MockUserProfile } from '../eligibility';
+import { criteriaFor, resolveCanonicalProgramIdForProgram, type MockUserProfile } from '../eligibility';
 import type { BenefitExplanationProvider } from './adapters/benefit-explanation-provider';
 import type { BenefitsCatalogProvider } from './adapters/benefits-catalog-provider';
 import type { BenefitsScreeningProvider } from './adapters/benefits-screening-provider';
@@ -19,7 +19,11 @@ export interface DiscoveryDependencies {
 }
 
 function supportsDetailedValidation(program: BenefitProgram): boolean {
-  return resolveCanonicalProgramIdForProgram(program) !== undefined;
+  // Either an aliased id/code/name (the 3 programs with an extension hook — see extensions.ts),
+  // or any program checkEligibility() can now score generically (~49 of 97) — matched by the same
+  // catalogue id the live NYC catalog provider's programId already is, case-insensitively.
+  return resolveCanonicalProgramIdForProgram(program) !== undefined
+    || criteriaFor(program.programId)?.scorable === true;
 }
 
 function fallbackMatch(program: BenefitProgram, index: number): GeminiProgramMatch {
