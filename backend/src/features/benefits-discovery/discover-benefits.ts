@@ -1,6 +1,7 @@
 import { BENEFITS_CONFIG } from '@/config/benefits.config';
 import { GEMINI_CONFIG } from '@/config/gemini.config';
 import { criteriaFor, resolveCanonicalProgramIdForProgram, type MockUserProfile } from '../eligibility';
+import { PROGRAM_FORM_MAPPINGS } from '../form-payload';
 import type { BenefitExplanationProvider } from './adapters/benefit-explanation-provider';
 import type { BenefitsCatalogProvider } from './adapters/benefits-catalog-provider';
 import type { BenefitsScreeningProvider } from './adapters/benefits-screening-provider';
@@ -24,6 +25,23 @@ function supportsDetailedValidation(program: BenefitProgram): boolean {
   // catalogue id the live NYC catalog provider's programId already is, case-insensitively.
   return resolveCanonicalProgramIdForProgram(program) !== undefined
     || criteriaFor(program.programId)?.scorable === true;
+}
+
+/**
+ * A real form-payload mapping exists for exactly 3 programs (`PROGRAM_FORM_MAPPINGS` —
+ * `fair-fares.mapping.ts`/`idnyc.mapping.ts`/`nyc-care.mapping.ts`), unrelated to how many
+ * programs the generic eligibility engine can score. Confirmed by a real round trip: after the
+ * generic-engine port, `detailedValidationSupported` correctly went from 3 programs to ~49, but
+ * `formAutomationSupported` was wired to the same boolean and went with it — every one of those
+ * programs *except* the 3 with a real mapping then 404'd on `/payload` with
+ * `FORM_AUTOMATION_NOT_SUPPORTED`, despite this flag telling the caller otherwise. This checks
+ * `PROGRAM_FORM_MAPPINGS` membership directly, resolved through the same canonical-id table so a
+ * program's live-catalog id ("p120en") and its literal id ("fair_fares") both resolve to the same
+ * answer — the same principle `program-id-resolver.ts` already applies everywhere else.
+ */
+function supportsFormAutomation(program: BenefitProgram): boolean {
+  const canonicalId = resolveCanonicalProgramIdForProgram(program);
+  return canonicalId !== undefined && canonicalId in PROGRAM_FORM_MAPPINGS;
 }
 
 function fallbackMatch(program: BenefitProgram, index: number): GeminiProgramMatch {
@@ -78,9 +96,7 @@ export async function discoverBenefits(profile: MockUserProfile, dependencies: D
         whyItMayHelp: match.reason,
         missingInformation: match.missingInformation,
         detailedValidationSupported,
-        // Form automation is currently supported for exactly the same programs as detailed
-        // validation — both gated by the one resolver above, so they can't drift apart again.
-        formAutomationSupported: detailedValidationSupported,
+        formAutomationSupported: supportsFormAutomation(program),
         discoverySource: byId.has(program.programId) ? 'gemini_catalog_match' : catalogFallback ? 'fixture_screening' : 'catalog_pre_filter',
         metadataSource: catalogFallback || program.source.type === 'fixture' ? 'fixture_catalog' : 'live_nyc_dataset',
         explanationSource: byId.has(program.programId) ? 'gemini' : 'official_description',
