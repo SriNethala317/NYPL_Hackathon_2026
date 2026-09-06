@@ -7,6 +7,7 @@ export {
   programById,
   criteriaFor,
   scorablePrograms,
+  initializeCatalogue,
   type DocumentCategory,
   type Program,
   type ProgramCriteria,

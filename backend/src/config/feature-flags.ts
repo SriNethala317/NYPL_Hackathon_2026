@@ -11,4 +11,12 @@ export const FEATURE_FLAGS = {
   liveBenefitsCatalog: enabled('LIVE_BENEFITS_CATALOG', true),
   fixtureFallback: enabled('BENEFITS_FIXTURE_FALLBACK', true),
   geminiEnhancement: enabled('GEMINI_ENABLED'),
+  /**
+   * Default false: the JSON-backed eligibility catalogue (`json-catalogue.ts`) is the
+   * long-standing, proven path. The Postgres-backed alternative (`postgres-catalogue.ts`) is new
+   * and unverified beyond this session's own parity check — see
+   * `database/known_followups.md`/the session that added it before flipping this on anywhere it
+   * matters.
+   */
+  databaseBackedCatalogue: enabled('DATABASE_BACKED_CATALOGUE'),
 } as const;
