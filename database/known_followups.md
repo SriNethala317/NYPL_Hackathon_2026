@@ -57,12 +57,6 @@ System B is the standalone integration script. First found:
 
 ## Research / design decisions needed (not urgent, no live impact)
 
-**`derive-criteria.mjs`'s residency-detection heuristic has a real, confirmed gap.** It only
-recognizes "resident(s) of NYC" / "live in NYC" phrasing; IDNYC's actual eligibility text ("All New
-Yorkers ages 10 and up qualify") doesn't match, so IDNYC's derived criteria has no `nycResident`
-rule at all, unlike the old hardcoded validator it replaced. Not fixed — flagged as follow-up work
-for the heuristic script itself. First found and left open by the generic-engine port session.
-
 **The generic form-payload fallback's 9 fields are a reasonable default, not verified against any
 of the ~46 other programs' real application forms.** Explicitly and deliberately unverified —
 building real per-program mappings for them is the same kind of research work (reading actual PDF
@@ -113,3 +107,17 @@ noted in passing, never independently verified live, never revisited since. Firs
   not fixed: the real in-app submission flow (`app-store.tsx`'s `submit()`, built later) bypasses
   `backend/`'s HTTP API entirely and builds its own payload from local state, so no adapter between
   the two shapes was ever needed.
+- **`derive-criteria.mjs`'s residency-detection heuristic gap — fixed.** It only recognized
+  "resident(s) of NYC" / "live in NYC" phrasing, missing blanket population claims like "All New
+  Yorkers ages 10 and up qualify." Widened `deriveResidency()` to also catch "New Yorker(s)" and
+  "anyone in NYC/New York City" phrasing. Scanned all 97 programs' real eligibility text for
+  similar phrasing before committing to the fix — this genuinely wasn't unique to IDNYC: exactly
+  two programs' derived criteria changed, IDNYC (`P032en`, gained `nycResident: true`) and National
+  Flood Insurance Program (`P137en`, "Anyone in NYC can buy flood insurance" — flipped from
+  `unmatched`/not-scorable to `heuristic`/scorable). The other ~28 near-miss candidates found in
+  the scan (NY *state* residency, NYCHA-specific residency, primary-residence/owner-occupancy,
+  "permanent resident" as an immigration term, visitor language, school-enrollment references) were
+  deliberately excluded as not genuine NYC-residency claims. Re-seeded Postgres via
+  `push-catalogue.mjs`; re-ran the JSON-vs-Postgres parity check (5 profiles, 250 keyed results) —
+  0 mismatches. Full regression suite (`tsc --noEmit`, `npm test`, `test:http`, `test:mock`) passes
+  unchanged, including the safety-critical `partial`/`unchecked` case.

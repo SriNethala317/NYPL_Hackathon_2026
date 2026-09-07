@@ -42,7 +42,14 @@ function deriveResidency(text) {
   const trigger = text.match(/\b(?:live|living|reside|residing|residents? of)\b[^.\n]*\b(new york city|nyc|five boroughs)\b/i);
   // "New York City resident" puts the place first, which the trigger-first pattern never matched.
   const inverted = text.match(/\b(?:new york city|nyc)\s+residents?\b/i);
-  const match = trigger ?? inverted;
+  // "All New Yorkers ages 10 and up qualify" / "Anyone in NYC can buy flood insurance" -- a blanket
+  // claim about the city's population, phrased as neither a "live in NYC" trigger nor a "NYC
+  // resident" noun phrase. Narrow on purpose: "New Yorker(s)" is an unambiguous residency synonym,
+  // and "anyone in NYC/New York City" is a direct inclusive-population claim -- this does not match
+  // NY *state* residency, NYCHA-specific populations, primary-residence/owner-occupancy language,
+  // "permanent resident" (an immigration term), or "visiting NYC".
+  const inclusive = text.match(/\bnew yorkers?\b/i) ?? text.match(/\banyone in (?:nyc|new york city)\b/i);
+  const match = trigger ?? inverted ?? inclusive;
   return match ? { nycResident: true, sourceText: snippet(text, match[0]) } : null;
 }
 

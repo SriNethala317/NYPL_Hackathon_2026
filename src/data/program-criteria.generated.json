@@ -1,8 +1,8 @@
 {
-  "derivedAt": "2026-08-16T13:10:06.434Z",
+  "derivedAt": "2026-09-07T20:24:09.711Z",
   "method": "heuristic",
   "count": 97,
-  "scorable": 49,
+  "scorable": 50,
   "programs": [
     {
       "programId": "P085en",
@@ -742,9 +742,11 @@
       "scorable": true,
       "method": "heuristic",
       "criteria": {
+        "nycResident": true,
         "minAge": 10
       },
       "sources": {
+        "nycResident": "All New Yorkers ages 10 and up qualify.",
         "age": "All New Yorkers ages 10 and up qualify."
       },
       "sourceUrl": "https://www.nyc.gov/site/idnyc/card/start-your-application.page"
@@ -907,10 +909,14 @@
     {
       "programId": "P137en",
       "programName": "National Flood Insurance Program",
-      "scorable": false,
-      "method": "unmatched",
-      "criteria": {},
-      "sources": {},
+      "scorable": true,
+      "method": "heuristic",
+      "criteria": {
+        "nycResident": true
+      },
+      "sources": {
+        "nycResident": "Anyone in NYC can buy flood insurance."
+      },
       "sourceUrl": "https://www.floodsmart.gov/flood-insurance-provider"
     },
     {
